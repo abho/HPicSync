@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     hpspasswordwidget.cpp \
     hpsselectaddresswidget.cpp \
     hpstcpmodul.cpp \
-    hpstreecombobox.cpp
+    hpstreecombobox.cpp \
+    main.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
