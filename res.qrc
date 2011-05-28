@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="knopfGruen">knopfGruen.png</file>
+        <file alias="knopfRot">knopfRot.png</file>
+    </qresource>
+</RCC>

@@ -22,8 +22,7 @@ SOURCES += main.cpp\
     hpspasswordwidget.cpp \
     hpsselectaddresswidget.cpp \
     hpstcpmodul.cpp \
-    hpstreecombobox.cpp \
-    main.cpp
+    hpstreecombobox.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -43,3 +42,7 @@ HEADERS  += \
 
 RESOURCES += \
     res.qrc
+
+OTHER_FILES += \
+    knopfRot.png \
+    knopfGruen.png
