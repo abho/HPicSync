@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QImageReader>
 #include <QtCore>
-
+//muh
 class HPSImageLoader : public QObject
 {
     Q_OBJECT
