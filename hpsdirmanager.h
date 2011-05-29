@@ -37,7 +37,7 @@ private:
 signals:
 
 public slots:
-
+    void removeDirs(QStringList dirs);
 };
 
 #endif // HPSDIRMANAGER_H

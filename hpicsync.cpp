@@ -75,7 +75,7 @@ HPicSync::HPicSync(QWidget *parent)
     oldListBox->addLayout(beendenBox);
     viewBox->addLayout(newListBox);
     viewBox->addWidget(this->butCopy);
-    viewBox->addLayout(oldListBox);    
+    viewBox->addLayout(oldListBox);
 
     QVBoxLayout *mainBox = new QVBoxLayout();
     mainBox->addLayout(optionBox);
@@ -144,6 +144,7 @@ void HPicSync::showOption(){
     if(this->optionWidget== NULL){
         this->optionWidget = new HPSOptionWidget(&this->option,this);
         connect(optionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
+        connect( optionWidget,SIGNAL(dirsRemoved(QStringList)), &dirManager,SLOT(removeDirs(QStringList)));
 
         qDebug() << "optionWidget is null";
     }
@@ -156,15 +157,6 @@ void HPicSync::test(){
 */
     // qDebug() << " start loader";
     //this->loadImages();
-    this->dirManager.addDir(QApplication::applicationDirPath());
-
-    this->dirManager.addDir(this->option.getQuellOrdner());
-    this->dirManager.addDir("/home/muh");
-    this->dirManager.addDir("/home/hakah/muh");
-
-    this->dirManager.addDir("/home/hakah/muh/mh1");
-    this->dirManager.addDir("/home/");
-    this->dirManager.addDir("/home/hakah/muh/mh2");
     //this->dirManager.showTree();
     //this->coOrdner->setViewToList();
     //this->dirManager.makeListView(this->coOrdner->model());
@@ -236,7 +228,7 @@ void HPicSync::socketError(QAbstractSocket::SocketError error){
     qDebug() << "error "<< error;
 }
 void HPicSync::test2() {
-    qDebug() << this->socket->state();
+   // qDebug() << this->socket->state();
 
 }
 

@@ -17,11 +17,6 @@ public:
     const QList<HPSDirKnoten*> & getChildren() const {
         return this->children;
     }
-
-    QList<HPSDirKnoten*> & getChildren(){
-        return this->children;
-    }
-
     void addChild(HPSDirKnoten * child){
         this->children.append(child);
     }

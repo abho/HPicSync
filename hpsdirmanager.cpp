@@ -66,7 +66,7 @@ void HPSDirManager::makeTree(const QString &currentDir,QStandardItem *item,HPSDi
             knot = list.at(i);
             newItem = new QStandardItem(knot->getName());
             if(!knot->getActive()){
-                newItem->setEnabled(false);                
+                newItem->setEnabled(false);
             }else {
                 newItem->setData(knot->getDirname(),Qt::UserRole);
                 if(knot->getDirname() == currentDir)
@@ -74,7 +74,7 @@ void HPSDirManager::makeTree(const QString &currentDir,QStandardItem *item,HPSDi
             }
             if(item == NULL){
                 tree->appendRow(newItem);
-                qDebug() << "item erstelt mit:" << knot->getName() << "Null";                
+                qDebug() << "item erstelt mit:" << knot->getName() << "Null";
             }else {
                 item->appendRow(newItem);
                 qDebug() << "item erstelt mit:" << knot->getName() << item->text();            }
@@ -181,7 +181,7 @@ bool HPSDirManager::removeDir(const QString &dir)
 void HPSDirManager::remove( QStringList &dirs,HPSDirKnoten *knoten)
 {    if(!dirs.isEmpty()){
         QString ordner = dirs.takeFirst();
-        QList<HPSDirKnoten*> &list = knoten->getChildren();
+       const QList<HPSDirKnoten*> &list = knoten->getChildren();
         HPSDirKnoten *knot;
         for (int var = 0; var < list.size(); ++var) {
             knot = list.at(var);
@@ -190,10 +190,17 @@ void HPSDirManager::remove( QStringList &dirs,HPSDirKnoten *knoten)
                 knot->dekrementCount();
                 if(knot->count() == 0){
                     qDebug() << knot->getName() << "entfernt";
-                    delete list.takeAt(var);
+                    knoten->removeChild (knot);
                     break;
                 }
             }
         }
+    }
+}
+
+void HPSDirManager::removeDirs(QStringList dirs)
+{
+    for (int var = 0; var < dirs.size(); ++var) {
+        removeDir(dirs.at(var));
     }
 }
