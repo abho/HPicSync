@@ -29,10 +29,11 @@ void HPSDirManager::showTree(){
 void HPSDirManager::makeListView(const QString &currentDir,QStandardItemModel *model){
     currentItem = NULL;
     qDebug() << "makeListView";
-    model->clear();
+    currentModel = model;
+    currentModel->clear();
     makeList(currentDir,root,model);
 }
-void HPSDirManager::makeList(const QString &currentDir,HPSDirKnoten *knoten,QStandardItemModel *model){
+void HPSDirManager::makeList(const QString &currentDir,HPSDirKnoten *knoten){
     const QList<HPSDirKnoten *> &list = knoten->getChildren();
     if(knoten->getActive() && knoten->getName()!="_root"){
         qDebug() << "item erstell:" << knoten->getDirname();
@@ -40,10 +41,10 @@ void HPSDirManager::makeList(const QString &currentDir,HPSDirKnoten *knoten,QSta
         newItem->setData(knoten->getDirname(),Qt::UserRole);
         if( knoten->getDirname() == currentDir)
             currentItem = newItem;
-        model->appendRow(newItem);
+        currentModel->appendRow(newItem);
     }
     for( int i = 0; i < list.size() ; i++ ){
-        makeList(currentDir,list.at(i),model);
+        makeList(currentDir,list.at(i));
     }
 
 }
@@ -51,12 +52,13 @@ void HPSDirManager::makeList(const QString &currentDir,HPSDirKnoten *knoten,QSta
 void HPSDirManager::makeTreeView(const QString &currentDir,QStandardItemModel *model){
     qDebug() << "maketreeView";
     currentItem = NULL;
-    model->clear();
-    this->makeTree(currentDir,NULL,this->root,model);
+    currentModel = model;
+    currentModel->clear();
+    this->makeTree(currentDir,NULL,this->root);
 
 }
 
-void HPSDirManager::makeTree(const QString &currentDir,QStandardItem *item,HPSDirKnoten *knoten, QStandardItemModel *tree){
+void HPSDirManager::makeTree(const QString &currentDir,QStandardItem *item,HPSDirKnoten *knoten){
     qDebug()<< "makeTree"  <<  item<<knoten->getName();
     const QList<HPSDirKnoten *> &list = knoten->getChildren();
     HPSDirKnoten *knot;
@@ -73,12 +75,12 @@ void HPSDirManager::makeTree(const QString &currentDir,QStandardItem *item,HPSDi
                     currentItem = newItem;
             }
             if(item == NULL){
-                tree->appendRow(newItem);
+                currentModel->appendRow(newItem);
                 qDebug() << "item erstelt mit:" << knot->getName() << "Null";
             }else {
                 item->appendRow(newItem);
                 qDebug() << "item erstelt mit:" << knot->getName() << item->text();            }
-            makeTree(currentDir,newItem,knot,tree);
+            makeTree(currentDir,newItem,knot);
         }
     }
 }
@@ -92,7 +94,6 @@ void HPSDirManager::showSubTree(QString str,HPSDirKnoten*knote){
     }
 }
 void HPSDirManager::addDir(const QString  &dir){
-qDebug() << dir;
     if(!option.getOrdner().contains(dir)){
         option.addOrdner(dir);
         createTree(dir);
@@ -182,7 +183,7 @@ bool HPSDirManager::removeDir(const QString &dir)
 void HPSDirManager::remove( QStringList &dirs,HPSDirKnoten *knoten)
 {    if(!dirs.isEmpty()){
         QString ordner = dirs.takeFirst();
-       const QList<HPSDirKnoten*> &list = knoten->getChildren();
+        const QList<HPSDirKnoten*> &list = knoten->getChildren();
         HPSDirKnoten *knot;
         for (int var = 0; var < list.size(); ++var) {
             knot = list.at(var);
@@ -204,4 +205,49 @@ void HPSDirManager::removeDirs(QStringList dirs)
     for (int var = 0; var < dirs.size(); ++var) {
         removeDir(dirs.at(var));
     }
+}
+
+void HPSDirManager::add(const QString &dir)
+{
+    if ( option.comboBoxView == HPSOption::ListView) {
+        addDirToList(dir);
+    } else {
+        addDirToTree(dir);
+    }
+}
+
+void HPSDirManager::addDirToTree(const QString &dir)
+{
+    const QStringList folder=dir.split("/");
+    QStandardItem * newItem;
+    QStandardItem *parent = currentModel->invisibleRootItem();
+    QStandardItem *child;
+    bool find = false;
+    for (int var = 0; var < folder.size(); ++var) {
+        for (int i = 0; i < parent->rowCount(); ++i) {
+            child = parent->child(i);
+            if(child->text() == folder.at(i)){
+                find = true;
+                parent =child;
+                break;
+            }
+        }
+        if (!find) {
+            newItem = new QStandardItem(folder);
+            if(var == folder.size()-1){
+                newItem->setData(dir,Qt::UserRole);
+            }
+            parent->appendRow(newItem);
+            parent =newItem;
+        } else {
+            find = false;
+        }
+    }
+}
+
+void HPSDirManager::addDirToList(const QStriing &dir)
+{
+    QStandardItem *item = new QStandardItem(QDir::toNativeSeparators(dir));
+    item->setData(Qt::UserRole,dir);
+    currentModel->appendRow(item);
 }

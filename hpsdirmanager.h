@@ -29,7 +29,7 @@ private:
     void makeList(const QString &currentDir,HPSDirKnoten *knoten);
     void add(const QString& dir);
     void addDirToTree(const QString &dir);
-    void addDirToList(const QStriing &dir);//miuh
+    void addDirToList(const QStriing &dir);//miuhsssssssS
     void createTree(const QString &dir);
     HPSDirKnoten *root;
     HPSOption &option;
