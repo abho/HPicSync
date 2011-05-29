@@ -20,7 +20,7 @@ private:
     QComboBox *comboBox;
     HPSOption *optionObject;
     QListWidget *listview;
-    QList<QStandardItem*> dirItemList;
+    QList<QListWidgetItem*> dirItemList;
     int oldSliderValue;
     enum optionValues {
         QuellOrdner,PixSize,ComboBoxView,DirList

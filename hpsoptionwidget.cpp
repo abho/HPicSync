@@ -40,7 +40,7 @@ HPSOptionWidget::HPSOptionWidget(HPSOption *option,QWidget *parent) :
     //ORDNERWIDGET
     QVBoxLayout * ordnerBox = new QVBoxLayout();
     listview = new QListWidget();
-    listview->addItems( optionObject->getOrdner());
+    loadOrdner();
     ordnerBox->addWidget(listview);
 
     QGridLayout *comboViewBox = new QGridLayout();
@@ -51,7 +51,7 @@ HPSOptionWidget::HPSOptionWidget(HPSOption *option,QWidget *parent) :
     if(this->optionObject->getComboBoxView() == this->optionObject->ListView)
         this->comboBox->setCurrentIndex(0);
     else
-        this->comboBox->setCurrentIndex(1);    
+        this->comboBox->setCurrentIndex(1);
     comboViewBox->addWidget(butRemove,0,2);
     comboViewBox->addWidget(lComboBoxView,1,0);
     comboViewBox->addWidget(this->comboBox,1,1,1,2);
@@ -87,7 +87,7 @@ HPSOptionWidget::HPSOptionWidget(HPSOption *option,QWidget *parent) :
 void HPSOptionWidget::resetAndShow(){
     this->options.fill(false);
     if(!this->optionObject->getGeometryOption().isNull()){
-        this->setGeometry(this->optionObject->getGeometryOption());      
+        this->setGeometry(this->optionObject->getGeometryOption());
     }
     if (listview->count() != optionObject->getOrdner().size()) {
         loadOrdner();
@@ -125,7 +125,7 @@ void HPSOptionWidget::uebernehmen() {
             }
             case DirList: {
                 qDebug() << "DirList";
-                //emit dirRemoved(checkRemovedDirs());
+                emit dirsRemoved(checkRemovedDirs());
                 dirItemList.clear();
             }
             }
@@ -218,7 +218,8 @@ void HPSOptionWidget::zuruecksetzten()
                 break;
             }
             case DirList: {
-                //dirChangedList.clear();
+                reinsertDirItems();
+                break;
             }
             }
         }
@@ -228,23 +229,23 @@ void HPSOptionWidget::zuruecksetzten()
 void HPSOptionWidget::loadOrdner()
 {
     for (int var = listview->count(); var < optionObject->getOrdner().size(); ++var) {
-        QListWidgetItem * item = new QListWidgetItem(optionObject->getOrdner().at(var),listview);
+        QListWidgetItem * item = new QListWidgetItem(QDir::toNativeSeparators(optionObject->getOrdner().at(var)),listview);
 
     }
 }
 
 void HPSOptionWidget::cRemoveDir()
 {
-    qDebug() << "cRemoveDir";
-    //QStandardItem *item =  listview->takeItem(listview->currentItem());
-    //dirChangedList.append(item);
+    qDebug() << "cRemoveDir" << listview->currentRow();
+    QListWidgetItem *item =  listview->takeItem(listview->currentRow());
+    dirItemList.append(item);
     options[DirList] = true;
 }
 
 QStringList HPSOptionWidget::checkRemovedDirs()
 {
     QStringList newList;
-    QStandardItem *item;
+    QListWidgetItem *item;
     for (int var = 0; var < dirItemList.size(); ++var) {
         item = dirItemList.at(var);
         newList.append(item->text());
@@ -255,10 +256,8 @@ QStringList HPSOptionWidget::checkRemovedDirs()
 
 void HPSOptionWidget::reinsertDirItems()
 {
-    QStandardItem *item;
     for (int var = 0; var < dirItemList.size(); ++var) {
-        item = dirItemList.at(var);
-        //listview->addItem(item);
+        listview->addItem( dirItemList.at(var));
     }
     dirItemList.clear();
 }

@@ -92,10 +92,11 @@ void HPSDirManager::showSubTree(QString str,HPSDirKnoten*knote){
     }
 }
 void HPSDirManager::addDir(const QString  &dir){
-
+qDebug() << dir;
     if(!option.getOrdner().contains(dir)){
         option.addOrdner(dir);
         createTree(dir);
+        qDebug() << dir << "hinzugefügt";
     }
 }
 

@@ -119,4 +119,5 @@ void HPSOption::setComboBoxCurrentDir(const QString &currentDir)
 void HPSOption::removeOrdner(const QString &dir)
 {
     ordner.removeOne(dir);
+    setting.setValue("ordner",ordner);
 }

@@ -244,7 +244,8 @@ void HPicSync::comboBoxViewChanged(int index)
 
 void HPicSync::clickedPlus()
 {
-    const QString str =QFileDialog::getExistingDirectory(this,QDir::homePath());
+    const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
+    qDebug() << str;
     if (!str.isEmpty()&&!dirManager.dirs().contains(str)) {
         dirManager.addDir(str);
     }
