@@ -25,8 +25,11 @@ private:
     void showSubTree(QString str,HPSDirKnoten*knote);
     void deleteKnoten(HPSDirKnoten *knoten);
     void remove( QStringList & dirs,HPSDirKnoten *knoten);
-    void makeTree(const QString &currentDir,QStandardItem *item,HPSDirKnoten *knoten,QStandardItemModel*tree);
-    void makeList(const QString &currentDir,HPSDirKnoten *knoten,QStandardItemModel *model);
+    void makeTree(const QString &currentDir,QStandardItem *item,HPSDirKnoten *knoten);
+    void makeList(const QString &currentDir,HPSDirKnoten *knoten);
+    void add(const QString& dir);
+    void addDirToTree(const QString &dir);
+    void addDirToList(const QStriing &dir);//miuh
     void createTree(const QString &dir);
     HPSDirKnoten *root;
     HPSOption &option;
