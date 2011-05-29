@@ -31,7 +31,7 @@ void HPSDirManager::makeListView(const QString &currentDir,QStandardItemModel *m
     qDebug() << "makeListView";
     currentModel = model;
     currentModel->clear();
-    makeList(currentDir,root,model);
+    makeList(currentDir,root);
 }
 void HPSDirManager::makeList(const QString &currentDir,HPSDirKnoten *knoten){
     const QList<HPSDirKnoten *> &list = knoten->getChildren();
@@ -209,7 +209,7 @@ void HPSDirManager::removeDirs(QStringList dirs)
 
 void HPSDirManager::add(const QString &dir)
 {
-    if ( option.comboBoxView == HPSOption::ListView) {
+    if ( option.getComboBoxView() == HPSOption::ListView) {
         addDirToList(dir);
     } else {
         addDirToTree(dir);
@@ -218,6 +218,7 @@ void HPSDirManager::add(const QString &dir)
 
 void HPSDirManager::addDirToTree(const QString &dir)
 {
+    qDebug() << dir;
     const QStringList folder=dir.split("/");
     QStandardItem * newItem;
     QStandardItem *parent = currentModel->invisibleRootItem();
@@ -226,16 +227,20 @@ void HPSDirManager::addDirToTree(const QString &dir)
     for (int var = 0; var < folder.size(); ++var) {
         for (int i = 0; i < parent->rowCount(); ++i) {
             child = parent->child(i);
-            if(child->text() == folder.at(i)){
+            if(child->text() == folder.at(var)){
+                child->setData(child->data(Qt::UserRole+1).toInt()+1,Qt::UserRole+1);
                 find = true;
                 parent =child;
                 break;
             }
         }
         if (!find) {
-            newItem = new QStandardItem(folder);
+            newItem = new QStandardItem(folder.at(var));
+            newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
                 newItem->setData(dir,Qt::UserRole);
+            } else {
+                newItem->setEnabled(false);
             }
             parent->appendRow(newItem);
             parent =newItem;
@@ -245,9 +250,23 @@ void HPSDirManager::addDirToTree(const QString &dir)
     }
 }
 
-void HPSDirManager::addDirToList(const QStriing &dir)
+void HPSDirManager::addDirToList(const QString &dir)
 {
     QStandardItem *item = new QStandardItem(QDir::toNativeSeparators(dir));
-    item->setData(Qt::UserRole,dir);
+    item->setData(dir,Qt::UserRole);
     currentModel->appendRow(item);
+}
+
+void HPSDirManager::setModel(QStandardItemModel *model)
+{
+    currentModel = model;
+}
+
+void HPSDirManager::makeView()
+{
+    currentModel->clear();
+    const QStringList dirs = option.getOrdner();
+    for (int i = 0; i < dirs.size(); ++i) {
+        addDirToTree(dirs.at(i));
+    }
 }

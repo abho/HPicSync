@@ -162,6 +162,8 @@ void HPicSync::test(){
     //this->dirManager.makeListView(this->coOrdner->model());
 
     // this->dirManager.makeTreeView(this->coOrdner->model());
+
+    dirManager.makeView();
 }
 void HPicSync::loadImages(){
     this->posImages =0;
@@ -268,4 +270,5 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
     }
     qDebug()  << "currentItem" << dirManager.getCurrentItem();
     coOrdner->setCurrentItem(dirManager.getCurrentItem());
+    dirManager.setModel( coOrdner->model());
 }

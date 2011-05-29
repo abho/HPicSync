@@ -16,6 +16,8 @@ public:
     void showTree();
     void makeTreeView(const QString &currentDir,QStandardItemModel *model);
     void makeListView(const QString &currentDir,QStandardItemModel *model);
+    void setModel( QStandardItemModel *model);
+    void makeView();
     bool removeDir(const QString &dir);
 
     const QStringList & dirs();
@@ -29,7 +31,7 @@ private:
     void makeList(const QString &currentDir,HPSDirKnoten *knoten);
     void add(const QString& dir);
     void addDirToTree(const QString &dir);
-    void addDirToList(const QStriing &dir);//miuhsssssssS
+    void addDirToList(const QString &dir);
     void createTree(const QString &dir);
     HPSDirKnoten *root;
     HPSOption &option;
