@@ -7,9 +7,9 @@ HPSDirManager::HPSDirManager(HPSOption &option, QObject *parent) :
     this->root = new HPSDirKnoten();
     this->root->setName("_root");
     qDebug() <<"get ordner size"<< option.getOrdner().size();
-    for (int var = 0; var < option.getOrdner().size(); ++var) {
+    /*for (int var = 0; var < option.getOrdner().size(); ++var) {
         createTree(option.getOrdner().at(var));
-    }
+    }*/
 }
 HPSDirManager::~HPSDirManager() {
     this->deleteKnoten(this->root);
@@ -235,6 +235,7 @@ void HPSDirManager::addDirToTree(const QString &dir)
             }
         }
         if (!find) {
+            qDebug() << folder.at(var) << "nicht egfunden ";
             newItem = new QStandardItem(folder.at(var));
             newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
@@ -264,9 +265,74 @@ void HPSDirManager::setModel(QStandardItemModel *model)
 
 void HPSDirManager::makeView()
 {
-    currentModel->clear();
+    //currentModel->clear();
     const QStringList dirs = option.getOrdner();
-    for (int i = 0; i < dirs.size(); ++i) {
-        addDirToTree(dirs.at(i));
+    const int size = dirs.size();
+    if ( option.getComboBoxView() == HPSOption::ListView) {
+        qDebug() << "ToList";
+        if( listItems.isEmpty()){
+            for (int i = 0; i < size; ++i) {
+                addDirToList(dirs.at(i));
+            }
+            creatItemLists(HPSOption::ListView);
+        } else {
+
+        }
+    } else {
+        qDebug() << "toTree";
+        if( treeItems.empty()){
+            for (int i = 0; i < size; ++i) {
+                addDirToTree(dirs.at(i));
+            }
+            creatItemLists( HPSOption::TreeView);
+        }
+    }
+}
+
+void HPSDirManager::creatItemLists(const int view)
+{
+    QStandardItem *rootItem = currentModel->invisibleRootItem();
+    const int count =rootItem->rowCount();
+    switch(view) {
+    case HPSOption::ListView:{
+        for (int i = 0; i < count; ++i) {
+            listItems.append( rootItem->child(i));
+        }
+        break;
+    }
+    case HPSOption::TreeView:{
+        for (int i = 0; i < count; ++i) {
+            treeItems.append( rootItem->child(i));
+        }
+        break;
+    }
+    default:
+
+    }
+}
+
+void HPSDirManager::insertItemListIntoView(const int view)
+{
+
+    QStandardItem *rootItem = currentModel->invisibleRootItem();
+    const int count =rootItem->rowCount();
+    for (int i = 0; i < count; ++i) {
+        currentModel->takeRow()
+    }
+    switch(view) {
+    case HPSOption::ListView:{
+        for (int i = 0; i < count; ++i) {
+            listItems.append( rootItem->child(i));
+        }
+        break;
+    }
+    case HPSOption::TreeView:{
+        for (int i = 0; i < count; ++i) {
+            treeItems.append( rootItem->child(i));
+        }
+        break;
+    }
+    default:
+
     }
 }

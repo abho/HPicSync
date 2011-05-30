@@ -33,10 +33,14 @@ private:
     void addDirToTree(const QString &dir);
     void addDirToList(const QString &dir);
     void createTree(const QString &dir);
+    void creatItemLists(const int);
+    void insertItemListIntoView(const int);
     HPSDirKnoten *root;
     HPSOption &option;
     QStandardItem *currentItem;
     QStandardItemModel *currentModel;
+    QList<QStandardItem*> treeItems;
+    QList< QStandardItem * > listItems;
 
 
 signals:
