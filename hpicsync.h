@@ -25,7 +25,7 @@ private:
     QListWidget *newList,*oldList;
     QLabel *lPixOldLoadCount,*lConnectPixRot,*lConnectPixGruen,*lConnect;
     //QComboBox *coOrdner;
-  Standardhpstreecombobox *coOrdner;
+  StandardHPSTreeCombobox *coOrdner;
   QTreeWidget *tree;
   //  HTreeWidget *tree;
     QList<QImage> thumbs;
@@ -52,7 +52,6 @@ private slots:
     void fertigTime();
     void clickedPlus();
     void comboBoxViewChanged(int);
-    //void dirListChanged();
 
 };
 

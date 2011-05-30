@@ -19,6 +19,7 @@
 #include <QListView>
 #include <QDebug>
 #include <cassert>
+#include <QDir>
 //#include "hpstreecombobox_moc.cpp"
 
 static const char g_ItemSep[] = "|";
@@ -27,7 +28,7 @@ static const char g_ItemSep[] = "|";
 
 /// hpstreecombobox
 
-hpstreecombobox::hpstreecombobox(QModelIndex const defaultRootIdx, QWidget* parent) :
+HPSTreeCombobox::HPSTreeCombobox(QModelIndex const defaultRootIdx, QWidget* parent) :
     QComboBox(parent), skipNextHide(false), treeView(NULL),listView(NULL),defaultRootIndex(defaultRootIdx)
 
 {
@@ -44,19 +45,19 @@ hpstreecombobox::hpstreecombobox(QModelIndex const defaultRootIdx, QWidget* pare
     setInsertPolicy(QComboBox::NoInsert);
 }
 
-void hpstreecombobox::setViewToTree(){
+void HPSTreeCombobox::setViewToTree(){
 
     treeView = new QTreeView(this);
     treeView->viewport()->installEventFilter(this);
     treeView->header()->hide();
-    treeView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
-    treeView->setMinimumHeight(400);
+    treeView->setMaximumHeight(800); // by default tree will show as 1 line high, need to reserve room
+    treeView->setMinimumHeight(800);
 
 
     qDebug() <<  treeView;
     setView(treeView);
 }
-void hpstreecombobox::setViewToList() {
+void HPSTreeCombobox::setViewToList() {
 
     listView = new QListView(this);
     listView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
@@ -67,7 +68,7 @@ void hpstreecombobox::setViewToList() {
     setView(listView);
 }
 
-void hpstreecombobox::showPopup()
+void HPSTreeCombobox::showPopup()
 {
 
     setRootModelIndex(defaultRootIndex);
@@ -77,7 +78,7 @@ void hpstreecombobox::showPopup()
     connect(lineEdit(), SIGNAL(textChanged(const QString &)), this, SLOT(blockLineEditChanged(const QString &)));
 }
 
-void hpstreecombobox::hidePopup()
+void HPSTreeCombobox::hidePopup()
 {
     if (skipNextHide)
         skipNextHide = false;
@@ -91,23 +92,16 @@ void hpstreecombobox::hidePopup()
 }
 
 
-void hpstreecombobox::blockLineEditChanged(const QString &)
+void HPSTreeCombobox::blockLineEditChanged(const QString &)
 {
-    if (lineEdit()->text() != this->cIndex.data(Qt::UserRole).toString()){
-        if(cIndex.isValid())
-            lineEdit()->setText(this->cIndex.data(Qt::UserRole).toString());
-        else
-            lineEdit()->setText("");
+    if (lineEdit()->text() != QDir::toNativeSeparators(this->cIndex.data(Qt::UserRole).toString())){
+        updateText();
     }
 
 }
-/*void hpstreecombobox::setEditText(const QString & text)
-{Standardhpstreecombobox::
-            QComboBox::setEditText(text);
-}*/
 
 
-bool hpstreecombobox::eventFilter(QObject* object, QEvent* event)
+bool HPSTreeCombobox::eventFilter(QObject* object, QEvent* event)
 {
     if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease)
     {
@@ -130,10 +124,10 @@ bool hpstreecombobox::eventFilter(QObject* object, QEvent* event)
     return QComboBox::eventFilter(object, event);
 }
 
-void hpstreecombobox::updateText()
+void HPSTreeCombobox::updateText()
 {
     if (cIndex.isValid()) {
-        lineEdit()->setText(this->cIndex.data(Qt::UserRole).toString());
+        lineEdit()->setText(QDir::toNativeSeparators(this->cIndex.data(Qt::UserRole).toString()));
     } else {
         lineEdit()->setText("");
     }
@@ -142,26 +136,20 @@ void hpstreecombobox::updateText()
 ///////////////////////////////////////////////////////////////////////////
 // Standardhpstreecombobox
 
-Standardhpstreecombobox::Standardhpstreecombobox(QWidget* parent /* = 0 */) : hpstreecombobox(QModelIndex(), parent)
+StandardHPSTreeCombobox::StandardHPSTreeCombobox(QWidget* parent /* = 0 */) : HPSTreeCombobox(QModelIndex(), parent)
 {
     QStandardItemModel *model  = new QStandardItemModel;
     setModel(model);
     setRoot(model->indexFromItem(model->invisibleRootItem()));
 }
-QStandardItemModel *Standardhpstreecombobox::model() const
+QStandardItemModel *StandardHPSTreeCombobox::model() const
 {
-    return static_cast<QStandardItemModel *>(hpstreecombobox::model());
+    return static_cast<QStandardItemModel *>(HPSTreeCombobox::model());
 }
 
-void Standardhpstreecombobox::addItem(const QString &text, const QVariant &userData)
-{
-    QStandardItem *item = new QStandardItem(text);
-    item->setCheckable(false);
-    item->setData(userData);
-    model()->invisibleRootItem()->appendRow(item);
-}
 
-void Standardhpstreecombobox::setCurrentItem(QStandardItem *item)
+
+void StandardHPSTreeCombobox::setCurrentItem(QStandardItem *item)
 {
     QModelIndex index;
     if(item != NULL){
@@ -174,12 +162,12 @@ void Standardhpstreecombobox::setCurrentItem(QStandardItem *item)
 
 
 
-const QString  Standardhpstreecombobox::getCurrentDir()
+const QString  StandardHPSTreeCombobox::getCurrentDir()
 {
     return cIndex.isValid()?cIndex.data(Qt::UserRole).toString():QString("");
 }
 
-void Standardhpstreecombobox::findeAndSetCurrentItem(const QString &dir)
+void StandardHPSTreeCombobox::findeAndSetCurrentItem(const QString &dir)
 {
     QStandardItem *item;
     item = findIndex( model()->invisibleRootItem(),dir);
@@ -188,7 +176,7 @@ void Standardhpstreecombobox::findeAndSetCurrentItem(const QString &dir)
         setCurrentItem( item );
 }
 
-QStandardItem* Standardhpstreecombobox::findIndex(QStandardItem *item,const QString &dir)
+QStandardItem* StandardHPSTreeCombobox::findIndex(QStandardItem *item,const QString &dir)
 {
     QStandardItem *result;
     if(item->data(Qt::UserRole).toString() == dir)

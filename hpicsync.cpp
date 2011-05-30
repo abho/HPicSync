@@ -48,7 +48,7 @@ HPicSync::HPicSync(QWidget *parent)
 
     QHBoxLayout *comboBox = new QHBoxLayout();
 
-    this->coOrdner = new Standardhpstreecombobox(this);
+    this->coOrdner = new StandardHPSTreeCombobox(this);
     dirManager.setModel( coOrdner->model());
     initCBOrdner(option.getComboBoxView(),option.getComboBoxCurrentDir());
     butPlus=new QPushButton(tr("plus"));
@@ -252,7 +252,9 @@ void HPicSync::clickedPlus()
     qDebug() << str;
     if (!str.isEmpty()&&!dirManager.dirs().contains(str)) {
         dirManager.addDir(str);
+        coOrdner->updateText();
     }
+
 }
 
 void HPicSync::initCBOrdner(int index,const QString &dir)

@@ -15,11 +15,11 @@
 
 class QStandardItemModel;
 
-class hpstreecombobox : public QComboBox
+class HPSTreeCombobox : public QComboBox
 {
     Q_OBJECT
 public:
-    hpstreecombobox(QModelIndex defaultRootIdx = QModelIndex(), QWidget* parent = 0);
+    HPSTreeCombobox(QModelIndex defaultRootIdx = QModelIndex(), QWidget* parent = 0);
     void setRoot(QModelIndex defaultRootIdx)
     {
         defaultRootIndex = defaultRootIdx;
@@ -32,7 +32,6 @@ public:
 
 
 public Q_SLOTS:
-    //void setEditText (const QString & text);
     void updateText();
     void blockLineEditChanged(const QString &);
 
@@ -48,16 +47,15 @@ protected:
 
 
 
-class Standardhpstreecombobox : public hpstreecombobox
+class StandardHPSTreeCombobox : public HPSTreeCombobox
 {
     Q_OBJECT
 
 public:
-    Standardhpstreecombobox(QWidget* parent = 0);
+    StandardHPSTreeCombobox(QWidget* parent = 0);
 
     QStandardItemModel *model() const;
     // convenience method to add item at the top of the tree
-    void addItem(const QString &text, const QVariant &userData = QVariant());
     void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
     const QString getCurrentDir();

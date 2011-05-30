@@ -59,8 +59,11 @@ void HPSDirManager::addDirToTree(const QString &dir)
             child = parent->child(i);
             if(child->text() == folder.at(var)){
                 child->setData(child->data(Qt::UserRole+1).toInt()+1,Qt::UserRole+1);
-                if (var == folder.size()-1)
+                if (var == folder.size()-1){
                     child->setEnabled(true);
+                    child->setToolTip(QDir::toNativeSeparators(dir));
+                }
+
                 find = true;
                 parent =child;
                 break;
@@ -72,6 +75,7 @@ void HPSDirManager::addDirToTree(const QString &dir)
             newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
                 newItem->setData(dir,Qt::UserRole);
+                newItem->setToolTip(QDir::toNativeSeparators(dir));
             } else {
                 newItem->setEnabled(false);
             }
@@ -87,6 +91,7 @@ void HPSDirManager::addDirToList(const QString &dir)
 {
     QStandardItem *item = new QStandardItem(QDir::toNativeSeparators(dir));
     item->setData(dir,Qt::UserRole);
+    item->setToolTip(QDir::toNativeSeparators(dir));
     currentModel->invisibleRootItem()->appendRow(item);
 }
 
@@ -156,5 +161,6 @@ void HPSDirManager::removeDirFromTree(const QString &dir)
     }
     qDebug() << parent->text() << "disablte";
     parent->setEnabled(false);
+    parent->setToolTip("");
 
 }
