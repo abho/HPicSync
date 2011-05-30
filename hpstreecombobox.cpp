@@ -178,21 +178,26 @@ const QString  Standardhpstreecombobox::getCurrentDir()
 }
 
 void Standardhpstreecombobox::findeAndSetCurrentItem(const QString &dir)
-{QModelIndex target;
-    for (int i = 0; i < model()->rowCount(); ++i) {
-    QModelIndex index=   findIndex( model()->index(i,0),dir);
-    if(index.isValid());
-    target = index;
-    }
-    QModelIndexList list = model()->match( model()->index(0,0),Qt::UserRole,dir);
-    qDebug() << list.size();
-    if(!list.isEmpty())
-        setCurrentItem( model()->itemFromIndex(list.first()));
+{
+    QStandardItem *item;
+    item = findIndex( model()->invisibleRootItem(),dir);
+    qDebug() << item;
+    if(item != NULL)
+        setCurrentItem( item );
 }
 
-QModelIndex Standardhpstreecombobox::findIndex(const QModelIndex &index,const QString &dir)
+QStandardItem* Standardhpstreecombobox::findIndex(QStandardItem *item,const QString &dir)
 {
-    index
-    QModelIndexList list = model()->match( model()->index(0,0),Qt::UserRole,dir);
+    QStandardItem *result;
+    if(item->data(Qt::UserRole).toString() == dir)
+        return item;
+    const int countChildren = item->rowCount();
+
+    for (int i = 0; i < countChildren; ++i) {
+        result = findIndex(item->child(i),dir);
+        if(result !=NULL)
+            return result;
+    }
+    return NULL;
 }
 

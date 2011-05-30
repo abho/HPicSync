@@ -233,6 +233,7 @@ void HPicSync::socketError(QAbstractSocket::SocketError error){
 void HPicSync::test2() {
     // qDebug() << this->socket->state();
 
+
 }
 
 void HPicSync::fertigTime(){
@@ -258,9 +259,9 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
 {
     qDebug() << "initCBOrdner" << index << dir;
     if(index == HPSOption::ListView){
-        coOrdner->setViewToList();        
+        coOrdner->setViewToList();
     } else {
-        coOrdner->setViewToTree();        
+        coOrdner->setViewToTree();
     }
     dirManager.makeView();
     coOrdner->findeAndSetCurrentItem(dir);

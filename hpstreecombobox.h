@@ -37,7 +37,7 @@ public Q_SLOTS:
     void blockLineEditChanged(const QString &);
 
 private:
-    bool skipNextHide;    
+    bool skipNextHide;
     QTreeView *treeView;
     QListView *listView;
 protected:
@@ -62,7 +62,7 @@ public:
     void setCurrentItem(QStandardItem *item);
     const QString getCurrentDir();
 private:
-    QModelIndex findIndex(const QModelIndex &index,const QString &dir);
+    QStandardItem* findIndex( QStandardItem *item,const QString &dir);
 
 
 };

@@ -219,6 +219,7 @@ void HPSOptionWidget::zuruecksetzten()
             }
             case DirList: {
                 reinsertDirItems();
+                dirItemList.clear();
                 break;
             }
             }
@@ -248,7 +249,7 @@ QStringList HPSOptionWidget::checkRemovedDirs()
     QListWidgetItem *item;
     for (int var = 0; var < dirItemList.size(); ++var) {
         item = dirItemList.at(var);
-        newList.append(item->text());
+        newList.append(QDir::fromNativeSeparators(item->text()));
         delete item;
     }
     return newList;
@@ -259,7 +260,7 @@ void HPSOptionWidget::reinsertDirItems()
     for (int var = 0; var < dirItemList.size(); ++var) {
         listview->addItem( dirItemList.at(var));
     }
-    dirItemList.clear();
+
 }
 
 
