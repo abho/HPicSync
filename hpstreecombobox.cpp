@@ -95,7 +95,7 @@ void hpstreecombobox::blockLineEditChanged(const QString &)
 {
     if (lineEdit()->text() != this->cIndex.data(Qt::UserRole).toString()){
         if(cIndex.isValid())
-      lineEdit()->setText(this->cIndex.data(Qt::UserRole).toString());
+            lineEdit()->setText(this->cIndex.data(Qt::UserRole).toString());
         else
             lineEdit()->setText("");
     }
@@ -175,5 +175,24 @@ void Standardhpstreecombobox::setCurrentItem(QStandardItem *item)
 const QString  Standardhpstreecombobox::getCurrentDir()
 {
     return cIndex.isValid()?cIndex.data(Qt::UserRole).toString():QString("");
+}
+
+void Standardhpstreecombobox::findeAndSetCurrentItem(const QString &dir)
+{QModelIndex target;
+    for (int i = 0; i < model()->rowCount(); ++i) {
+    QModelIndex index=   findIndex( model()->index(i,0),dir);
+    if(index.isValid());
+    target = index;
+    }
+    QModelIndexList list = model()->match( model()->index(0,0),Qt::UserRole,dir);
+    qDebug() << list.size();
+    if(!list.isEmpty())
+        setCurrentItem( model()->itemFromIndex(list.first()));
+}
+
+QModelIndex Standardhpstreecombobox::findIndex(const QModelIndex &index,const QString &dir)
+{
+    index
+    QModelIndexList list = model()->match( model()->index(0,0),Qt::UserRole,dir);
 }
 

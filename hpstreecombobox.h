@@ -58,7 +58,11 @@ public:
     QStandardItemModel *model() const;
     // convenience method to add item at the top of the tree
     void addItem(const QString &text, const QVariant &userData = QVariant());
+    void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
     const QString getCurrentDir();
+private:
+    QModelIndex findIndex(const QModelIndex &index,const QString &dir);
+
 
 };

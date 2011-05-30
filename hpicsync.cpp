@@ -231,7 +231,7 @@ void HPicSync::socketError(QAbstractSocket::SocketError error){
     qDebug() << "error "<< error;
 }
 void HPicSync::test2() {
-   // qDebug() << this->socket->state();
+    // qDebug() << this->socket->state();
 
 }
 
@@ -257,15 +257,11 @@ void HPicSync::clickedPlus()
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
     qDebug() << "initCBOrdner" << index << dir;
-    switch(index){
-    case HPSOption::ListView:{
-        coOrdner->setViewToList();
-        break;
-    }
-    case HPSOption::TreeView: {
-        coOrdner->setViewToTree();
-        break;
-    }
+    if(index == HPSOption::ListView){
+        coOrdner->setViewToList();        
+    } else {
+        coOrdner->setViewToTree();        
     }
     dirManager.makeView();
+    coOrdner->findeAndSetCurrentItem(dir);
 }
