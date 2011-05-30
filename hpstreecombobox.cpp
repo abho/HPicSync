@@ -120,9 +120,11 @@ bool hpstreecombobox::eventFilter(QObject* object, QEvent* event)
         if(event->type() == QEvent::MouseButtonPress  &&
                 vrect.contains(m->pos()))
         {
+            if(index.flags().testFlag(Qt::ItemIsEnabled)){
             this->cIndex =index;
             skipNextHide = false;
             this->hidePopup();
+            }
         }
     }
     return QComboBox::eventFilter(object, event);
