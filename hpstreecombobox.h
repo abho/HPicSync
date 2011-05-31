@@ -34,6 +34,7 @@ public:
 public Q_SLOTS:
     void updateText();
     void blockLineEditChanged(const QString &);
+    void itemClicked( QModelIndex index);
 
 private:
     bool skipNextHide;
@@ -59,8 +60,11 @@ public:
     void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
     const QString getCurrentDir();
+    QStringList expandeDirs();
+private slots:
+    void saveExpandItem(QModelIndex &);
 private:
     QStandardItem* findIndex( QStandardItem *item,const QString &dir);
 
-
+    QStringList expandeDirs_;
 };

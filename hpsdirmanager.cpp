@@ -53,8 +53,10 @@ void HPSDirManager::addDirToTree(const QString &dir)
     QStandardItem * newItem;
     QStandardItem *parent = currentModel->invisibleRootItem();
     QStandardItem *child;
+    QString currentDir;
     bool find = false;
     for (int var = 0; var < folder.size(); ++var) {
+        currentDir.append( folder.at(var));
         for (int i = 0; i < parent->rowCount(); ++i) {
             child = parent->child(i);
             if(child->text() == folder.at(var)){
@@ -78,6 +80,7 @@ void HPSDirManager::addDirToTree(const QString &dir)
                 newItem->setToolTip(QDir::toNativeSeparators(dir));
             } else {
                 newItem->setEnabled(false);
+                newItem->setData( currentDir,Qt::UserRole);
             }
             parent->appendRow(newItem);
             parent =newItem;

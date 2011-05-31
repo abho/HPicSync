@@ -39,33 +39,38 @@ HPSTreeCombobox::HPSTreeCombobox(QModelIndex const defaultRootIdx, QWidget* pare
     setView(treeView);*/
     view()->setSelectionMode(QAbstractItemView::SingleSelection); // click to toggle items
 
-    QComboBox::resize(200,200);
+    //QComboBox::resize(200,200);
     setEditable(true);
     lineEdit()->setReadOnly(true);
     setInsertPolicy(QComboBox::NoInsert);
 }
 
 void HPSTreeCombobox::setViewToTree(){
+    qDebug() << Q_FUNC_INFO;
 
     treeView = new QTreeView(this);
     treeView->viewport()->installEventFilter(this);
     treeView->header()->hide();
-    treeView->setMaximumHeight(800); // by default tree will show as 1 line high, need to reserve room
-    treeView->setMinimumHeight(800);
-
-
-    qDebug() <<  treeView;
+    treeView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
+    treeView->setMinimumHeight(400);
+    connect( treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
+    disconnect(listView,SIGNAL(clicked(QModelIndex)),0,0);
     setView(treeView);
+    listView = NULL;
+
 }
 void HPSTreeCombobox::setViewToList() {
+    qDebug()<<Q_FUNC_INFO;
 
     listView = new QListView(this);
     listView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
     listView->setMinimumHeight(400);
     listView->viewport()->installEventFilter(this);
+    connect( listView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
 
-    qDebug() <<  listView;
+    disconnect( treeView,SIGNAL(clicked(QModelIndex)),0,0);
     setView(listView);
+    treeView =NULL;
 }
 
 void HPSTreeCombobox::showPopup()
@@ -103,25 +108,32 @@ void HPSTreeCombobox::blockLineEditChanged(const QString &)
 
 bool HPSTreeCombobox::eventFilter(QObject* object, QEvent* event)
 {
-    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease)
+
+
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonRelease||event->type() == QEvent::MouseButtonDblClick)
     {
         QMouseEvent* m = static_cast<QMouseEvent*>(event);
         QModelIndex index = view()->indexAt(m->pos());
         QRect vrect = view()->visualRect(index);
         if (view()->rect().contains(m->pos())){
+
             skipNextHide = true;
         }
         if(event->type() == QEvent::MouseButtonPress  &&
                 vrect.contains(m->pos()))
+
         {
             if(index.flags().testFlag(Qt::ItemIsEnabled)){
-            this->cIndex =index;
-            skipNextHide = false;
-            this->hidePopup();
+
+                this->cIndex =index;
+                skipNextHide = false;
+                this->hidePopup();
             }
         }
+
     }
     return QComboBox::eventFilter(object, event);
+
 }
 
 void HPSTreeCombobox::updateText()
@@ -189,5 +201,23 @@ QStandardItem* StandardHPSTreeCombobox::findIndex(QStandardItem *item,const QStr
             return result;
     }
     return NULL;
+}
+
+void HPSTreeCombobox::itemClicked(QModelIndex index)
+{
+    //   qDebug() << index.data(Qt::UserRole) << "geklickt";
+}
+
+QStringList StandardHPSTreeCombobox::expandeDirs()
+{
+    if(view != NULL){
+        QStringList list;
+        QTreeView *view = static_cast<QTreeView*>( view());
+        searchExpandDirs(view, model()->invisibleRootItem(),&list);
+    }
+}
+
+void StandardHPSTreeCombobox::saveExpandItem(QModelIndex &)
+{
 }
 
