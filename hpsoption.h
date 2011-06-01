@@ -37,14 +37,14 @@ public:
 
 
 private:
-    QString comboBoxCurrentDir;
-    QSettings setting;
-    QString quellOrdner,username,password;
-    int thumbSize,port;
-    QRect geometry,geometryOption;
-    QStringList ordner;
+    QString mComboBoxCurrentDir;
+    QSettings mSetting;
+    QString mQuellOrdner,mUsername,mPassword;
+    int mThumbSize,mPort;
+    QRect mGeometry,mGeometryOption;
+    QStringList mOrdner;
     QStringList mExpandDirs;
-    int comboBoxView;
+    int mComboBoxView;
 };
 
 #endif // HPSOPTION_S

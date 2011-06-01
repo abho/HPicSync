@@ -2,7 +2,7 @@
 #include <QDebug>
 
 HPSDirManager::HPSDirManager(HPSOption &option, QObject *parent) :
-    QObject(parent),option(option)
+    QObject(parent),mOption(option)
 {
 }
 HPSDirManager::~HPSDirManager() {
@@ -11,16 +11,16 @@ HPSDirManager::~HPSDirManager() {
 
 
 void HPSDirManager::addDir(const QString  &dir){
-    if(!option.getOrdner().contains(dir)){
-        option.addOrdner(dir);
-        option.getComboBoxView()==HPSOption::ListView ? addDirToList(dir):addDirToTree( dir);
+    if(!mOption.getOrdner().contains(dir)){
+        mOption.addOrdner(dir);
+        mOption.getComboBoxView()==HPSOption::ListView ? addDirToList(dir):addDirToTree( dir);
         qDebug() << dir << "hinzugefügt";
     }
 }
 
 const QStringList & HPSDirManager::dirs()
 {
-    return option.getOrdner();
+    return mOption.getOrdner();
 }
 
 
@@ -29,15 +29,15 @@ const QStringList & HPSDirManager::dirs()
 void HPSDirManager::removeDirs(QStringList dirs)
 {
     qDebug() << Q_FUNC_INFO << dirs;
-    if ( option.getComboBoxView() == HPSOption::ListView) {
+    if ( mOption.getComboBoxView() == HPSOption::ListView) {
         for (int var = 0; var < dirs.size(); ++var) {
             removeDirFromList(dirs.at(var));
-            option.removeOrdner(dirs.at(var));
+            mOption.removeOrdner(dirs.at(var));
         }
     } else {
         for (int var = 0; var < dirs.size(); ++var) {
             removeDirFromTree(dirs.at(var));
-            option.removeOrdner(dirs.at(var));
+            mOption.removeOrdner(dirs.at(var));
         }
     }
 
@@ -119,12 +119,12 @@ void HPSDirManager::addDirToTree(QList<QStandardItem*> & expandedItems,const QSt
             if(var == folder.size()-1){
                 newItem->setData(dir,Qt::UserRole);
                 newItem->setToolTip(QDir::toNativeSeparators(dir));
-                if (option.expandDirs().contains(dir))
+                if (mOption.expandDirs().contains(dir))
                     expandedItems.append(newItem);
             } else {
                 newItem->setEnabled(false);
                 newItem->setData( currentDir,Qt::UserRole);
-                if (option.expandDirs().contains(currentDir))
+                if (mOption.expandDirs().contains(currentDir))
                     expandedItems.append(newItem);
             }
             parent->appendRow(newItem);
@@ -150,13 +150,13 @@ void HPSDirManager::setModel(QStandardItemModel *model)
 
 QList<QStandardItem*> HPSDirManager::makeView()
 {
-    const QStringList dirs = option.getOrdner();
+    const QStringList dirs = mOption.getOrdner();
     QList<QStandardItem*> expandedItems;
     const int size = dirs.size();
 
     currentModel->clear();
 
-    if ( option.getComboBoxView() == HPSOption::ListView) {
+    if ( mOption.getComboBoxView() == HPSOption::ListView) {
         qDebug() << "ToList";
         for (int i = 0; i < size; ++i) {
             addDirToList(dirs.at(i));

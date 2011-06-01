@@ -10,29 +10,29 @@ HPSImageLoader::HPSImageLoader(QMutex &mutex,const QStringList&fileNames, const 
 void HPSImageLoader::start(){
     qDebug() << "start loader";
 
-    this->load();
+    load();
 }
 
 void HPSImageLoader::load(){
     int i;
     QImageReader reader;
     QImage image;
-    //int length = this->size;
-    int sizeW  = this->mSize-5;
-    int sizeH =this->mSize-20;
+    //int length = size;
+    int sizeW  = mSize-5;
+    int sizeH =mSize-20;
     int counter=0;
     int packet=10;
     QSize imageSize;
     QElapsedTimer timer;
     timer.start();
     //reader.setScaledSize(QSize(sizeW,sizeH));
-    for(i  = this->mStartPos; i <= this->mEnd;i++){
+    for(i  = mStartPos; i <= mEnd;i++){
         if(mEx){
             qDebug() <<"ex";
-            this->deleteLater();
+            deleteLater();
             return;
         }
-        reader.setFileName(this->mQuellOrdner+"/"+this->mFileNames.at(i));
+        reader.setFileName(mQuellOrdner+"/"+mFileNames.at(i));
 
         //imageSize = reader.size();
         //imageSize.scale(QSize(sizeW,sizeH), Qt::KeepAspectRatio);
@@ -54,33 +54,33 @@ void HPSImageLoader::load(){
         if(reader.read(&image)){
             image =image.scaled(200,200,Qt::KeepAspectRatio).
                    scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
-            image.setText(QString("name"),QString(this->mFileNames.at(i)));
-            this->mMutex.lock();
-            this->mList->append(image);
-            this->mMutex.unlock();
+            image.setText(QString("name"),QString(mFileNames.at(i)));
+            mMutex.lock();
+            mList->append(image);
+            mMutex.unlock();
 
             if((counter+1)%packet==0&&(counter!=0)){
-                qDebug() << this->thread()<<"ready" << packet << counter;
-                this->ready(packet,"");
+                qDebug() << thread()<<"ready" << packet << counter;
+                ready(packet,"");
             }
         } else {
             mMutex.lock();
             int count;
-            //qDebug() <<"fehler bei bild:" << this->dirName+this->files.at(i);
+            //qDebug() <<"fehler bei bild:" << ->dirName+->files.at(i);
             if((counter)%packet!=0)
                 // qDebug() << "fehler ready" << (i-(i%5)) << (i-(i-(i%5)));
                 // qDebug()<<"i"<< i;
                 count=counter&packet;
             else
                 count =0;
-            if(this->mSendError ==false )
-                emit this->ready(count,mFileNames.at(i));
+            if(mSendError ==false )
+                emit ready(count,mFileNames.at(i));
             else
-                emit this->ready(count,"");
+                emit ready(count,"");
 
-            this->deleteLater();
-            this->mSendError=true;
-            this->mMutex.unlock();
+            deleteLater();
+            mSendError=true;
+            mMutex.unlock();
             return;
         }
 
@@ -89,16 +89,16 @@ void HPSImageLoader::load(){
     }
     //qDebug() << "fertig: " << i;
     if(counter%packet!=0){
-        //qDebug() <<this->thread() <<  "ready" << counter%5 << counter;
-        emit this->ready(counter%packet,"");
+        //qDebug() <<thread() <<  "ready" << counter%5 << counter;
+        emit ready(counter%packet,"");
     }
-    this->deleteLater();
+    deleteLater();
     // qDebug()<<timer.elapsed();
-    emit this->fertig();
+    emit fertig();
 }
 void HPSImageLoader::beenden() {
     qDebug()<<"beeenden";
-    this->mEx=true;
+    mEx=true;
 
 }
 

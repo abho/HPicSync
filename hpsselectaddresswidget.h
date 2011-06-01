@@ -12,7 +12,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *);
 private:
-    const QList<QTcpSocket*> &list;
+    const QList<QTcpSocket*> &mSocketList;
 signals:
     void selected(QTcpSocket*);
 private slots:

@@ -37,7 +37,7 @@ signals:
 
 private slots:
     void readNextStringLine();
-    void socketError(QAbstractSocket::SocketError error);
+    void socketError(QAbstractSocket::SocketError err);
     void socketDisc();
 };
 

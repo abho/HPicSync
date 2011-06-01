@@ -13,15 +13,17 @@ public:
 protected:
     void closeEvent ( QCloseEvent * event );
 private:
-    QLineEdit *eQuellOrdner;
-    QPushButton *butQuellOrdner,*butUebernehmen,*butBeenden;
-    QSlider *slider;
-    QLabel *lSliderWert;
-    QComboBox *comboBox;
-    HPSOption *optionObject;
-    QListWidget *listview;
-    QList<QListWidgetItem*> dirItemList;
-    int oldSliderValue;
+    QLineEdit *mQuellOrdnerEditLine;
+    QPushButton *mQuellOrdnerButton,*mUebernehmenButton,*mBeendenButton;
+    QSlider *mSlider;
+    QLabel *mSliderWertLabel;
+    QComboBox *mComboBox;
+    HPSOption *mOptionObject;
+    QListWidget *mListWidget;
+    QList<QListWidgetItem*> mDirItemList;
+    int mOldSliderValue;
+    QVector<bool> mOptions;
+
     enum optionValues {
         QuellOrdner,PixSize,ComboBoxView,DirList
     };
@@ -29,7 +31,6 @@ private:
         Allgemein,Ordner
     };
 
-    QVector<bool> options;
     void zuruecksetzten();
     void loadOrdner();
     QStringList checkRemovedDirs();

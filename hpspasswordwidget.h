@@ -16,11 +16,11 @@ protected:
     void closeEvent(QCloseEvent *);
 
 private:
-    HPSOption *option;
-    QLabel *lText;
-    QLineEdit *ePassword,*eUsername;
-    QList<QPushButton *> buttonList;
-    QPushButton *but1,*but2,*but3;
+    HPSOption *mOption;
+    QLabel *mTextLabel;
+    QLineEdit *mPasswordLineEdit,*mUsernameLineEdit;
+    QList<QPushButton *> mButtonList;
+    QPushButton *mButton1,*mButton2,*mButton3;
 signals:
     void finished(int);
 

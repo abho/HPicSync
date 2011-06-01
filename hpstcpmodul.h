@@ -16,13 +16,13 @@ public:
     explicit HPSTCPModul(HPSOption *option,QWidget *parent = 0);
     void startSearch();
 private:
-    HPSOption *option;
-    QList<QTcpSocket *> server;
-    QWidget *hParent;
-    QMutex mutex;
-    QTcpSocket *serverSocket;
-    QString ipAddresse;
-    int countFindServer;
+    HPSOption *mOption;
+    QList<QTcpSocket *> mServerList;
+    QWidget *mHParent;
+    QMutex mMutex;
+    QTcpSocket *mServerSocket;
+    QString mIpAddresse;
+    int mCountFindServer;
     void startAuth();
     void checkUserAndPW(const QStringList &UserAndPW);
 private slots:

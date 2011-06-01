@@ -2,8 +2,8 @@
 // Code to create a QComboBox where multiple items can be selected and the items
 // are shown in a tree.
 // Written by Corwin Joy
-// This code is hereby placed in the Public Domain.
-// This code comes with no warranty of any kind, use at your own risk.qwe c
+//  code is hereby placed in the Public Domain.
+//  code comes with no warranty of any kind, use at your own risk.qwe c
 
 #include "hpstreecombobox.h"
 #include <QtGui/QLineEdit>
@@ -29,10 +29,10 @@ static const char g_ItemSep[] = "|";
 /// hpstreecombobox
 
 HPSTreeCombobox::HPSTreeCombobox(QModelIndex const defaultRootIdx, QWidget* parent) :
-    QComboBox(parent), skipNextHide(false), treeView(NULL),listView(NULL),defaultRootIndex(defaultRootIdx)
+    QComboBox(parent), mSkipNextHide(false), mTreeView(NULL),mListView(NULL),mDefaultRootIndex(defaultRootIdx)
 
 {
-    /*QTreeView* treeView = new QTreeView(this);
+    /*QTreeView* treeView = new QTreeView();
     treeView->header()->hide();
     treeView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
     treeView->setMinimumHeight(400);
@@ -48,50 +48,50 @@ HPSTreeCombobox::HPSTreeCombobox(QModelIndex const defaultRootIdx, QWidget* pare
 void HPSTreeCombobox::setViewToTree(){
     qDebug() << Q_FUNC_INFO;
 
-    treeView = new QTreeView(this);
-    treeView->viewport()->installEventFilter(this);
-    treeView->header()->hide();
-    treeView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
-    treeView->setMinimumHeight(400);
-    connect( treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
-    connect( treeView,SIGNAL(expanded(QModelIndex)),this,SLOT(saveExpandItem(QModelIndex)));
-    connect( treeView,SIGNAL(collapsed(QModelIndex)),this,SLOT(removeExpandItem(QModelIndex)));
-    setView(treeView);
-    listView = NULL;
+    mTreeView = new QTreeView();
+    mTreeView->viewport()->installEventFilter(this);
+    mTreeView->header()->hide();
+    mTreeView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
+    mTreeView->setMinimumHeight(400);
+    connect( mTreeView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
+    connect( mTreeView,SIGNAL(expanded(QModelIndex)),this,SLOT(saveExpandItem(QModelIndex)));
+    connect( mTreeView,SIGNAL(collapsed(QModelIndex)),this,SLOT(removeExpandItem(QModelIndex)));
+    setView(mTreeView);
+    mListView = NULL;
 
 }
 void HPSTreeCombobox::setViewToList() {
     qDebug()<<Q_FUNC_INFO;
 
-    listView = new QListView(this);
-    listView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
-    listView->setMinimumHeight(400);
-    listView->viewport()->installEventFilter(this);
-    connect( listView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
+    mListView = new QListView();
+    mListView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
+    mListView->setMinimumHeight(400);
+    mListView->viewport()->installEventFilter(this);
+    connect( mListView,SIGNAL(clicked(QModelIndex)),this,SLOT(itemClicked(QModelIndex)));
 
-    treeView->disconnect();
-    setView(listView);
-    treeView =NULL;
+    mTreeView->disconnect();
+    setView(mListView);
+    mTreeView =NULL;
 }
 
 void HPSTreeCombobox::showPopup()
 {
 
-    setRootModelIndex(defaultRootIndex);
+    setRootModelIndex(mDefaultRootIndex);
     QComboBox::showPopup();
     //applyLineEditChanged();
 
-    connect(lineEdit(), SIGNAL(textChanged(const QString &)), this, SLOT(blockLineEditChanged(const QString &)));
+    connect(lineEdit(), SIGNAL(textChanged(const QString &)),this , SLOT(blockLineEditChanged(const QString &)));
 }
 
 void HPSTreeCombobox::hidePopup()
 {
-    if (skipNextHide)
-        skipNextHide = false;
+    if (mSkipNextHide)
+        mSkipNextHide = false;
     else
     {
-        disconnect(lineEdit(), SIGNAL(textChanged(const QString &)), this, SLOT(blockLineEditChanged(const QString &)));
-        this->updateText();
+        disconnect(lineEdit(), SIGNAL(textChanged(const QString &)),this , SLOT(blockLineEditChanged(const QString &)));
+        updateText();
         QComboBox::hidePopup();
 
     }
@@ -100,7 +100,7 @@ void HPSTreeCombobox::hidePopup()
 
 void HPSTreeCombobox::blockLineEditChanged(const QString &)
 {
-    if (lineEdit()->text() != QDir::toNativeSeparators(this->cIndex.data(Qt::UserRole).toString())){
+    if (lineEdit()->text() != QDir::toNativeSeparators(mCIndex.data(Qt::UserRole).toString())){
         updateText();
     }
 
@@ -118,7 +118,7 @@ bool HPSTreeCombobox::eventFilter(QObject* object, QEvent* event)
         QRect vrect = view()->visualRect(index);
         if (view()->rect().contains(m->pos())){
 
-            skipNextHide = true;
+            mSkipNextHide = true;
         }
         if(event->type() == QEvent::MouseButtonPress  &&
                 vrect.contains(m->pos()))
@@ -126,9 +126,9 @@ bool HPSTreeCombobox::eventFilter(QObject* object, QEvent* event)
         {
             if(index.flags().testFlag(Qt::ItemIsEnabled)){
 
-                this->cIndex =index;
-                skipNextHide = false;
-                this->hidePopup();
+                mCIndex =index;
+                mSkipNextHide = false;
+                hidePopup();
             }
         }
 
@@ -139,8 +139,8 @@ bool HPSTreeCombobox::eventFilter(QObject* object, QEvent* event)
 
 void HPSTreeCombobox::updateText()
 {
-    if (cIndex.isValid()) {
-        lineEdit()->setText(QDir::toNativeSeparators(this->cIndex.data(Qt::UserRole).toString()));
+    if (mCIndex.isValid()) {
+        lineEdit()->setText(QDir::toNativeSeparators(mCIndex.data(Qt::UserRole).toString()));
     } else {
         lineEdit()->setText("");
     }
@@ -148,10 +148,10 @@ void HPSTreeCombobox::updateText()
 void HPSTreeCombobox::setExpandedItems(const QList<QStandardItem *> &items)
 {
 
-    if (treeView!=NULL) {
+    if (mTreeView!=NULL) {
         const int size = items.size();
         for (int var = 0; var < size; ++var) {
-            treeView->expand( static_cast<QStandardItemModel *>(model())->indexFromItem(items.at(var)));
+            mTreeView->expand( static_cast<QStandardItemModel *>(model())->indexFromItem(items.at(var)));
         }
     }
 }
@@ -178,7 +178,7 @@ void StandardHPSTreeCombobox::setCurrentItem(QStandardItem *item)
         index = model()->indexFromItem(item);
         view()->setCurrentIndex(index);
     }
-    cIndex = index;
+    mCIndex = index;
     updateText();
 }
 
@@ -186,7 +186,7 @@ void StandardHPSTreeCombobox::setCurrentItem(QStandardItem *item)
 
 const QString  StandardHPSTreeCombobox::getCurrentDir()
 {
-    return cIndex.isValid()?cIndex.data(Qt::UserRole).toString():QString("");
+    return mCIndex.isValid()?mCIndex.data(Qt::UserRole).toString():QString("");
 }
 
 void StandardHPSTreeCombobox::findeAndSetCurrentItem(const QString &dir)
@@ -220,20 +220,20 @@ void HPSTreeCombobox::itemClicked(QModelIndex index)
 
 const QStringList &StandardHPSTreeCombobox::expandeDirs()
 {
-    return expandeDirs_;
+    return mExpandeDirs;
 }
 
 void HPSTreeCombobox::saveExpandItem(const QModelIndex &index)
 {
     qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
-    if(!expandeDirs_.contains(index.data(Qt::UserRole).toString()))
-        expandeDirs_.append(index.data(Qt::UserRole).toString());
+    if(!mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
+        mExpandeDirs.append(index.data(Qt::UserRole).toString());
 }
 
 void HPSTreeCombobox::removeExpandItem(const QModelIndex &index)
 {qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
-    if(expandeDirs_.contains(index.data(Qt::UserRole).toString()))
-        expandeDirs_.removeOne(index.data(Qt::UserRole).toString());
+    if(mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
+        mExpandeDirs.removeOne(index.data(Qt::UserRole).toString());
 }
 
 

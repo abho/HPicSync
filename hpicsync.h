@@ -7,7 +7,6 @@
 #include "hpslistviewdelegate.h"
 #include "hpstcpmodul.h"
 #include "hpsimageloader.h"
-#include "hpsdirknoten.h"
 #include "hpsdirmanager.h"
 #include "hpstreecombobox.h"
 #include <QtNetwork/QtNetwork>

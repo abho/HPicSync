@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QStandardItemModel>
-#include "hpsdirknoten.h"
 #include "hpstreecombobox.h"
 #include "hpsoption.h"
 class HPSDirManager : public QObject
@@ -25,7 +24,7 @@ private:
     void addDirToList(const QString &dir);
     void removeDirFromList(const QString &dir);
 void removeDirFromTree(const QString &dir);
-    HPSOption &option;
+    HPSOption &mOption;
     QStandardItemModel *currentModel;
 
 

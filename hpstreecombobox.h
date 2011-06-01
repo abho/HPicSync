@@ -1,8 +1,8 @@
 // Code to create a QComboBox where multiple items can be selected and the items
 // are shown in a tree.
 // Written by Corwin Joy
-// This code is hereby placed in the Public Domain.
-// This code comes with no warranty of any kind, use at your own risk.
+//  code is hereby placed in the Public Domain.
+//  code comes with no warranty of any kind, use at your own risk.
 
 #pragma once
 #include <QtGui/QComboBox>
@@ -22,7 +22,7 @@ public:
     HPSTreeCombobox(QModelIndex defaultRootIdx = QModelIndex(), QWidget* parent = 0);
     void setRoot(QModelIndex defaultRootIdx)
     {
-        defaultRootIndex = defaultRootIdx;
+        mDefaultRootIndex = defaultRootIdx;
     }
     void setViewToTree();
     void setViewToList();
@@ -41,13 +41,13 @@ private slots:
     void saveExpandItem(const QModelIndex &index);
     void removeExpandItem(const  QModelIndex &index);
 private:
-    bool skipNextHide;
-    QTreeView *treeView;
-    QListView *listView;
+    bool mSkipNextHide;
+    QTreeView *mTreeView;
+    QListView *mListView;
 protected:
-    QModelIndex defaultRootIndex;
-    QModelIndex cIndex;
-    QStringList expandeDirs_;
+    QModelIndex mDefaultRootIndex;
+    QModelIndex mCIndex;
+    QStringList mExpandeDirs;
 };
 
 

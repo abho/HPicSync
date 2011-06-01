@@ -2,125 +2,125 @@
 #include <QApplication>
 
 HPSOption::HPSOption() :
-    setting("hakah","fotoCrapper")
+    mSetting("hakah","fotoCrapper")
 {
-    this->quellOrdner =this->setting.value("quellOrdner","").toString();
+    mQuellOrdner =mSetting.value("quellOrdner","").toString();
 
-    if (this->quellOrdner.isEmpty()){
+    if (mQuellOrdner.isEmpty()){
         QDir dir(QApplication::applicationDirPath());
         dir.mkdir("images");
-        this->setQuellOrdner(QApplication::applicationDirPath()+"/images");
+        setQuellOrdner(QApplication::applicationDirPath()+"/images");
     }
-    this->ordner = this->setting.value("ordner",QStringList() << QApplication::applicationDirPath()+"/images").toStringList();
-    this->thumbSize = this->setting.value("thumbSize",100).toInt();
-    this->geometry = this->setting.value("geometry",QRect(100,100,300,300)).toRect();
-    this->geometryOption = this->setting.value("geoOption",QRect()).toRect();
-    this->username = this->setting.value("username","").toString();
-    this->password = this->setting.value("password","").toString();
-    this->port = this->setting.value("port",1234).toInt();
-    this->comboBoxView = this->setting.value("comboBoxView",HPSOption::ListView).toInt();
-    comboBoxCurrentDir = this->setting.value("cbCurrentDir","" ).toString();
-    mExpandDirs = setting.value("expandDirs",QStringList()).toStringList();
+    mOrdner = mSetting.value("ordner",QStringList() << QApplication::applicationDirPath()+"/images").toStringList();
+    mThumbSize = mSetting.value("thumbSize",100).toInt();
+    mGeometry = mSetting.value("geometry",QRect(100,100,300,300)).toRect();
+    mGeometryOption = mSetting.value("geoOption",QRect()).toRect();
+    mUsername = mSetting.value("username","").toString();
+    mPassword = mSetting.value("password","").toString();
+    mPort = mSetting.value("port",1234).toInt();
+    mComboBoxView = mSetting.value("comboBoxView",HPSOption::ListView).toInt();
+    mComboBoxCurrentDir = mSetting.value("cbCurrentDir","" ).toString();
+    mExpandDirs = mSetting.value("expandDirs",QStringList()).toStringList();
 }
 
 
 const QString & HPSOption::getQuellOrdner(){
-    return this->quellOrdner;
+    return mQuellOrdner;
 }
 
 int HPSOption::getThumbSize(){
-    return this->thumbSize;
+    return mThumbSize;
 }
 
 const QRect & HPSOption::getGeometry(){
-    return this->geometry;
+    return mGeometry;
 }
 const QStringList &HPSOption::getOrdner(){
-    return this->ordner;
+    return mOrdner;
 }
 void HPSOption::setOrdner(const QStringList &list){
-    this->ordner =list;
-    setting.setValue("ordner",ordner);
+    mOrdner =list;
+    mSetting.setValue("ordner",mOrdner);
 }
 void HPSOption::addOrdner(const QString &dir){
-    qDebug() << "addordner first" << ordner;
-    this->ordner.append(dir);
-    setting.setValue("ordner",ordner);
-    qDebug() << "addordner" << ordner;
+    qDebug() << "addordner first" << mOrdner;
+    mOrdner.append(dir);
+    mSetting.setValue("ordner",mOrdner);
+    qDebug() << "addordner" << mOrdner;
 }
 const QRect &  HPSOption::getGeometryOption(){
-    return this->geometryOption;
+    return mGeometryOption;
 }
 void HPSOption::setQuellOrdner(const QString &quellOrdner){
-    this->quellOrdner = quellOrdner;
-    this->setting.setValue("quellOrdner",this->quellOrdner);
+    mQuellOrdner = quellOrdner;
+    mSetting.setValue("quellOrdner",mQuellOrdner);
 }
 void HPSOption::setThumbSize(const int size){
-    this->thumbSize = size;
-    this->setting.setValue("thumbSize",this->thumbSize);
+    mThumbSize = size;
+    mSetting.setValue("thumbSize",mThumbSize);
 }
 void HPSOption::setGeometry(const QRect &geometry){
-    this->geometry = geometry;
-    this->setting.setValue("geometry",this->geometry);
+    mGeometry = geometry;
+    mSetting.setValue("geometry",mGeometry);
 }
 
 void HPSOption::setGeometryOption(const QRect &geometry){
-    this->geometryOption = geometry;
-    this->setting.setValue("geoOption",this->geometryOption);
+    mGeometryOption = geometry;
+    mSetting.setValue("geoOption",mGeometryOption);
 }
 
 const QString & HPSOption::getUsername(){
-    return this->username;
+    return mUsername;
 }
 
 void HPSOption::setUsername(const QString &username){
-    this->username = username;
+    mUsername = username;
 
-    this->setting.setValue("username",username);
+    mSetting.setValue("username",username);
 }
 
 const QString & HPSOption::getPassword(){
-    return this->password;
+    return mPassword;
 }
 
 void HPSOption::setPassword(const QString &password){
-    this->password = password;
-    setting.setValue("password",password);
+    mPassword = password;
+    mSetting.setValue("password",password);
 }
 
 int HPSOption::getPort(){
-    return this->port;
+    return mPort;
 }
 
 void HPSOption::setPort(int port){
-    this->port = port;
-    setting.setValue("port",port);
+    mPort = port;
+    mSetting.setValue("port",port);
 }
 
 int HPSOption::getComboBoxView(){
-    return comboBoxView;
+    return mComboBoxView;
 }
 
 void  HPSOption::setComboBoxView(int view){
-    comboBoxView =view;
-    setting.setValue("comboBoxView",comboBoxView);
+    mComboBoxView =view;
+    mSetting.setValue("comboBoxView",mComboBoxView);
 }
 
 const QString & HPSOption::getComboBoxCurrentDir()
 {
-    return comboBoxCurrentDir;
+    return mComboBoxCurrentDir;
 }
 
 void HPSOption::setComboBoxCurrentDir(const QString &currentDir)
 {
-    comboBoxCurrentDir = currentDir;
-    setting.setValue("cbCurrentDir",comboBoxCurrentDir);
+    mComboBoxCurrentDir = currentDir;
+    mSetting.setValue("cbCurrentDir",mComboBoxCurrentDir);
 }
 
 void HPSOption::removeOrdner(const QString &dir)
 {
-    ordner.removeOne(dir);
-    setting.setValue("ordner",ordner);
+    mOrdner.removeOne(dir);
+    mSetting.setValue("ordner",mOrdner);
 }
 
 const QStringList & HPSOption::expandDirs()
@@ -131,5 +131,5 @@ const QStringList & HPSOption::expandDirs()
 void HPSOption::setExpandDirs(const QStringList &dirs)
 {
     mExpandDirs = dirs;
-    setting.setValue("expandDirs", mExpandDirs);
+    mSetting.setValue("expandDirs", mExpandDirs);
 }
