@@ -13,18 +13,18 @@ public:
     ~HPSImageLoader();
     void beenden();
 private:
-    const QString &quellOrdner;
-    QList<QImage> *list;
-    const int size,startPos,end;
-    QStringList fileNames;
-    QMutex &mutex;
-    bool ex;
-   static bool sendError;
+    const QString &mQuellOrdner;
+    QList<QImage> *mList;
+    const int mSize,mStartPos,mEnd;
+    QStringList mFileNames;
+    QMutex &mMutex;
+    bool mEx;
+   static bool mSendError;
     signals:
         void fotosReady(int pos, int count);
         void error(int pos,int count,const QString&str);
         void fertig();
-        void ready(int size,const QString &str);
+        void ready(int mSize,const QString &str);
 
     public slots:
         void start();

@@ -29,6 +29,7 @@ public:
     bool eventFilter(QObject* object, QEvent* event);
     virtual void showPopup();
     virtual void hidePopup();
+    void setExpandedItems(const QList<QStandardItem*> &items);
 
 
 public Q_SLOTS:
@@ -36,6 +37,9 @@ public Q_SLOTS:
     void blockLineEditChanged(const QString &);
     void itemClicked( QModelIndex index);
 
+private slots:
+    void saveExpandItem(const QModelIndex &index);
+    void removeExpandItem(const  QModelIndex &index);
 private:
     bool skipNextHide;
     QTreeView *treeView;
@@ -43,6 +47,7 @@ private:
 protected:
     QModelIndex defaultRootIndex;
     QModelIndex cIndex;
+    QStringList expandeDirs_;
 };
 
 
@@ -60,11 +65,10 @@ public:
     void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
     const QString getCurrentDir();
-    QStringList expandeDirs();
-private slots:
-    void saveExpandItem(QModelIndex &);
+    const QStringList &expandeDirs();
+
 private:
     QStandardItem* findIndex( QStandardItem *item,const QString &dir);
 
-    QStringList expandeDirs_;
+
 };

@@ -2,80 +2,80 @@
 #include <QDebug>
 
 HPicSync::HPicSync(QWidget *parent)
-    : QMainWindow(parent),optionWidget(NULL),dirManager(option),moreThanOneSelected(false)
+    : QMainWindow(parent),mOptionWidget(NULL),mDirManager(mOption),mMoreThanOneSelected(false)
 {
 
 
     QHBoxLayout *optionBox = new QHBoxLayout();
-    this->butOption = new QPushButton(tr("Option"));
+    this->mOptionButton = new QPushButton(tr("Option"));
     optionBox->addStretch();
-    optionBox->addWidget(this->butOption);
+    optionBox->addWidget(this->mOptionButton);
 
     QHBoxLayout *viewBox= new QHBoxLayout();
 
     QVBoxLayout *newListBox= new QVBoxLayout();
     QHBoxLayout *refreshBox = new QHBoxLayout();
-    this->butRefresh = new QPushButton(tr("Refresh"));
-    refreshBox->addWidget(butRefresh);
+    this->mRefreshButton = new QPushButton(tr("Refresh"));
+    refreshBox->addWidget(mRefreshButton);
     refreshBox->addStretch();
 
-    this->newList = new QListWidget();
-    this->newList->setFlow(QListView::LeftToRight);
-    this->newList->setWrapping(true);
-    this->newList->setUniformItemSizes(true);
-    this->newList->setResizeMode(QListView::Adjust);
-    this->newList->setAutoScroll(false);
-    this->newList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    HPSListViewDelegate *delegateNew = new HPSListViewDelegate(this->option.getThumbSize(),&this->moreThanOneSelected,this);
-    this->newList->setItemDelegate(delegateNew);
+    this->mNewListWidget = new QListWidget();
+    this->mNewListWidget->setFlow(QListView::LeftToRight);
+    this->mNewListWidget->setWrapping(true);
+    this->mNewListWidget->setUniformItemSizes(true);
+    this->mNewListWidget->setResizeMode(QListView::Adjust);
+    this->mNewListWidget->setAutoScroll(false);
+    this->mNewListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    HPSListViewDelegate *delegateNew = new HPSListViewDelegate(this->mOption.getThumbSize(),&this->mMoreThanOneSelected,this);
+    this->mNewListWidget->setItemDelegate(delegateNew);
 
 
     QHBoxLayout * buttonBox = new QHBoxLayout();
-    this->butMarkAll = new QPushButton(trUtf8("Alle auswählen"));
-    this->butMarkSelected = new QPushButton(trUtf8("Markierte auswählen"));
-    buttonBox->addWidget(this->butMarkAll);
-    buttonBox->addWidget(this->butMarkSelected);
+    this->mtMarkAllButton = new QPushButton(trUtf8("Alle auswählen"));
+    this->mMarkSelectedButton = new QPushButton(trUtf8("Markierte auswählen"));
+    buttonBox->addWidget(this->mtMarkAllButton);
+    buttonBox->addWidget(this->mMarkSelectedButton);
     buttonBox->addStretch();
 
     newListBox->addLayout(refreshBox);
-    newListBox->addWidget(newList);
+    newListBox->addWidget(mNewListWidget);
     newListBox->addLayout(buttonBox);
 
-    this->butCopy = new QPushButton(tr("copy"));
+    this->mCopyButton = new QPushButton(tr("copy"));
 
     QVBoxLayout *oldListBox = new QVBoxLayout();
 
 
     QHBoxLayout *comboBox = new QHBoxLayout();
 
-    this->coOrdner = new StandardHPSTreeCombobox(this);
-    dirManager.setModel( coOrdner->model());
-    initCBOrdner(option.getComboBoxView(),option.getComboBoxCurrentDir());
-    butPlus=new QPushButton(tr("plus"));
-    comboBox->addWidget(coOrdner,10);
-    comboBox->addWidget(butPlus,1);
+    this->mTreeComboBox = new StandardHPSTreeCombobox(this);
+    mDirManager.setModel( mTreeComboBox->model());
+    initCBOrdner(mOption.getComboBoxView(),mOption.getComboBoxCurrentDir());
+    mPlusButton=new QPushButton(tr("plus"));
+    comboBox->addWidget(mTreeComboBox,10);
+    comboBox->addWidget(mPlusButton,1);
 
-    this->oldList = new QListWidget();
-    this->oldList->setFlow(QListView::LeftToRight);
-    this->oldList->setWrapping(true);
-    this->oldList->setUniformItemSizes(true);
-    this->oldList->setResizeMode(QListView::Adjust);
-    this->oldList->setAutoScroll(false);
-    this->oldList->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    HPSListViewDelegate *delegateOld = new HPSListViewDelegate(this->option.getThumbSize(),&this->moreThanOneSelected,this);
-    this->oldList->setItemDelegate(delegateOld);
+    this->mOldListWidget = new QListWidget();
+    this->mOldListWidget->setFlow(QListView::LeftToRight);
+    this->mOldListWidget->setWrapping(true);
+    this->mOldListWidget->setUniformItemSizes(true);
+    this->mOldListWidget->setResizeMode(QListView::Adjust);
+    this->mOldListWidget->setAutoScroll(false);
+    this->mOldListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    HPSListViewDelegate *delegateOld = new HPSListViewDelegate(this->mOption.getThumbSize(),&this->mMoreThanOneSelected,this);
+    this->mOldListWidget->setItemDelegate(delegateOld);
 
     QHBoxLayout *beendenBox = new QHBoxLayout();
-    this->butClose = new QPushButton(tr("Beenden"));
+    this->mCloseButton = new QPushButton(tr("Beenden"));
     beendenBox->addStretch();
-    beendenBox->addWidget(this->butClose);
+    beendenBox->addWidget(this->mCloseButton);
 
     oldListBox->addLayout(comboBox);
-    oldListBox->addWidget(oldList);
-    qDebug() << butPlus->font().pointSize();
+    oldListBox->addWidget(mOldListWidget);
+    qDebug() << mPlusButton->font().pointSize();
     oldListBox->addLayout(beendenBox);
     viewBox->addLayout(newListBox);
-    viewBox->addWidget(this->butCopy);
+    viewBox->addWidget(this->mCopyButton);
     viewBox->addLayout(oldListBox);
 
     QVBoxLayout *mainBox = new QVBoxLayout();
@@ -88,33 +88,33 @@ HPicSync::HPicSync(QWidget *parent)
 
     QStatusBar *bar = new QStatusBar();
     this->setStatusBar(bar);
-    this->lConnect = new QLabel(tr("nicht verbunden"));
-    this->lConnectPixGruen = new QLabel();
-    this->lConnectPixGruen->setPixmap(QPixmap(":/knopfGruen").scaled(QSize(17,17),Qt::KeepAspectRatio));
-    this->lConnectPixRot = new QLabel();
-    this->lConnectPixRot->setPixmap(QPixmap(":/knopfRot").scaled(QSize(17,17),Qt::KeepAspectRatio));
-    this->lPixOldLoadCount = new QLabel("");
-    this->lPixOldLoadCount->setVisible(false);
+    this->mConnectLabel = new QLabel(tr("nicht verbunden"));
+    this->mConnectPixGruenLabel = new QLabel();
+    this->mConnectPixGruenLabel->setPixmap(QPixmap(":/knopfGruen").scaled(QSize(17,17),Qt::KeepAspectRatio));
+    this->mConnectPixRotLabel = new QLabel();
+    this->mConnectPixRotLabel->setPixmap(QPixmap(":/knopfRot").scaled(QSize(17,17),Qt::KeepAspectRatio));
+    this->mPixOldLoadCountLabel = new QLabel("");
+    this->mPixOldLoadCountLabel->setVisible(false);
 
-    this->statusBar()->addWidget(this->lConnectPixGruen);
-    this->statusBar()->addWidget(this->lConnectPixRot);
-    this->statusBar()->addWidget(this->lConnect);
-    this->statusBar()->addPermanentWidget(this->lPixOldLoadCount);
+    this->statusBar()->addWidget(this->mConnectPixGruenLabel);
+    this->statusBar()->addWidget(this->mConnectPixRotLabel);
+    this->statusBar()->addWidget(this->mConnectLabel);
+    this->statusBar()->addPermanentWidget(this->mPixOldLoadCountLabel);
 
-    this->connect(this->butClose,SIGNAL(clicked()),this,SLOT(close()));
-    this->connect(this->butOption,SIGNAL(clicked()),this,SLOT(showOption()));
-    this->connect(this->butRefresh,SIGNAL(clicked()),this,SLOT(test()));
-    this->connect(this->butCopy,SIGNAL(clicked()),this,SLOT(test2()));
-    connect(butPlus,SIGNAL(clicked()),this,SLOT(clickedPlus()));
+    this->connect(this->mCloseButton,SIGNAL(clicked()),this,SLOT(close()));
+    this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
+    this->connect(this->mRefreshButton,SIGNAL(clicked()),this,SLOT(test()));
+    this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
+    connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
 
-    this->setGeometry(this->option.getGeometry());
+    this->setGeometry(this->mOption.getGeometry());
 
 }
 HPicSync::~HPicSync()
 {
-    this->option.setGeometry(this->geometry());
-    this->option.setComboBoxCurrentDir(coOrdner->getCurrentDir());
-
+    mOption.setGeometry(this->geometry());
+    mOption.setComboBoxCurrentDir(mTreeComboBox->getCurrentDir());
+    mOption.setExpandDirs( mTreeComboBox->expandeDirs());
 }
 
 
@@ -122,11 +122,11 @@ HPicSync::~HPicSync()
 
 
 void HPicSync::closeEvent(QCloseEvent *event){
-    qDebug() << "closeEvent" << this->threads;
-    if(this->threads.isEmpty()){
+    qDebug() << "closeEvent" << this->mThreads;
+    if(this->mThreads.isEmpty()){
         event->accept();
     } else {
-        QMapIterator<QThread *, HPSImageLoader*> i(this->threads);
+        QMapIterator<QThread *, HPSImageLoader*> i(this->mThreads);
         while (i.hasNext()) {
             i.next();
             this->connect(i.key(),SIGNAL(destroyed()),this,SLOT(close()));
@@ -137,19 +137,19 @@ void HPicSync::closeEvent(QCloseEvent *event){
 }
 void HPicSync::threadClear() {
     QThread *thread =(QThread*)sender();
-    this->threads.remove(thread);
+    this->mThreads.remove(thread);
     thread->deleteLater();
 }
 
 void HPicSync::showOption(){
-    if(this->optionWidget== NULL){
-        this->optionWidget = new HPSOptionWidget(&this->option,this);
-        connect(optionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
-        connect( optionWidget,SIGNAL(dirsRemoved(QStringList)), &dirManager,SLOT(removeDirs(QStringList)));
+    if(this->mOptionWidget== NULL){
+        this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
+        connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
+        connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)), &mDirManager,SLOT(removeDirs(QStringList)));
 
         qDebug() << "optionWidget is null";
     }
-    this->optionWidget->resetAndShow();
+    this->mOptionWidget->resetAndShow();
 }
 void HPicSync::test(){
     /* qDebug()<< "start socket";
@@ -164,13 +164,13 @@ void HPicSync::test(){
 
     // this->dirManager.makeTreeView(this->coOrdner->model());
 
-    dirManager.makeView();
+
 }
 void HPicSync::loadImages(){
-    this->posImages =0;
-    this->timer.start();
+    this->mPosImages =0;
+    this->mTimer.start();
     int number =QThread::idealThreadCount();
-    QDir dir(this->option.getQuellOrdner());
+    QDir dir(this->mOption.getQuellOrdner());
     QStringList fileNames = dir.entryList(QStringList() << "*.png");
     int partSize= fileNames.size()/number;
     int pos=0, end=-1;
@@ -182,11 +182,11 @@ void HPicSync::loadImages(){
         else
             end+=partSize;
         qDebug() << pos << end;
-        HPSImageLoader *imageLoader = new HPSImageLoader(mutex,fileNames,pos,end,this->option.getQuellOrdner(),
-                                                         this->option.getThumbSize(),
-                                                         &this->thumbs);
+        HPSImageLoader *imageLoader = new HPSImageLoader(mMutex,fileNames,pos,end,this->mOption.getQuellOrdner(),
+                                                         this->mOption.getThumbSize(),
+                                                         &this->mThumbs);
         QThread *thread = new QThread();
-        this->threads.insert(thread,imageLoader);
+        this->mThreads.insert(thread,imageLoader);
         imageLoader->moveToThread(thread);
         this->connect(thread,SIGNAL(started()),imageLoader,SLOT(start()));
         this->connect(imageLoader,SIGNAL(destroyed()),thread,SLOT(quit()));
@@ -198,26 +198,26 @@ void HPicSync::loadImages(){
 
 
     }
-    this->lPixOldLoadCount->setVisible(true);
-    this->lPixOldLoadCount->setText("0 images geladen");
+    this->mPixOldLoadCountLabel->setVisible(true);
+    this->mPixOldLoadCountLabel->setText("0 images geladen");
 }
 void HPicSync::fotosReady(int size,const QString &str){
-    qDebug() << this->thumbs.size() <<this->posImages+size;
-    this->posImages+=size;
-    this->lPixOldLoadCount->setText(QString::number(this->posImages)+" images geladen");
+    qDebug() << this->mThumbs.size() <<this->mPosImages+size;
+    this->mPosImages+=size;
+    this->mPixOldLoadCountLabel->setText(QString::number(this->mPosImages)+" images geladen");
     if(size !=0 ){
-        for(int i = this->posImages-4;i<posImages;i++){
+        for(int i = this->mPosImages-4;i<mPosImages;i++){
             QListWidgetItem *item= new QListWidgetItem();
 
-            QImage *img =&this->thumbs[i];
+            QImage *img =&this->mThumbs[i];
             item->setData(Qt::DisplayRole,img->text("name"));
             item->setData(Qt::DecorationRole,qVariantFromValue((void *) img));
             //img =&this->fotos[i];
             item->setData(Qt::UserRole+2,qVariantFromValue((void *) img));
             item->setData(Qt::UserRole+1,i);
-            item->setData(Qt::UserRole+3,this->option.getThumbSize());
+            item->setData(Qt::UserRole+3,this->mOption.getThumbSize());
             item->setCheckState(Qt::Unchecked);
-            this->oldList->addItem(item);
+            this->mOldListWidget->addItem(item);
         }
     }
     if(str !=""){
@@ -237,12 +237,12 @@ void HPicSync::test2() {
 }
 
 void HPicSync::fertigTime(){
-    qDebug() << "fertig" << this->timer.elapsed();
+    qDebug() << "fertig" << this->mTimer.elapsed();
 }
 
 void HPicSync::comboBoxViewChanged(int index)
 {
-    initCBOrdner(index,coOrdner->getCurrentDir());
+    initCBOrdner(index,mTreeComboBox->getCurrentDir());
 
 }
 
@@ -250,9 +250,9 @@ void HPicSync::clickedPlus()
 {
     const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
     qDebug() << str;
-    if (!str.isEmpty()&&!dirManager.dirs().contains(str)) {
-        dirManager.addDir(str);
-        coOrdner->updateText();
+    if (!str.isEmpty()&&!mDirManager.dirs().contains(str)) {
+        mDirManager.addDir(str);
+        mTreeComboBox->updateText();
     }
 
 }
@@ -261,10 +261,13 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
 {
     qDebug() << "initCBOrdner" << index << dir;
     if(index == HPSOption::ListView){
-        coOrdner->setViewToList();
+        mOption.setExpandDirs(mTreeComboBox->expandeDirs());
+        mTreeComboBox->setViewToList();
     } else {
-        coOrdner->setViewToTree();
+        mTreeComboBox->setViewToTree();
     }
-    dirManager.makeView();
-    coOrdner->findeAndSetCurrentItem(dir);
+   QList<QStandardItem*> expandesIems= mDirManager.makeView();
+   if(!expandesIems.isEmpty())
+    mTreeComboBox->setExpandedItems( expandesIems );
+       mTreeComboBox->findeAndSetCurrentItem(dir);
 }

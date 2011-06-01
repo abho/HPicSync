@@ -7,7 +7,7 @@
 #include <QMouseEvent>
 #include <QStandardItemModel>
 
-HPSListViewDelegate::HPSListViewDelegate(int size, bool *check,QObject *parent) :QItemDelegate(parent),size(size),check(check)
+HPSListViewDelegate::HPSListViewDelegate(int size, bool *check,QObject *parent) :QItemDelegate(parent),mSize(size),mCheck(check)
 {
 }
 void HPSListViewDelegate::paint ( QPainter * painter, const QStyleOptionViewItem & option,
@@ -17,12 +17,12 @@ void HPSListViewDelegate::paint ( QPainter * painter, const QStyleOptionViewItem
 
     QImage *img = (QImage *)index.data(Qt::DecorationRole).value<void *>();
 
-    if(size-5==img->size().width() || size-20==img->size().height()) {
+    if(mSize-5==img->size().width() || mSize-20==img->size().height()) {
    //     qDebug() << "nicht scalieren";
     } else {
        qDebug() << "scalieren";
         QImage *orginal = (QImage *)index.data(Qt::UserRole+2).value<void *>();
-        *img=orginal->scaled(QSize(this->size-5,this->size-20),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        *img=orginal->scaled(QSize(this->mSize-5,this->mSize-20),Qt::KeepAspectRatio,Qt::SmoothTransformation);
     }
     QPixmap pix = QPixmap::fromImage(*img);
    // qDebug() << "pix size:" << pix.size();
@@ -43,8 +43,8 @@ void HPSListViewDelegate::paint ( QPainter * painter, const QStyleOptionViewItem
     Qt::CheckState state = static_cast<Qt::CheckState>(index.data(Qt::CheckStateRole).toUInt());
 
     this->drawCheck(painter,option,
-                    QRect(r.left()+this->size-30,r.top(),
-                          r.width()-this->size+30,r.height()-this->size+30),
+                    QRect(r.left()+this->mSize-30,r.top(),
+                          r.width()-this->mSize+30,r.height()-this->mSize+30),
                     state);
 }
 
@@ -54,12 +54,12 @@ QWidget * HPSListViewDelegate::createEditor ( QWidget * parent, const QStyleOpti
 }
 bool HPSListViewDelegate::editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) {
     //qDebug() << "nmuh" << *this->check;
-    if( event->type() == QEvent::MouseButtonRelease && !(*this->check)){
+    if( event->type() == QEvent::MouseButtonRelease && !(*this->mCheck)){
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if(mouseEvent->button()==Qt::LeftButton){
             qDebug()<< "MouseButtonLeftRelease";
-            QRect re(option.rect.left()+this->size-30,option.rect.top(),
-                     option.rect.width()-this->size+30,option.rect.height()-this->size+30);
+            QRect re(option.rect.left()+this->mSize-30,option.rect.top(),
+                     option.rect.width()-this->mSize+30,option.rect.height()-this->mSize+30);
             if(re.contains(mouseEvent->pos())){
                 qDebug() << "getroffen";
                 if(static_cast<Qt::CheckState>(model->data(index,Qt::CheckStateRole).toUInt())==Qt::Unchecked){
@@ -73,11 +73,11 @@ bool HPSListViewDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if(mouseEvent->button()==Qt::LeftButton){
             qDebug()<< "MouseButtonLeftPress";
-            QRect re(option.rect.left()+this->size-30,option.rect.top(),
-                     option.rect.width()-this->size+30,option.rect.height()-this->size+30);
+            QRect re(option.rect.left()+this->mSize-30,option.rect.top(),
+                     option.rect.width()-this->mSize+30,option.rect.height()-this->mSize+30);
             if(re.contains(mouseEvent->pos())){
                 qDebug() << "getroffen";
-                *this->check=false;
+                *this->mCheck=false;
             }
         }
     }
@@ -85,6 +85,6 @@ bool HPSListViewDelegate::editorEvent ( QEvent * event, QAbstractItemModel * mod
 }
 
 QSize HPSListViewDelegate::sizeHint( const QStyleOptionViewItem & option, const QModelIndex & index ) const{
-    return QSize(this->size,this->size);
+    return QSize(this->mSize,this->mSize);
 }
 

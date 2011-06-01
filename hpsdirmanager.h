@@ -14,12 +14,13 @@ public:
     ~HPSDirManager();
     void addDir(const QString  &dir);
     void setModel( QStandardItemModel *model);
-    void makeView();
+    QList<QStandardItem*> makeView();
     //void removeDirs(QStringList dirs);
 
     const QStringList & dirs();
 
 private:
+    void addDirToTree(QList<QStandardItem*> & expandedItems,const QString &dir);
     void addDirToTree(const QString &dir);
     void addDirToList(const QString &dir);
     void removeDirFromList(const QString &dir);

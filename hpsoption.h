@@ -5,7 +5,7 @@
 #include <QSettings>
 #include <QtCore>
 class HPSOption
-{    
+{
 public:
     enum ComboBoxView {ListView,TreeView};
 
@@ -32,6 +32,9 @@ public:
     void setComboBoxView(int view);
     const QString & getComboBoxCurrentDir();
     void setComboBoxCurrentDir(const QString &currentDir);
+    void setExpandDirs(const QStringList &dirs);
+    const QStringList& expandDirs();
+
 
 private:
     QString comboBoxCurrentDir;
@@ -40,6 +43,7 @@ private:
     int thumbSize,port;
     QRect geometry,geometryOption;
     QStringList ordner;
+    QStringList mExpandDirs;
     int comboBoxView;
 };
 

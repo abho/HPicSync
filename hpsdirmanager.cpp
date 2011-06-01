@@ -44,9 +44,50 @@ void HPSDirManager::removeDirs(QStringList dirs)
 
 }
 
+void HPSDirManager::addDirToTree(const QString &dir){
+    qDebug() << __func__ << dir;
+    const QStringList folder=dir.split("/",QString::SkipEmptyParts);
+    QStandardItem * newItem;
+    QStandardItem *parent = currentModel->invisibleRootItem();
+    QStandardItem *child;
+    QString currentDir;
+    bool find = false;
+    for (int var = 0; var < folder.size(); ++var) {
+        currentDir.append( folder.at(var));
+        for (int i = 0; i < parent->rowCount(); ++i) {
+            child = parent->child(i);
+            if(child->text() == folder.at(var)){
+                child->setData(child->data(Qt::UserRole+1).toInt()+1,Qt::UserRole+1);
+                if (var == folder.size()-1){
+                    child->setEnabled(true);
+                    child->setToolTip(QDir::toNativeSeparators(dir));
+                }
 
+                find = true;
+                parent =child;
+                break;
+            }
+        }
+        if (!find) {
+            qDebug() << folder.at(var) << "nicht gefunden ";
+            newItem = new QStandardItem(folder.at(var));
+            newItem->setData(1,Qt::UserRole+1);
+            if(var == folder.size()-1){
+                newItem->setData(dir,Qt::UserRole);
+                newItem->setToolTip(QDir::toNativeSeparators(dir));
+            } else {
+                newItem->setEnabled(false);
+                newItem->setData( currentDir,Qt::UserRole);
+            }
+            parent->appendRow(newItem);
+            parent =newItem;
+        } else {
+            find = false;
+        }
+    }
+}
 
-void HPSDirManager::addDirToTree(const QString &dir)
+void HPSDirManager::addDirToTree(QList<QStandardItem*> & expandedItems,const QString &dir)
 {
     qDebug() << __func__ << dir;
     const QStringList folder=dir.split("/",QString::SkipEmptyParts);
@@ -72,15 +113,19 @@ void HPSDirManager::addDirToTree(const QString &dir)
             }
         }
         if (!find) {
-            qDebug() << folder.at(var) << "nicht egfunden ";
+            qDebug() << folder.at(var) << "nicht gefunden ";
             newItem = new QStandardItem(folder.at(var));
             newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
                 newItem->setData(dir,Qt::UserRole);
                 newItem->setToolTip(QDir::toNativeSeparators(dir));
+                if (option.expandDirs().contains(dir))
+                    expandedItems.append(newItem);
             } else {
                 newItem->setEnabled(false);
                 newItem->setData( currentDir,Qt::UserRole);
+                if (option.expandDirs().contains(currentDir))
+                    expandedItems.append(newItem);
             }
             parent->appendRow(newItem);
             parent =newItem;
@@ -103,11 +148,14 @@ void HPSDirManager::setModel(QStandardItemModel *model)
     currentModel = model;
 }
 
-void HPSDirManager::makeView()
+QList<QStandardItem*> HPSDirManager::makeView()
 {
-    currentModel->clear();
     const QStringList dirs = option.getOrdner();
+    QList<QStandardItem*> expandedItems;
     const int size = dirs.size();
+
+    currentModel->clear();
+
     if ( option.getComboBoxView() == HPSOption::ListView) {
         qDebug() << "ToList";
         for (int i = 0; i < size; ++i) {
@@ -116,9 +164,10 @@ void HPSDirManager::makeView()
     } else {
         qDebug() << "toTree";
         for (int i = 0; i < size; ++i) {
-            addDirToTree( dirs.at(i));
+            addDirToTree( expandedItems,dirs.at(i));
         }
     }
+    return expandedItems;
 }
 
 void HPSDirManager::removeDirFromList(const QString &dir)

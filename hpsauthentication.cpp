@@ -1,32 +1,32 @@
 #include "hpsauthentication.h"
 #include <QDebug>
 HPSAuthentication::HPSAuthentication(const QString &usernameString, const QString &passwordString,QTcpSocket *socket,QObject *parent) :
-        QObject(parent),socket(socket),username(usernameString.toUtf8()),password(passwordString.toUtf8()),
-        CHPVERSION("cHamsterProtocolV1.0"),counter(0)
+        QObject(parent),mSocket(socket),mUsername(usernameString.toUtf8()),mPassword(passwordString.toUtf8()),
+        mChpVersion("cHamsterProtocolV1.0"),mCounter(0)
 {
 
-    this->hamsterSec1 = QByteArray(9,0);
-    this->hamsterSec1[0]=2;
-    this->hamsterSec1[1]=7;
-    this->hamsterSec1[2]=1;
-    this->hamsterSec1[3]=8;
-    this->hamsterSec1[4]=2;
-    this->hamsterSec1[5]=8;
-    this->hamsterSec1[6]=1;
-    this->hamsterSec1[7]=8;
-    this->hamsterSec1[8]=3;
+    this->mHamsterSec1 = QByteArray(9,0);
+    this->mHamsterSec1[0]=2;
+    this->mHamsterSec1[1]=7;
+    this->mHamsterSec1[2]=1;
+    this->mHamsterSec1[3]=8;
+    this->mHamsterSec1[4]=2;
+    this->mHamsterSec1[5]=8;
+    this->mHamsterSec1[6]=1;
+    this->mHamsterSec1[7]=8;
+    this->mHamsterSec1[8]=3;
 
-    this->hamsterSec2 = QByteArray(9,0);
-    this->hamsterSec2[0]=3;
-    this->hamsterSec2[1]=1;
-    this->hamsterSec2[2]=4;
-    this->hamsterSec2[3]=1;
-    this->hamsterSec2[4]=5;
-    this->hamsterSec2[5]=9;
-    this->hamsterSec2[6]=2;
-    this->hamsterSec2[7]=6;
-    this->hamsterSec2[8]=5;
-    this->connect(this->socket,SIGNAL(readyRead()),this,SLOT(readNextStringLine()));
+    this->nHamsterSec2 = QByteArray(9,0);
+    this->nHamsterSec2[0]=3;
+    this->nHamsterSec2[1]=1;
+    this->nHamsterSec2[2]=4;
+    this->nHamsterSec2[3]=1;
+    this->nHamsterSec2[4]=5;
+    this->nHamsterSec2[5]=9;
+    this->nHamsterSec2[6]=2;
+    this->nHamsterSec2[7]=6;
+    this->nHamsterSec2[8]=5;
+    this->connect(this->mSocket,SIGNAL(readyRead()),this,SLOT(readNextStringLine()));
     this->connect(socket,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(socketError(QAbstractSocket::SocketError)));
     this->connect(socket,SIGNAL(disconnected()),this,SLOT(socketDisc()));
 }
@@ -37,21 +37,21 @@ void HPSAuthentication::socketDisc() {
 }
 
 QTcpSocket* HPSAuthentication::getSocket(){
-    return this->socket;
+    return this->mSocket;
 }
 
 void HPSAuthentication::socketError(QAbstractSocket::SocketError error){
     qDebug() << error;
-    emit this->error(this->socket->errorString());
+    emit this->error(this->mSocket->errorString());
 }
 
 void HPSAuthentication::start() {
-    this->socket->write(this->makeHelloResponse());
-    this->socket->flush();
-    this->currentState = this->ChallangeResponse;
+    this->mSocket->write(this->makeHelloResponse());
+    this->mSocket->flush();
+    this->mCurrentState = this->ChallangeResponse;
 }
 int HPSAuthentication::getCounter(){
-    return this->counter;
+    return this->mCounter;
 }
 
 QByteArray HPSAuthentication::makeHelloResponse(){
@@ -62,18 +62,18 @@ QByteArray HPSAuthentication::makeHelloResponse(){
     rnonce.append(QByteArray::number(this->getCurrentUnixTime()));
 
     //qDebug() << rnonce << rnonce.size();
-    this->rnonceB64 = this->base64(rnonce);
-    qDebug() << rnonceB64 << base64Decode(rnonceB64).size();
+    this->mRnonceB64 = this->base64(rnonce);
+    qDebug() << mRnonceB64 << base64Decode(mRnonceB64).size();
     QByteArray helloResponse;
-    helloResponse.append(this->CHPVERSION);
-    helloResponse.append(this->base64(this->aXorB(this->username, base64Decode(this->rnonceB64))));
+    helloResponse.append(this->mChpVersion);
+    helloResponse.append(this->base64(this->aXorB(this->mUsername, base64Decode(this->mRnonceB64))));
     helloResponse.append(":");
-    helloResponse.append(this->rnonceB64);
+    helloResponse.append(this->mRnonceB64);
     qDebug() << helloResponse;
     return helloResponse+ "\n";
 }
 void HPSAuthentication::restart(){
-    this->counter++;
+    this->mCounter++;
     this->start();
 }
 
@@ -82,19 +82,19 @@ QByteArray HPSAuthentication::makeAuthResponse(const QByteArray &cnonce){
     // Calculate it first
     // response:='B64[MD5[HamsterSec1 XOR (USERNAME XOR MD5(CONCE XOR
     // PASSWORD)]]'
-    qDebug() <<"PW:" << this->password.length() << cnonce.length();
-    QByteArray passwordXORcnonce = aXorB(this->password, cnonce);
+    qDebug() <<"PW:" << this->mPassword.length() << cnonce.length();
+    QByteArray passwordXORcnonce = aXorB(this->mPassword, cnonce);
     qDebug()  << "B64 passwordXORcnonce:" << base64(passwordXORcnonce) << " Length:" << passwordXORcnonce.length();
 
     QByteArray passwordXORcnonceMD5 = this->getMD5Sum(passwordXORcnonce);
     qDebug() << "B64 passwordXORcnonceMD5:"<< base64(passwordXORcnonceMD5) << " Length:"<< passwordXORcnonceMD5.length();
 
-    QByteArray passwordXORcnonceMD5XORusername = aXorB(passwordXORcnonceMD5,username);
+    QByteArray passwordXORcnonceMD5XORusername = aXorB(passwordXORcnonceMD5,mUsername);
     qDebug() << "B64 passwordXORcnonceMD5XORusername:"<< base64(passwordXORcnonceMD5XORusername) + " Length:"
             << passwordXORcnonceMD5XORusername.length();
 
     QByteArray passwordXORcnonceMD5XORusernameXORhamsterSec1 = aXorB(
-            passwordXORcnonceMD5XORusername, this->hamsterSec1);
+            passwordXORcnonceMD5XORusername, this->mHamsterSec1);
     qDebug() << "B64 passwordXORcnonceMD5XORusernameXORhamsterSec1:"
             << base64(passwordXORcnonceMD5XORusernameXORhamsterSec1)
             << " Length:"
@@ -106,12 +106,12 @@ QByteArray HPSAuthentication::makeAuthResponse(const QByteArray &cnonce){
 }
 
 void HPSAuthentication::readNextStringLine() {
-    switch(this->currentState) {
+    switch(this->mCurrentState) {
     case ChallangeResponse:
-        this->checkChallangeResponse(this->socket->readLine());
+        this->checkChallangeResponse(this->mSocket->readLine());
         break;
     case AuthRespons:
-        this->checkAuthResponse(this->socket->readLine());
+        this->checkAuthResponse(this->mSocket->readLine());
         break;
     }
     /*  QString tmpString = "";
@@ -120,24 +120,24 @@ void HPSAuthentication::readNextStringLine() {
 }
 void HPSAuthentication::checkChallangeResponse(QByteArray block){
     QByteArray challenge = base64Decode(block.replace("\n",""));
-    qDebug() << "rnonce" << this->rnonceB64;
+    qDebug() << "rnonce" << this->mRnonceB64;
     qDebug() <<  "Challenge received:" << block << " Length:"<< challenge.length();
 
     // Calculate CNONCE
 
-    QByteArray cnonce = aXorB(aXorB(challenge, this->hamsterSec2),
-                              base64Decode(this->rnonceB64));
+    QByteArray cnonce = aXorB(aXorB(challenge, this->nHamsterSec2),
+                              base64Decode(this->mRnonceB64));
 
     qDebug() << "CNONCE calculated, should be:" << base64(cnonce);
 
 
-    this->socket->write(this->makeAuthResponse(cnonce));
-    this->socket->flush();
-    this->currentState = this->AuthRespons;
+    this->mSocket->write(this->makeAuthResponse(cnonce));
+    this->mSocket->flush();
+    this->mCurrentState = this->AuthRespons;
 
 }
 void HPSAuthentication::checkAuthResponse(QByteArray block){
-    this->socket->disconnect();
+    this->mSocket->disconnect();
     if (block.contains("SUCCESS"))
         emit this->finshed(true);
     else

@@ -13,8 +13,8 @@ public:
     QWidget *createEditor ( QWidget * parent, const QStyleOptionViewItem & option, const QModelIndex & index ) const;
     bool editorEvent ( QEvent * event, QAbstractItemModel * model, const QStyleOptionViewItem & option, const QModelIndex & index ) ;
 private:
-    int size;
-    bool *check;
+    int mSize;
+    bool *mCheck;
 };
 
 #endif // HPSLISTVIEWDELEGATE_H

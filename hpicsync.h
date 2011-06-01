@@ -21,24 +21,21 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 private:
-    QPushButton *butClose,*butRefresh,*butOption,*butMarkAll,*butMarkSelected,*butCopy,*butPlus;
-    QListWidget *newList,*oldList;
-    QLabel *lPixOldLoadCount,*lConnectPixRot,*lConnectPixGruen,*lConnect;
-    //QComboBox *coOrdner;
-  StandardHPSTreeCombobox *coOrdner;
-  QTreeWidget *tree;
-  //  HTreeWidget *tree;
-    QList<QImage> thumbs;
-    QMap<QThread *,HPSImageLoader *> threads;
-    HPSOption option;
-    HPSOptionWidget *optionWidget;
-    HPSTCPModul *tcpModul;
-    HPSDirManager dirManager;
-    QTcpSocket *socket;
-    QElapsedTimer timer;
-    bool moreThanOneSelected;
-    int posImages;
-    QMutex mutex;
+    QPushButton *mCloseButton,*mRefreshButton,*mOptionButton,*mtMarkAllButton,*mMarkSelectedButton,*mCopyButton,*mPlusButton;
+    QListWidget *mNewListWidget,*mOldListWidget;
+    QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
+
+  StandardHPSTreeCombobox *mTreeComboBox;
+    QList<QImage> mThumbs;
+    QMap<QThread *,HPSImageLoader *> mThreads;
+    HPSOption mOption;
+    HPSOptionWidget *mOptionWidget;
+    HPSTCPModul *mTcpModul;
+    HPSDirManager mDirManager;
+    QElapsedTimer mTimer;
+    bool mMoreThanOneSelected;
+    int mPosImages;
+    QMutex mMutex;
 
     void loadImages();
     void initCBOrdner(int index,const QString &dir);

@@ -1,6 +1,6 @@
 #include "hpsfindserver.h"
 HPSFindServer::HPSFindServer(QList<QTcpSocket *> &list,QMutex &mutex,const QString &ip,const int port, QObject *parent):
-        QObject(parent),foundedServer(list),mutex(mutex),ip(ip),port(port)
+        QObject(parent),mFoundedServer(list),mMutex(mutex),mIp(ip),mPort(port)
 {
 }
 HPSFindServer::~HPSFindServer(){
@@ -10,9 +10,9 @@ void HPSFindServer::socketError(QAbstractSocket::SocketError error){
     QTcpSocket *s = (QTcpSocket*)sender();
     //qDebug() << error << s;
     delete s;
-    this->count--;
+    this->mCount--;
     //qDebug() << this->count;
-    if(this->count ==0){
+    if(this->mCount ==0){
       //  qDebug() << "fertig";
         emit this->finished();
     }
@@ -21,13 +21,13 @@ void HPSFindServer::socketError(QAbstractSocket::SocketError error){
 void HPSFindServer::serverFound(){
     QTcpSocket *s =(QTcpSocket*)sender();
     s->disconnect();
-    this->mutex.lock();
-    this->foundedServer.append(s);
-    this->mutex.unlock();
+    this->mMutex.lock();
+    this->mFoundedServer.append(s);
+    this->mMutex.unlock();
     //qDebug() << "found server"<<  s << s->peerAddress().toString();
-    this->count--;
+    this->mCount--;
     //qDebug() << this->count ;
-    if(this->count == 0){
+    if(this->mCount == 0){
       //  qDebug() << "fertig";
         emit this->finished();
     }
@@ -35,9 +35,9 @@ void HPSFindServer::serverFound(){
 
 void HPSFindServer::search(){
  //   qDebug() <<"muh"<< this->ip;
-    QString tmpIP= this->ip.section(".",0,2)+".";
+    QString tmpIP= this->mIp.section(".",0,2)+".";
    // qDebug() << tmpIP;
-    this->count = 253;
+    this->mCount = 253;
     for( int i = 1;i<255;i++){
         QTcpSocket *s = new QTcpSocket();
      //   qDebug() << tmpIP+QString::number(i) << s;
@@ -48,5 +48,5 @@ void HPSFindServer::search(){
 }
 
 const QList<QTcpSocket *> & HPSFindServer::result(){
-    return this->foundedServer;
+    return this->mFoundedServer;
 }

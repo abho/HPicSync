@@ -8,7 +8,7 @@ class HPSAuthentication : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSAuthentication(const QString &usernameString, const QString &passwordString,QTcpSocket *socket,QObject *parent = 0);
+    explicit HPSAuthentication(const QString &usernameString, const QString &passwordString,QTcpSocket *mSocket,QObject *parent = 0);
     QByteArray makeHelloResponse();
     QByteArray makeAuthResponse(const QByteArray &cnonce);
     int getCounter();
@@ -16,11 +16,11 @@ public:
     void restart();
     QTcpSocket* getSocket();
 private:
-    QTcpSocket *socket;
-    QByteArray username,password,hamsterSec1,hamsterSec2,CHPVERSION,rnonceB64;
+    QTcpSocket *mSocket;
+    QByteArray mUsername,mPassword,mHamsterSec1,nHamsterSec2,mChpVersion,mRnonceB64;
     enum state {ChallangeResponse, AuthRespons,AcceptResponse};
-    state currentState;
-    int counter;
+    state mCurrentState;
+    int mCounter;
 
     int getPositivRandomIntIn(int intervalBegin, int intervalEnd);
     int getCurrentUnixTime();

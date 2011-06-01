@@ -12,11 +12,11 @@ public:
     ~HPSFindServer();
     const QList<QTcpSocket *> & result();
 private:
-    QList<QTcpSocket *> &foundedServer;
-    QMutex &mutex;
-    QString ip;
-    const int port;
-    int count;
+    QList<QTcpSocket *> &mFoundedServer;
+    QMutex &mMutex;
+    QString mIp;
+    const int mPort;
+    int mCount;
 
 public slots:
     void search();

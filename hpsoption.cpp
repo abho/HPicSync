@@ -20,6 +20,7 @@ HPSOption::HPSOption() :
     this->port = this->setting.value("port",1234).toInt();
     this->comboBoxView = this->setting.value("comboBoxView",HPSOption::ListView).toInt();
     comboBoxCurrentDir = this->setting.value("cbCurrentDir","" ).toString();
+    mExpandDirs = setting.value("expandDirs",QStringList()).toStringList();
 }
 
 
@@ -120,4 +121,15 @@ void HPSOption::removeOrdner(const QString &dir)
 {
     ordner.removeOne(dir);
     setting.setValue("ordner",ordner);
+}
+
+const QStringList & HPSOption::expandDirs()
+{
+    return  mExpandDirs;
+}
+
+void HPSOption::setExpandDirs(const QStringList &dirs)
+{
+    mExpandDirs = dirs;
+    setting.setValue("expandDirs", mExpandDirs);
 }

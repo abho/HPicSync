@@ -28,7 +28,6 @@ HEADERS  += \
     hpsoptionwidget.h \
     hpsdirmanager.h \
     hpicsync.h \
-    hpsdirknoten.h \
     hpsfindserver.h \
     hpslistviewdelegate.h \
     hpsoption.h \
