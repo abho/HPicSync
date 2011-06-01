@@ -48,8 +48,8 @@ HPicSync::HPicSync(QWidget *parent)
 
     QHBoxLayout *comboBox = new QHBoxLayout();
 
-    this->mTreeComboBox = new StandardHPSTreeCombobox(this);
-    mDirManager.setModel( mTreeComboBox->model());
+    this->mTreeComboBox = new HPSTreeCombobox(this);
+    mDirManager.setModel( mTreeComboBox->standardModel());
     initCBOrdner(mOption.getComboBoxView(),mOption.getComboBoxCurrentDir());
     mPlusButton=new QPushButton(tr("plus"));
     comboBox->addWidget(mTreeComboBox,10);
@@ -105,9 +105,11 @@ HPicSync::HPicSync(QWidget *parent)
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
     this->connect(this->mRefreshButton,SIGNAL(clicked()),this,SLOT(test()));
     this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
+    connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
 
     this->setGeometry(this->mOption.getGeometry());
+    mDatabaseHandler.openDatabase("picsync.db");
 
 }
 HPicSync::~HPicSync()
@@ -145,8 +147,8 @@ void HPicSync::showOption(){
     if(this->mOptionWidget== NULL){
         this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
         connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
-        connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)), &mDirManager,SLOT(removeDirs(QStringList)));
-
+        //connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)), &mDirManager,SLOT(removeDirs(QStringList)));
+        connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)),this,SLOT(ordnerRemoved(QStringList)));
         qDebug() << "optionWidget is null";
     }
     this->mOptionWidget->resetAndShow();
@@ -269,5 +271,20 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
    QList<QStandardItem*> expandesIems= mDirManager.makeView();
    if(!expandesIems.isEmpty())
     mTreeComboBox->setExpandedItems( expandesIems );
-       mTreeComboBox->findeAndSetCurrentItem(dir);
+   mTreeComboBox->findeAndSetCurrentItem(dir);
+}
+
+void HPicSync::comboBoxItemclicked(QModelIndex index)
+{
+    qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole);
+}
+
+void HPicSync::ordnerRemoved(QStringList dirs)
+{
+
+    if(dirs.contains( mTreeComboBox->getCurrentDir()))
+        mTreeComboBox->setCurrentItem(NULL);
+
+     mDirManager.removeDirs(dirs);
+
 }

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network gui
+QT       += core network gui sql
 
 TARGET = HPicSync
 TEMPLATE = app
@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     hpspasswordwidget.cpp \
     hpsselectaddresswidget.cpp \
     hpstcpmodul.cpp \
-    hpstreecombobox.cpp
+    hpstreecombobox.cpp \
+    hpsdbhandler.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -36,7 +37,8 @@ HEADERS  += \
     hpspasswordwidget.h \
     hpsselectaddresswidget.h \
     hpstcpmodul.h \
-    hpstreecombobox.h
+    hpstreecombobox.h \
+    hpsdbhandler.h
 
 
 RESOURCES += \

@@ -19,22 +19,25 @@ class HPSTreeCombobox : public QComboBox
 {
     Q_OBJECT
 public:
-    HPSTreeCombobox(QModelIndex defaultRootIdx = QModelIndex(), QWidget* parent = 0);
-    void setRoot(QModelIndex defaultRootIdx)
-    {
-        mDefaultRootIndex = defaultRootIdx;
-    }
+    HPSTreeCombobox( QWidget* parent = 0);
+
+    QStandardItemModel *standardModel() const;
     void setViewToTree();
     void setViewToList();
     bool eventFilter(QObject* object, QEvent* event);
     virtual void showPopup();
     virtual void hidePopup();
     void setExpandedItems(const QList<QStandardItem*> &items);
-
+    void findeAndSetCurrentItem(const QString &dir);
+    void setCurrentItem(QStandardItem *item);
+    const QString getCurrentDir();
+    const QStringList &expandeDirs();
 
 public Q_SLOTS:
     void updateText();
     void blockLineEditChanged(const QString &);
+
+signals:
     void itemClicked( QModelIndex index);
 
 private slots:
@@ -44,31 +47,10 @@ private:
     bool mSkipNextHide;
     QTreeView *mTreeView;
     QListView *mListView;
+    QStandardItem* findIndex( QStandardItem *item,const QString &dir);
 protected:
     QModelIndex mDefaultRootIndex;
     QModelIndex mCIndex;
     QStringList mExpandeDirs;
 };
 
-
-
-
-class StandardHPSTreeCombobox : public HPSTreeCombobox
-{
-    Q_OBJECT
-
-public:
-    StandardHPSTreeCombobox(QWidget* parent = 0);
-
-    QStandardItemModel *model() const;
-    // convenience method to add item at the top of the tree
-    void findeAndSetCurrentItem(const QString &dir);
-    void setCurrentItem(QStandardItem *item);
-    const QString getCurrentDir();
-    const QStringList &expandeDirs();
-
-private:
-    QStandardItem* findIndex( QStandardItem *item,const QString &dir);
-
-
-};

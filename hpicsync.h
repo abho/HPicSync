@@ -9,6 +9,7 @@
 #include "hpsimageloader.h"
 #include "hpsdirmanager.h"
 #include "hpstreecombobox.h"
+#include "hpsdbhandler.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -24,13 +25,14 @@ private:
     QListWidget *mNewListWidget,*mOldListWidget;
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
 
-  StandardHPSTreeCombobox *mTreeComboBox;
+  HPSTreeCombobox *mTreeComboBox;
     QList<QImage> mThumbs;
     QMap<QThread *,HPSImageLoader *> mThreads;
     HPSOption mOption;
     HPSOptionWidget *mOptionWidget;
     HPSTCPModul *mTcpModul;
     HPSDirManager mDirManager;
+    HPSDBHandler mDatabaseHandler;
     QElapsedTimer mTimer;
     bool mMoreThanOneSelected;
     int mPosImages;
@@ -48,6 +50,9 @@ private slots:
     void fertigTime();
     void clickedPlus();
     void comboBoxViewChanged(int);
+    void ordnerRemoved(QStringList dirs);
+    void comboBoxItemclicked( QModelIndex );
+
 
 };
 
