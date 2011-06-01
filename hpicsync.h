@@ -26,7 +26,8 @@ private:
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
 
   HPSTreeCombobox *mTreeComboBox;
-    QList<QImage> mThumbs;
+    QVector<QImage> mThumbs;
+    QVector<QString> mHashes;
     QMap<QThread *,HPSImageLoader *> mThreads;
     HPSOption mOption;
     HPSOptionWidget *mOptionWidget;
@@ -38,7 +39,7 @@ private:
     int mPosImages;
     QMutex mMutex;
 
-    void loadImages();
+    void loadImages(const QString &folder);
     void initCBOrdner(int index,const QString &dir);
 private slots:
     void fotosReady(int size,const QString &str);

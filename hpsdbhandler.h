@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtSql/QSqlDatabase>
+#include <QtSql>
 #include <QDebug>
 
 

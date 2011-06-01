@@ -1,15 +1,14 @@
 #include "hpsimageloader.h"
 #include <QElapsedTimer>
 #include <QDebug>
- bool HPSImageLoader::mSendError =false;
-HPSImageLoader::HPSImageLoader(QMutex &mutex,const QStringList&fileNames, const int start,const int end,const QString &quellOrdner, int size, QList<QImage> *thumbs, QObject *parent) :
-        QObject(parent),mMutex(mutex),mQuellOrdner(quellOrdner),mList(thumbs),mSize(size),mStartPos(start),mEnd(end),
-        mFileNames(fileNames),mEx(false)
+bool HPSImageLoader::mSendError =false;
+QStringList HPSImageLoader::mFileNames = QStringList();
+HPSImageLoader::HPSImageLoader(QMutex &mutex, const int start,const int end, int size, QObject *parent) :
+    QObject(parent),mSize(size),mStartPos(start),mEnd(end),mMutex(mutex),mEx(false)
 {
 }
 void HPSImageLoader::start(){
     qDebug() << "start loader";
-
     load();
 }
 
@@ -24,6 +23,8 @@ void HPSImageLoader::load(){
     int packet=10;
     QSize imageSize;
     QElapsedTimer timer;
+    QByteArray block;
+    QFile file;
     timer.start();
     //reader.setScaledSize(QSize(sizeW,sizeH));
     for(i  = mStartPos; i <= mEnd;i++){
@@ -32,8 +33,8 @@ void HPSImageLoader::load(){
             deleteLater();
             return;
         }
-        reader.setFileName(mQuellOrdner+"/"+mFileNames.at(i));
-
+        //reader.setFileName(mQuellOrdner+"/"+mFileNames.at(i));
+        file.setFileName(mQuellOrdner+"/"+mFileNames.at(i));
         //imageSize = reader.size();
         //imageSize.scale(QSize(sizeW,sizeH), Qt::KeepAspectRatio);
         //reader.setScaledSize(imageSize);
@@ -51,13 +52,20 @@ void HPSImageLoader::load(){
         }
         */
         //reader.setScaledSize(QSize(sizeW,sizeH));
-        if(reader.read(&image)){
-            image =image.scaled(200,200,Qt::KeepAspectRatio).
-                   scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+        //if(reader.read(&image)){
+        if(file.open(QIODevice::ReadOnly))  {
+            block =file.readAll();
+            mHashVec[i]= QCryptographicHash::hash(block,QCryptographicHash::Md5);
+
+            image.loadFromData(block);
             image.setText(QString("name"),QString(mFileNames.at(i)));
-            mMutex.lock();
-            mList->append(image);
-            mMutex.unlock();
+
+            // mMutex.lock();
+            mImageVec[i]=image.scaled(200,200,Qt::KeepAspectRatio).
+                    scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+
+
+            // mMutex.unlock();
 
             if((counter+1)%packet==0&&(counter!=0)){
                 qDebug() << thread()<<"ready" << packet << counter;
@@ -105,3 +113,25 @@ void HPSImageLoader::beenden() {
 HPSImageLoader::~HPSImageLoader(){
     qDebug()<<"tot";
 }
+
+static void HPSImageLoader::setImageVector(QVector<QImage> &imageVec)
+{
+    mImageVec = imageVec;
+}
+
+static void HPSImageLoader::setHashVector(QVector<QString> &hashVec)
+{
+    mHashVec = hashVec;
+}
+
+static void HPSImageLoader::setFileNames(const QStringList &fileNames)
+{
+    mFileNames = fileNames;
+}
+
+void HPSImageLoader::setFolder(const QString &folder)
+{
+    mFolder = folder;
+}
+
+

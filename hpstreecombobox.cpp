@@ -38,7 +38,7 @@ HPSTreeCombobox::HPSTreeCombobox(QWidget* parent) :
 }
 
 void HPSTreeCombobox::setViewToTree(){
-    qDebug() << Q_FUNC_INFO;
+    //qDebug() << Q_FUNC_INFO;
 
     mTreeView = new QTreeView();
     mTreeView->viewport()->installEventFilter(this);
@@ -53,7 +53,7 @@ void HPSTreeCombobox::setViewToTree(){
 
 }
 void HPSTreeCombobox::setViewToList() {
-    qDebug()<<Q_FUNC_INFO;
+    //qDebug()<<Q_FUNC_INFO;
 
     mListView = new QListView();
     mListView->setMaximumHeight(400); // by default tree will show as 1 line high, need to reserve room
@@ -149,7 +149,7 @@ QStandardItemModel *HPSTreeCombobox::standardModel() const
 void HPSTreeCombobox::setCurrentItem(QStandardItem *item)
 {
     QModelIndex index;
-qDebug() << Q_FUNC_INFO <<  index << index.isValid();
+//qDebug() << Q_FUNC_INFO <<  index << index.isValid();
     if(item != NULL){
         index = standardModel()->indexFromItem(item);
         view()->setCurrentIndex(index);
@@ -169,7 +169,7 @@ void HPSTreeCombobox::findeAndSetCurrentItem(const QString &dir)
 {
     QStandardItem *item;
     item = findIndex( standardModel()->invisibleRootItem(),dir);
-    qDebug() << item;
+    //qDebug() << item;
     if(item != NULL)
         setCurrentItem( item );
 }
@@ -191,13 +191,14 @@ QStandardItem* HPSTreeCombobox::findIndex(QStandardItem *item,const QString &dir
 
 void HPSTreeCombobox::saveExpandItem(const QModelIndex &index)
 {
-    qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
+    //qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
     if(!mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
         mExpandeDirs.append(index.data(Qt::UserRole).toString());
 }
 
 void HPSTreeCombobox::removeExpandItem(const QModelIndex &index)
-{qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
+{
+    //qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
     if(mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
         mExpandeDirs.removeOne(index.data(Qt::UserRole).toString());
 }

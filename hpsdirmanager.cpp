@@ -14,7 +14,7 @@ void HPSDirManager::addDir(const QString  &dir){
     if(!mOption.getOrdner().contains(dir)){
         mOption.addOrdner(dir);
         mOption.getComboBoxView()==HPSOption::ListView ? addDirToList(dir):addDirToTree( dir);
-        qDebug() << dir << "hinzugefügt";
+       // qDebug() << dir << "hinzugefügt";
     }
 }
 
@@ -28,7 +28,7 @@ const QStringList & HPSDirManager::dirs()
 
 void HPSDirManager::removeDirs(QStringList dirs)
 {
-    qDebug() << Q_FUNC_INFO << dirs;
+    //qDebug() << Q_FUNC_INFO << dirs;
     if ( mOption.getComboBoxView() == HPSOption::ListView) {
         for (int var = 0; var < dirs.size(); ++var) {
             removeDirFromList(dirs.at(var));
@@ -45,7 +45,7 @@ void HPSDirManager::removeDirs(QStringList dirs)
 }
 
 void HPSDirManager::addDirToTree(const QString &dir){
-    qDebug() << __func__ << dir;
+    //qDebug() << __func__ << dir;
     const QStringList folder=dir.split("/",QString::SkipEmptyParts);
     QStandardItem * newItem;
     QStandardItem *parent = currentModel->invisibleRootItem();
@@ -69,7 +69,7 @@ void HPSDirManager::addDirToTree(const QString &dir){
             }
         }
         if (!find) {
-            qDebug() << folder.at(var) << "nicht gefunden ";
+            //qDebug() << folder.at(var) << "nicht gefunden ";
             newItem = new QStandardItem(folder.at(var));
             newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
@@ -89,7 +89,7 @@ void HPSDirManager::addDirToTree(const QString &dir){
 
 void HPSDirManager::addDirToTree(QList<QStandardItem*> & expandedItems,const QString &dir)
 {
-    qDebug() << __func__ << dir;
+    //qDebug() << __func__ << dir;
     const QStringList folder=dir.split("/",QString::SkipEmptyParts);
     QStandardItem * newItem;
     QStandardItem *parent = currentModel->invisibleRootItem();
@@ -113,7 +113,7 @@ void HPSDirManager::addDirToTree(QList<QStandardItem*> & expandedItems,const QSt
             }
         }
         if (!find) {
-            qDebug() << folder.at(var) << "nicht gefunden ";
+            //qDebug() << folder.at(var) << "nicht gefunden ";
             newItem = new QStandardItem(folder.at(var));
             newItem->setData(1,Qt::UserRole+1);
             if(var == folder.size()-1){
@@ -157,12 +157,12 @@ QList<QStandardItem*> HPSDirManager::makeView()
     currentModel->clear();
 
     if ( mOption.getComboBoxView() == HPSOption::ListView) {
-        qDebug() << "ToList";
+       // qDebug() << "ToList";
         for (int i = 0; i < size; ++i) {
             addDirToList(dirs.at(i));
         }
     } else {
-        qDebug() << "toTree";
+        //qDebug() << "toTree";
         for (int i = 0; i < size; ++i) {
             addDirToTree( expandedItems,dirs.at(i));
         }
@@ -173,7 +173,7 @@ QList<QStandardItem*> HPSDirManager::makeView()
 void HPSDirManager::removeDirFromList(const QString &dir)
 {
 
-qDebug() << Q_FUNC_INFO << dir;
+//qDebug() << Q_FUNC_INFO << dir;
     const int size = currentModel->rowCount();
     QStandardItem *item;
     for (int i = 0; i < size; ++i) {
@@ -192,7 +192,7 @@ qDebug() << Q_FUNC_INFO << dir;
 
 void HPSDirManager::removeDirFromTree(const QString &dir)
 {
-    qDebug() << Q_FUNC_INFO << dir;
+    //qDebug() << Q_FUNC_INFO << dir;
     const QStringList folder=dir.split("/",QString::SkipEmptyParts);
     QStandardItem *parent = currentModel->invisibleRootItem();
     QStandardItem *child;
@@ -202,7 +202,7 @@ void HPSDirManager::removeDirFromTree(const QString &dir)
             if(child->text() == folder.at(var)){
                 child->setData(child->data(Qt::UserRole+1).toInt()-1,Qt::UserRole+1);
                 if(child->data(Qt::UserRole+1).toInt() == 0){
-                    qDebug() << child->text() << "entfernt";
+                   // qDebug() << child->text() << "entfernt";
                     parent->removeRow(i);
                     return;
                 }
@@ -211,7 +211,7 @@ void HPSDirManager::removeDirFromTree(const QString &dir)
             }
         }
     }
-    qDebug() << parent->text() << "disablte";
+    //qDebug() << parent->text() << "disablte";
     parent->setEnabled(false);
     parent->setToolTip("");
 

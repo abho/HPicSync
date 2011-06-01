@@ -72,7 +72,6 @@ HPicSync::HPicSync(QWidget *parent)
 
     oldListBox->addLayout(comboBox);
     oldListBox->addWidget(mOldListWidget);
-    qDebug() << mPlusButton->font().pointSize();
     oldListBox->addLayout(beendenBox);
     viewBox->addLayout(newListBox);
     viewBox->addWidget(this->mCopyButton);
@@ -109,7 +108,10 @@ HPicSync::HPicSync(QWidget *parent)
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
 
     this->setGeometry(this->mOption.getGeometry());
-    mDatabaseHandler.openDatabase("picsync.db");
+
+    if(!mDatabaseHandler.openDatabase("picsync.db"))
+        QMessageBox::critical(this, trUtf8("Fehler"), trUtf8("Verbindeung mit der Datenbank konnte nicht hergestellt werden."),QMessageBox::Ok);
+
 
 }
 HPicSync::~HPicSync()
@@ -165,28 +167,49 @@ void HPicSync::test(){
     //this->dirManager.makeListView(this->coOrdner->model());
 
     // this->dirManager.makeTreeView(this->coOrdner->model());
+    /*QFile file("muh.jpg");
+    if(file.open(QIODevice::ReadOnly)){
+        QElapsedTimer timer;
+        QByteArray block = file.readAll();
+        timer.start();
+        QCryptographicHash::hash(block,QCryptographicHash::Sha1);
+        qDebug() << timer.elapsed();
+        timer.restart();
+        QCryptographicHash::hash(block,QCryptographicHash::Md5);
+        qDebug() << timer.elapsed();
+    }else {
+        qDebug() << "fehler"<< file.errorString();
+    }
+*/
 
 
 }
-void HPicSync::loadImages(){
-    this->mPosImages =0;
-    this->mTimer.start();
+void HPicSync::loadImages(const QString &folder){
+    mPosImages =0;
+    mTimer.start();
     int number =QThread::idealThreadCount();
-    QDir dir(this->mOption.getQuellOrdner());
+    QDir dir(folder);
     QStringList fileNames = dir.entryList(QStringList() << "*.png");
-    int partSize= fileNames.size()/number;
+    const int size= fileNames.size();
+    HPSImageLoader::setFileNames(fileNames);
+    mThumbs.resize(size);
+    mHashes.resize(size);
+    HPSImageLoader::setImageVector( mThumbs);
+    HPSImageLoader::setHashVector( mHashes);
+    HPSImageLoader::setFolder(folder);
+
+
+    int partSize= size/number;
     int pos=0, end=-1;
-    qDebug() << partSize<<fileNames.size();
+    qDebug() << partSize<<size;
     for (int  i = 0; i< number;i++){
         pos =end+1;
         if(i==number-1)
-            end=fileNames.size()-1;
+            end=size-1;
         else
             end+=partSize;
         qDebug() << pos << end;
-        HPSImageLoader *imageLoader = new HPSImageLoader(mMutex,fileNames,pos,end,this->mOption.getQuellOrdner(),
-                                                         this->mOption.getThumbSize(),
-                                                         &this->mThumbs);
+        HPSImageLoader *imageLoader = new HPSImageLoader(mMutex,pos,end,mOption.getThumbSize());
         QThread *thread = new QThread();
         this->mThreads.insert(thread,imageLoader);
         imageLoader->moveToThread(thread);
@@ -251,7 +274,7 @@ void HPicSync::comboBoxViewChanged(int index)
 void HPicSync::clickedPlus()
 {
     const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
-    qDebug() << str;
+    //qDebug() << str;
     if (!str.isEmpty()&&!mDirManager.dirs().contains(str)) {
         mDirManager.addDir(str);
         mTreeComboBox->updateText();
@@ -261,17 +284,17 @@ void HPicSync::clickedPlus()
 
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
-    qDebug() << "initCBOrdner" << index << dir;
+    //qDebug() << "initCBOrdner" << index << dir;
     if(index == HPSOption::ListView){
         mOption.setExpandDirs(mTreeComboBox->expandeDirs());
         mTreeComboBox->setViewToList();
     } else {
         mTreeComboBox->setViewToTree();
     }
-   QList<QStandardItem*> expandesIems= mDirManager.makeView();
-   if(!expandesIems.isEmpty())
-    mTreeComboBox->setExpandedItems( expandesIems );
-   mTreeComboBox->findeAndSetCurrentItem(dir);
+    QList<QStandardItem*> expandesIems= mDirManager.makeView();
+    if(!expandesIems.isEmpty())
+        mTreeComboBox->setExpandedItems( expandesIems );
+    mTreeComboBox->findeAndSetCurrentItem(dir);
 }
 
 void HPicSync::comboBoxItemclicked(QModelIndex index)
@@ -285,6 +308,6 @@ void HPicSync::ordnerRemoved(QStringList dirs)
     if(dirs.contains( mTreeComboBox->getCurrentDir()))
         mTreeComboBox->setCurrentItem(NULL);
 
-     mDirManager.removeDirs(dirs);
+    mDirManager.removeDirs(dirs);
 
 }
