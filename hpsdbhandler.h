@@ -13,11 +13,15 @@ class HPSDBHandler : public QObject
 public:
     explicit HPSDBHandler(QObject *parent = 0);
     bool openDatabase(const QString &name);
+    void startTransaction();
+    void finishTransaction();
+    void insertHash(const QString &hash,const QString &dir,const QString &name,const QString &handyHash);
 signals:
 
 public slots:
 
 private:
+    QSqlQuery *mQuery;
     QSqlDatabase mDatabase;
 };
 

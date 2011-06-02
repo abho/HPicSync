@@ -23,7 +23,11 @@ SOURCES += main.cpp\
     hpsselectaddresswidget.cpp \
     hpstcpmodul.cpp \
     hpstreecombobox.cpp \
-    hpsdbhandler.cpp
+    hpsdbhandler.cpp \
+    hpsthumbmanager.cpp \
+    hpsworkerclass.cpp \
+    hpshashsaver.cpp \
+    hpsthumb.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -38,7 +42,11 @@ HEADERS  += \
     hpsselectaddresswidget.h \
     hpstcpmodul.h \
     hpstreecombobox.h \
-    hpsdbhandler.h
+    hpsdbhandler.h \
+    hpsthumbmanager.h \
+    hpsworkerclass.h \
+    hpshashsaver.h \
+    hpsthumb.h
 
 
 RESOURCES += \

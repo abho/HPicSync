@@ -92,13 +92,15 @@ HPicSync::HPicSync(QWidget *parent)
     this->mConnectPixGruenLabel->setPixmap(QPixmap(":/knopfGruen").scaled(QSize(17,17),Qt::KeepAspectRatio));
     this->mConnectPixRotLabel = new QLabel();
     this->mConnectPixRotLabel->setPixmap(QPixmap(":/knopfRot").scaled(QSize(17,17),Qt::KeepAspectRatio));
-    this->mPixOldLoadCountLabel = new QLabel("");
-    this->mPixOldLoadCountLabel->setVisible(false);
-
+    mBar = new QProgressBar;
+    // this->mPixOldLoadCountLabel = new QLabel("");
+    //this->mPixOldLoadCountLabel->setVisible(false);
+    mBar->setVisible(false);
+    mBar->setValue(0);
     this->statusBar()->addWidget(this->mConnectPixGruenLabel);
     this->statusBar()->addWidget(this->mConnectPixRotLabel);
     this->statusBar()->addWidget(this->mConnectLabel);
-    this->statusBar()->addPermanentWidget(this->mPixOldLoadCountLabel);
+    this->statusBar()->addPermanentWidget( mBar);
 
     this->connect(this->mCloseButton,SIGNAL(clicked()),this,SLOT(close()));
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
@@ -106,11 +108,17 @@ HPicSync::HPicSync(QWidget *parent)
     this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
     connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
+    connect( &mThumbManager,SIGNAL(thumsLoaded(int)),this,SLOT(refreshBar(int)));
 
     this->setGeometry(this->mOption.getGeometry());
 
     if(!mDatabaseHandler.openDatabase("picsync.db"))
         QMessageBox::critical(this, trUtf8("Fehler"), trUtf8("Verbindeung mit der Datenbank konnte nicht hergestellt werden."),QMessageBox::Ok);
+    mThumbManager.setDatenBankHandler( &mDatabaseHandler);
+    QDir dir( QApplication::applicationDirPath());
+    if(!dir.exists(".thumbs")){
+        dir.mkdir(".thumbs");
+    }
 
 
 }
@@ -126,24 +134,18 @@ HPicSync::~HPicSync()
 
 
 void HPicSync::closeEvent(QCloseEvent *event){
-    qDebug() << "closeEvent" << this->mThreads;
-    if(this->mThreads.isEmpty()){
+    qDebug() << "closeEvent" << mThumbManager.allThreadsClose();
+    if(mThumbManager.allThreadsClose()){
         event->accept();
     } else {
-        QMapIterator<QThread *, HPSImageLoader*> i(this->mThreads);
-        while (i.hasNext()) {
-            i.next();
-            this->connect(i.key(),SIGNAL(destroyed()),this,SLOT(close()));
-            i.value()->beenden();
-        }
+        mThumbManager.closeAllThreads();
+        connect(&mThumbManager,SIGNAL(allThreadsDestroyed()),this,SLOT(close()));
         event->ignore();
     }
+
 }
-void HPicSync::threadClear() {
-    QThread *thread =(QThread*)sender();
-    this->mThreads.remove(thread);
-    thread->deleteLater();
-}
+
+
 
 void HPicSync::showOption(){
     if(this->mOptionWidget== NULL){
@@ -181,73 +183,25 @@ void HPicSync::test(){
         qDebug() << "fehler"<< file.errorString();
     }
 */
+    loadImages("C:/Users/hakah/me");
+
+    /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
+    if(file.open(QIODevice::ReadOnly))
+        qDebug() << true;
+    else
+        qDebug()<< false;
+*/
+
 
 
 }
 void HPicSync::loadImages(const QString &folder){
-    mPosImages =0;
-    mTimer.start();
-    int number =QThread::idealThreadCount();
-    QDir dir(folder);
-    QStringList fileNames = dir.entryList(QStringList() << "*.png");
-    const int size= fileNames.size();
-    HPSImageLoader::setFileNames(fileNames);
-    mThumbs.resize(size);
-    mHashes.resize(size);
-    HPSImageLoader::setImageVector( mThumbs);
-    HPSImageLoader::setHashVector( mHashes);
-    HPSImageLoader::setFolder(folder);
+    qDebug() << Q_FUNC_INFO;
+    const int size = mThumbManager.creatThumbsAndView( mOption.getThumbSize(),folder, mOldListWidget);
+    mBar->setVisible(true);
+    mBar->setFormat("creating thumbnails...");
+    mBar->setRange(0,size);
 
-
-    int partSize= size/number;
-    int pos=0, end=-1;
-    qDebug() << partSize<<size;
-    for (int  i = 0; i< number;i++){
-        pos =end+1;
-        if(i==number-1)
-            end=size-1;
-        else
-            end+=partSize;
-        qDebug() << pos << end;
-        HPSImageLoader *imageLoader = new HPSImageLoader(mMutex,pos,end,mOption.getThumbSize());
-        QThread *thread = new QThread();
-        this->mThreads.insert(thread,imageLoader);
-        imageLoader->moveToThread(thread);
-        this->connect(thread,SIGNAL(started()),imageLoader,SLOT(start()));
-        this->connect(imageLoader,SIGNAL(destroyed()),thread,SLOT(quit()));
-        this->connect(thread,SIGNAL(finished()),this,SLOT(threadClear()));
-        //this->connect(imageLoader,SIGNAL(error(int,int,QString)),this,SLOT(fotosCheck(int,int,QString)));
-        this->connect(imageLoader,SIGNAL(ready(int,QString)),this,SLOT(fotosReady(int,QString)));
-        this->connect(imageLoader,SIGNAL(fertig()),this,SLOT(fertigTime()));
-        thread->start();
-
-
-    }
-    this->mPixOldLoadCountLabel->setVisible(true);
-    this->mPixOldLoadCountLabel->setText("0 images geladen");
-}
-void HPicSync::fotosReady(int size,const QString &str){
-    qDebug() << this->mThumbs.size() <<this->mPosImages+size;
-    this->mPosImages+=size;
-    this->mPixOldLoadCountLabel->setText(QString::number(this->mPosImages)+" images geladen");
-    if(size !=0 ){
-        for(int i = this->mPosImages-4;i<mPosImages;i++){
-            QListWidgetItem *item= new QListWidgetItem();
-
-            QImage *img =&this->mThumbs[i];
-            item->setData(Qt::DisplayRole,img->text("name"));
-            item->setData(Qt::DecorationRole,qVariantFromValue((void *) img));
-            //img =&this->fotos[i];
-            item->setData(Qt::UserRole+2,qVariantFromValue((void *) img));
-            item->setData(Qt::UserRole+1,i);
-            item->setData(Qt::UserRole+3,this->mOption.getThumbSize());
-            item->setCheckState(Qt::Unchecked);
-            this->mOldListWidget->addItem(item);
-        }
-    }
-    if(str !=""){
-        QMessageBox::warning(this,"Fehler","Bei abrufen des Bildes: "+str+" ist ein Fehler aufgetreten",QMessageBox::Ok);
-    }
 }
 
 
@@ -261,9 +215,7 @@ void HPicSync::test2() {
 
 }
 
-void HPicSync::fertigTime(){
-    qDebug() << "fertig" << this->mTimer.elapsed();
-}
+
 
 void HPicSync::comboBoxViewChanged(int index)
 {
@@ -310,4 +262,20 @@ void HPicSync::ordnerRemoved(QStringList dirs)
 
     mDirManager.removeDirs(dirs);
 
+}
+
+void HPicSync::saveImagesAndHashes()
+{
+    /*const int size = mThumbs.size();
+    QFile file;
+    for (int var = 0; var < size; ++var) {
+        file.setFileName();
+
+    }*/
+
+}
+
+void HPicSync::refreshBar(int value)
+{
+    mBar->setValue(value);
 }

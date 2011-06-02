@@ -5,39 +5,37 @@
 #include <QImageReader>
 #include <QtCore>
 #include <QtAlgorithms>
+#include "hpsworkerclass.h"
+#include "hpsthumb.h"
 //muh
-class HPSImageLoader : public QObject
+class HPSImageLoader : public HPSWorkerClass
 {
     Q_OBJECT
 public:
-    explicit HPSImageLoader(QMutex &mutex,const int start,const int end,const int size,QObject *parent = 0);
+    explicit HPSImageLoader(QMutex &mutex,const int startWithView,const int end,const int size,QObject *parent = 0);
     ~HPSImageLoader();
-    void beenden();
-    static void setImageVector(QVector<QImage> & imageVec);
-    static void setHashVector(QVector<QString> & hashVec);
-    static void setFileNames(const QStringList &fileNames);
+
+    static void setThumbVector(QVector<HPSThumb> * thumbVec);
     static void setFolder(const QString &folder);
 
 private:
-    const QString mQuellOrdner;
 
     const int mSize,mStartPos,mEnd;
     QMutex &mMutex;
-    bool mEx;
 
-    static bool mSendError;
-    static QStringList const mFileNames;
-    static QVector<QImage> &mImageVec;
-    static QVector<QImage> &mHashVec;
-    static const QString mFolder;
+
+    static QVector<HPSThumb> *mThumbVec;
+    static QString mFolder;
+
 signals:
     void fotosReady(int pos, int count);
-    void error(int pos,int count,const QString&str);
+    void error(const int errorPos);
     void fertig();
-    void ready(int mSize,const QString &str);
+    void ready(int pos,int count, const QString &str);
 
 public slots:
-    void start();
+    void startWithView();
+    void startWithoutView();
 private slots:
     void load();
 };

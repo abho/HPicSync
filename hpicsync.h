@@ -10,6 +10,7 @@
 #include "hpsdirmanager.h"
 #include "hpstreecombobox.h"
 #include "hpsdbhandler.h"
+#include "hpsthumbmanager.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -26,14 +27,15 @@ private:
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
 
   HPSTreeCombobox *mTreeComboBox;
-    QVector<QImage> mThumbs;
-    QVector<QString> mHashes;
-    QMap<QThread *,HPSImageLoader *> mThreads;
+
+
     HPSOption mOption;
     HPSOptionWidget *mOptionWidget;
     HPSTCPModul *mTcpModul;
     HPSDirManager mDirManager;
     HPSDBHandler mDatabaseHandler;
+    HPSThumbManager mThumbManager;
+    QProgressBar *mBar;
     QElapsedTimer mTimer;
     bool mMoreThanOneSelected;
     int mPosImages;
@@ -41,14 +43,13 @@ private:
 
     void loadImages(const QString &folder);
     void initCBOrdner(int index,const QString &dir);
+    void saveImagesAndHashes();
 private slots:
-    void fotosReady(int size,const QString &str);
     void showOption();
     void test();
     void socketError(QAbstractSocket::SocketError error);
     void test2();
-    void threadClear();
-    void fertigTime();
+    void refreshBar(int value);
     void clickedPlus();
     void comboBoxViewChanged(int);
     void ordnerRemoved(QStringList dirs);

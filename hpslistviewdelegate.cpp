@@ -20,7 +20,7 @@ void HPSListViewDelegate::paint ( QPainter * painter, const QStyleOptionViewItem
     if(mSize-5==img->size().width() || mSize-20==img->size().height()) {
    //     qDebug() << "nicht scalieren";
     } else {
-       qDebug() << "scalieren";
+       qDebug() << "scalieren" << index.data(Qt::UserRole+1).toInt();
         QImage *orginal = (QImage *)index.data(Qt::UserRole+2).value<void *>();
         *img=orginal->scaled(QSize(mSize-5,mSize-20),Qt::KeepAspectRatio,Qt::SmoothTransformation);
     }
