@@ -33,7 +33,7 @@ void HPSImageLoader::load(){
     QFile file;
     timer.start();
     nextSend = packet-1;
-    HPSThumb *thumb;
+
     //reader.setScaledSize(QSize(sizeW,sizeH));
     for(i  = mStartPos; i <= mEnd;i++){
         if(mEx){
@@ -41,23 +41,22 @@ void HPSImageLoader::load(){
             deleteLater();
             return;
         }
-        thumb = &(*mThumbVec)[i];
+        HPSThumb &thumb = (*mThumbVec)[i];
         //reader.setFileName(mFolder+"/"+mFileNames->at(i));
 
-        file.setFileName(mFolder+"/"+thumb->name);
-        qDebug() <<"muh" << thumb->name;
+        file.setFileName(mFolder+"/"+thumb.name);
 
         //if(reader.read(&image)){
         if(file.open(QIODevice::ReadOnly))  {
             block =file.readAll();
             file.close();
-           thumb->hash = QCryptographicHash::hash(block,QCryptographicHash::Sha1).toHex();
+           thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Sha1).toHex();
 
             image.loadFromData(block);
-            image.setText(QString("name"),QString(thumb->name));
+            image.setText(QString("name"),QString(thumb.name));
 
             // mMutex.lock();
-            thumb->image = image.scaled( sizeW,sizeH,Qt::KeepAspectRatio).
+            thumb.image = image.scaled( 200,200,Qt::KeepAspectRatio).
                     scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
 
 
@@ -93,7 +92,7 @@ void HPSImageLoader::load(){
             return;*/
             qDebug() << "error" << i;
             emit error(i);
-            thumb->error = true;
+            thumb.error = true;
             if(i-1!=lastSend){
                 qDebug() << "fehler ready" << lastSend+1 << i-lastSend-1;
                 emit ready(lastSend+1,i-lastSend-1,"");
@@ -101,11 +100,8 @@ void HPSImageLoader::load(){
             }
             lastSend=i;
             nextSend=counter+packet;
-
         }
-
         counter++;
-
     }
     //qDebug() << "fertig: " << i;
     if(lastSend != i-1){

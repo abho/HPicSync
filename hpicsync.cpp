@@ -183,8 +183,8 @@ void HPicSync::test(){
         qDebug() << "fehler"<< file.errorString();
     }
 */
-    loadImages("C:/Users/hakah/me");
-
+    //loadImages("C:/Users/hakah/me");
+    loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
     /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
     if(file.open(QIODevice::ReadOnly))
         qDebug() << true;

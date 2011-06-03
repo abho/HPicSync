@@ -15,7 +15,7 @@ bool HPSDBHandler::openDatabase(const QString &name)
         return false;
     } else {
         mQuery = new QSqlQuery(mDatabase);
-        if(!mQuery->exec("create table if not exists thumbnails (hash varchar(100) primary key,dir varchar(100), name varchar(20),handyhash varchar(100))"))
+        if(!mQuery->exec("create table if not exists thumbnails (hash varchar(100),dir varchar(100), name varchar(20),handyhash varchar(100))"))
             qDebug() << Q_FUNC_INFO <<"create table" <<  mQuery->lastError().text();
         return true;
     }

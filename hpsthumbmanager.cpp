@@ -1,7 +1,7 @@
 #include "hpsthumbmanager.h"
 
-HPSThumbManager::HPSThumbManager(QObject *parent) :
-    QObject(parent), mDatabaseHandler(NULL),mListWidget(NULL)
+HPSThumbManager::HPSThumbManager(HPSOption &option, QObject *parent) :
+    QObject(parent), mOption(option),mDatabaseHandler(NULL),mListWidget(NULL)
 {
 }
 
@@ -124,12 +124,13 @@ int HPSThumbManager::makeThumbsAndView(const int thumbSize, const QString &cDir,
     int number = QThread::idealThreadCount();
     qDebug() << "number"<< number;
     QDir dir( mCurrentDir);
-    QStringList fileNames = dir.entryList(QStringList() << "*.jpg");
+    QStringList fileNames = dir.entryList(QStringList() << "*.jpg"<<"*.png");
     const int size= fileNames.size();
     qDebug() <<"fileNames.size"<<size;
     mThumbs.resize(size);
     for (int var = 0; var <size; ++var) {
         mThumbs[var]=HPSThumb(fileNames.at(var));
+        qDebug()<<"lal"<< mThumbs.at(var).name;
     }
     HPSImageLoader::setThumbVector( &mThumbs);
     HPSImageLoader::setFolder( mCurrentDir);
@@ -166,4 +167,9 @@ int HPSThumbManager::makeThumbsAndView(const int thumbSize, const QString &cDir,
         thread->start();
     }
     return size;
+}
+
+bool HPSThumbManager::dirReady(const QString &dir)
+{
+    return !mDirsQueue.contains(dir);
 }

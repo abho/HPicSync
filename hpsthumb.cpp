@@ -2,7 +2,7 @@
 
 HPSThumb::HPSThumb(const QString &n): error(false)
 {
-    name = name;
+    name = n;
 }
 HPSThumb::HPSThumb(){
 

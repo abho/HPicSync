@@ -11,33 +11,38 @@
 #include "hpsworkerclass.h"
 #include "hpshashsaver.h"
 #include "hpsthumb.h"
+#include "hpsoption.h"
 
 class HPSThumbManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSThumbManager(QObject *parent = 0);
+    explicit HPSThumbManager( HPSOption &option, Object *parent = 0);
     int creatThumbsAndView(const int thumbSize,const QString &cDir,QListWidget *listWidgte);
     int creatThumbs(const int thumbSize,const QString &cDir);
     bool allThreadsClose();
     void closeAllThreads();
     void setDatenBankHandler(HPSDBHandler *handler);
+    bool dirReady(const QString &dir);
 signals:
     void thumsLoaded(int);
     void allThreadsDestroyed();
 public slots:
 
 private:
+    HPSOption &mOption;
     HPSDBHandler *mDatabaseHandler;
-    QVector<HPSThumb> mThumbs;
+    QStringList mDirsCheck;
+    QStringList mDirsQueue;
     QString mCurrentDir;
-    int mThumbsLoaded;
-    int mCurrentThumbSize;
+    QVector<HPSThumb> mThumbs;    
     QMap<QThread *,HPSWorkerClass *> mThreads;
-    QMutex mMutex;
     QListWidget *mListWidget;
     QElapsedTimer mTimer;
+     QMutex mMutex;
     int mCountError;
+    int mThumbsLoaded;
+    int mCurrentThumbSize;
 
     void saveHashes();
     void  reset();
