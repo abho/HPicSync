@@ -25,10 +25,10 @@ void HPSHashSaver::start()
             const HPSThumb &thumb = mImageVec.at(var);
                 if(!thumb.error) {
                     //qDebug() << QApplication::applicationDirPath()+"/.thumbs/"+thumb.hash+"."+QFileInfo(thumb.name).suffix();
-                    if(!thumb.image.save(QApplication::applicationDirPath()+"/.thumbs/"+thumb.hash+"."+QFileInfo(thumb.name).suffix())){
+                    if(!thumb.image.save(QApplication::applicationDirPath()+"/.thumbs/"+thumb.hash+"."+thumb.suffix)){
                         qDebug()<< Q_FUNC_INFO<<"thumb konnte nicht gespeichert werden";
                     }else  {
-                        mDatabaseHandler->insertHash( thumb.hash, mFolder, thumb.name,"");
+                        mDatabaseHandler->insertHash( thumb.hash, mFolder, thumb.name, thumb.lastModi, thumb.size,"");
                     }
                 }
         }

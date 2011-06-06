@@ -17,41 +17,44 @@ class HPSThumbManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSThumbManager( HPSOption &option, Object *parent = 0);
-    int creatThumbsAndView(const int thumbSize,const QString &cDir,QListWidget *listWidgte);
-    int creatThumbs(const int thumbSize,const QString &cDir);
+    explicit HPSThumbManager( HPSOption &option, QObject *parent = 0);
+    int creatThumbs(const QString &cDir,const bool subDirs,const bool view);
     bool allThreadsClose();
     void closeAllThreads();
     void setDatenBankHandler(HPSDBHandler *handler);
+    void setListWidget(QListWidget *listWidget);
     bool dirReady(const QString &dir);
+    int startWork();
+
 signals:
-    void thumsLoaded(int);
     void allThreadsDestroyed();
+    void startThumbCreation( const QString&,const int);
+    void thumbsReady(const int);
 public slots:
 
 private:
     HPSOption &mOption;
     HPSDBHandler *mDatabaseHandler;
     QStringList mDirsCheck;
-    QStringList mDirsQueue;
     QString mCurrentDir;
-    QVector<HPSThumb> mThumbs;    
+    QVector<HPSThumb> mThumbs;
     QMap<QThread *,HPSWorkerClass *> mThreads;
     QListWidget *mListWidget;
     QElapsedTimer mTimer;
-     QMutex mMutex;
+    QMutex mMutex;
     int mCountError;
     int mThumbsLoaded;
-    int mCurrentThumbSize;
 
     void saveHashes();
     void  reset();
-    int makeThumbsAndView(const int thumbSize,const QString &cDir,QListWidget *listWidgte);
+    void  makeThumbsAndView(const QString &cDir,const bool withView);
+    void subDirsFrom(const QString &dir,QStringList &dirs);
 
 private slots:
      void fertigTime();
      void threadClear();
-     void fotosReady(int pos, int count,const QString &str);
+     void fotosReady(int pos, int count);
+     void fotoReady();
      void checkIfAllClose();
      void getError(int error);
      void hashesReady();

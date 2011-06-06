@@ -34,6 +34,10 @@ public:
     void setComboBoxCurrentDir(const QString &currentDir);
     void setExpandDirs(const QStringList &dirs);
     const QStringList& expandDirs();
+    const QStringList& createThumbDirs();
+    void setCreateThumbDirs(const QStringList &dirs);
+    void removeCreateThumbDir(const QString &dir);
+    void appendCreateThumbDir(const QStringList &dirs);
 
 
 private:
@@ -44,6 +48,7 @@ private:
     QRect mGeometry,mGeometryOption;
     QStringList mOrdner;
     QStringList mExpandDirs;
+    QStringList mCreateThumbDirs;
     int mComboBoxView;
 };
 

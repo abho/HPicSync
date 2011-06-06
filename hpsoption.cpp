@@ -21,6 +21,7 @@ HPSOption::HPSOption() :
     mComboBoxView = mSetting.value("comboBoxView",HPSOption::ListView).toInt();
     mComboBoxCurrentDir = mSetting.value("cbCurrentDir","" ).toString();
     mExpandDirs = mSetting.value("expandDirs",QStringList()).toStringList();
+    mCreateThumbDirs = mSetting.value("createthumbdirs",QStringList()).toStringList();
 }
 
 
@@ -133,3 +134,28 @@ void HPSOption::setExpandDirs(const QStringList &dirs)
     mExpandDirs = dirs;
     mSetting.setValue("expandDirs", mExpandDirs);
 }
+
+void HPSOption::setCreateThumbDirs(const QStringList &dirs)
+{
+    mCreateThumbDirs = dirs;
+    mSetting.setValue("createthumbdirs", mCreateThumbDirs);
+}
+
+const QStringList & HPSOption::createThumbDirs()
+{
+    return mCreateThumbDirs;
+}
+
+void HPSOption::removeCreateThumbDir(const QString &dir)
+{
+    mCreateThumbDirs.removeOne(dir);
+    mSetting.setValue("createthumbdirs",mCreateThumbDirs);
+
+}
+
+void HPSOption::appendCreateThumbDir(const QStringList &dirs)
+{
+    mCreateThumbDirs.append(dirs);
+    mSetting.setValue("createthumbdirs",mCreateThumbDirs);
+}
+

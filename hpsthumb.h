@@ -12,6 +12,9 @@ public:
     ~HPSThumb();
     QString name;
     QString hash;
+    QString lastModi;
+    QString suffix;
+    int size;
     QImage image;
     bool error;
 

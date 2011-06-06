@@ -15,7 +15,8 @@ bool HPSDBHandler::openDatabase(const QString &name)
         return false;
     } else {
         mQuery = new QSqlQuery(mDatabase);
-        if(!mQuery->exec("create table if not exists thumbnails (hash varchar(100),dir varchar(100), name varchar(20),handyhash varchar(100))"))
+        if(!mQuery->exec("create table if not exists thumbnails (hash varchar(100),dir varchar(100), name varchar(20),lastmodi varchar(20),size int,handyhash varchar(100),"
+                         "constraint muh primary key(dir,name))"))
             qDebug() << Q_FUNC_INFO <<"create table" <<  mQuery->lastError().text();
         return true;
     }
@@ -33,14 +34,17 @@ void HPSDBHandler::finishTransaction()
         mDatabase.commit();
 }
 
-void HPSDBHandler::insertHash(const QString &hash, const QString &dir, const QString &name, const QString &handyHash)
+void HPSDBHandler::insertHash(const QString &hash, const QString &dir, const QString &name, const QString &lastModi, const int size,const QString &handyHash)
 {
-    mQuery->prepare("insert into thumbnails(hash,dir,name,handyhash)"
-                 "values(:hash,:dir,:name,:handyhash)");
+    mQuery->prepare("insert into thumbnails(hash,dir,name,lastmodi,size,handyhash)"
+                 "values(:hash,:dir,:name,:lastmodi,:size,:handyhash)");
     mQuery->bindValue(":hash",hash);
     mQuery->bindValue(":dir",dir);
     mQuery->bindValue(":name",name);
+    mQuery->bindValue(":lastmodi", lastModi);
+    mQuery->bindValue(":size", size);
     mQuery->bindValue(":handyhash",handyHash);
-   if(! mQuery->exec())
-       qDebug() << Q_FUNC_INFO <<"insert" <<  mQuery->lastError().text();
+    if(! mQuery->exec()){
+       //qDebug() << Q_FUNC_INFO <<"insert" <<  mQuery->lastError().text();
+    }
 }

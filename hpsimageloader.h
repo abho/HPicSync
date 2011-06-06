@@ -28,16 +28,16 @@ private:
     static QString mFolder;
 
 signals:
-    void fotosReady(int pos, int count);
+    void fotosReady();
     void error(const int errorPos);
     void fertig();
-    void ready(int pos,int count, const QString &str);
+    void ready(int pos,int count);
 
 public slots:
     void startWithView();
     void startWithoutView();
 private slots:
-    void load();
+    void load(bool withSignals);
 };
 
 #endif // HPSIMAGELOADER_H

@@ -15,7 +15,7 @@ public:
     bool openDatabase(const QString &name);
     void startTransaction();
     void finishTransaction();
-    void insertHash(const QString &hash,const QString &dir,const QString &name,const QString &handyHash);
+    void insertHash(const QString &hash,const QString &dir,const QString &name,const QString &lastModi, const int size,const QString &handyHash);
 signals:
 
 public slots:

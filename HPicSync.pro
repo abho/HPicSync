@@ -27,7 +27,10 @@ SOURCES += main.cpp\
     hpsthumbmanager.cpp \
     hpsworkerclass.cpp \
     hpshashsaver.cpp \
-    hpsthumb.cpp
+    hpsthumb.cpp \
+    hpsoldlistdelegate.cpp \
+    hpsprogressbar.cpp \
+    hpsdirdialog.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -46,7 +49,10 @@ HEADERS  += \
     hpsthumbmanager.h \
     hpsworkerclass.h \
     hpshashsaver.h \
-    hpsthumb.h
+    hpsthumb.h \
+    hpsoldlistdelegate.h \
+    hpsprogressbar.h \
+    hpsdirdialog.h
 
 
 RESOURCES += \
@@ -55,3 +61,6 @@ RESOURCES += \
 OTHER_FILES += \
     knopfRot.png \
     knopfGruen.png
+
+FORMS += \
+    hpsdirdialog.ui

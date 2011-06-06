@@ -11,6 +11,9 @@
 #include "hpstreecombobox.h"
 #include "hpsdbhandler.h"
 #include "hpsthumbmanager.h"
+#include "hpsoldlistdelegate.h"
+#include "hpsprogressbar.h"
+#include "hpsdirdialog.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -35,7 +38,7 @@ private:
     HPSDirManager mDirManager;
     HPSDBHandler mDatabaseHandler;
     HPSThumbManager mThumbManager;
-    QProgressBar *mBar;
+    HPSProgressBar *mBar;
     QElapsedTimer mTimer;
     bool mMoreThanOneSelected;
     int mPosImages;
@@ -43,6 +46,7 @@ private:
 
     void loadImages(const QString &folder);
     void initCBOrdner(int index,const QString &dir);
+    void initThumbManager();
     void saveImagesAndHashes();
 private slots:
     void showOption();
@@ -50,6 +54,7 @@ private slots:
     void socketError(QAbstractSocket::SocketError error);
     void test2();
     void refreshBar(int value);
+    void initBar(const QString &,const int);
     void clickedPlus();
     void comboBoxViewChanged(int);
     void ordnerRemoved(QStringList dirs);

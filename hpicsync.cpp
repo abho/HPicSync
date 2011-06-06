@@ -2,7 +2,7 @@
 #include <QDebug>
 
 HPicSync::HPicSync(QWidget *parent)
-    : QMainWindow(parent),mOptionWidget(NULL),mDirManager(mOption),mMoreThanOneSelected(false)
+    : QMainWindow(parent),mOptionWidget(NULL),mDirManager(mOption),mThumbManager( mOption),mMoreThanOneSelected(false)
 {
 
 
@@ -62,7 +62,7 @@ HPicSync::HPicSync(QWidget *parent)
     this->mOldListWidget->setResizeMode(QListView::Adjust);
     this->mOldListWidget->setAutoScroll(false);
     this->mOldListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    HPSListViewDelegate *delegateOld = new HPSListViewDelegate(this->mOption.getThumbSize(),&this->mMoreThanOneSelected,this);
+    HPSOldListDelegate *delegateOld = new HPSOldListDelegate(this->mOption.getThumbSize(),this);
     this->mOldListWidget->setItemDelegate(delegateOld);
 
     QHBoxLayout *beendenBox = new QHBoxLayout();
@@ -92,11 +92,12 @@ HPicSync::HPicSync(QWidget *parent)
     this->mConnectPixGruenLabel->setPixmap(QPixmap(":/knopfGruen").scaled(QSize(17,17),Qt::KeepAspectRatio));
     this->mConnectPixRotLabel = new QLabel();
     this->mConnectPixRotLabel->setPixmap(QPixmap(":/knopfRot").scaled(QSize(17,17),Qt::KeepAspectRatio));
-    mBar = new QProgressBar;
+    mBar = new HPSProgressBar;
     // this->mPixOldLoadCountLabel = new QLabel("");
     //this->mPixOldLoadCountLabel->setVisible(false);
     mBar->setVisible(false);
     mBar->setValue(0);
+    mBar->setTextVisible(false);
     this->statusBar()->addWidget(this->mConnectPixGruenLabel);
     this->statusBar()->addWidget(this->mConnectPixRotLabel);
     this->statusBar()->addWidget(this->mConnectLabel);
@@ -108,13 +109,14 @@ HPicSync::HPicSync(QWidget *parent)
     this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
     connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
-    connect( &mThumbManager,SIGNAL(thumsLoaded(int)),this,SLOT(refreshBar(int)));
+    connect( &mThumbManager,SIGNAL(thumbsReady(int)),this,SLOT(refreshBar(int)));
+    connect( &mThumbManager,SIGNAL(startThumbCreation(QString,int)),this,SLOT(initBar(QString,int)));
 
     this->setGeometry(this->mOption.getGeometry());
 
     if(!mDatabaseHandler.openDatabase("picsync.db"))
         QMessageBox::critical(this, trUtf8("Fehler"), trUtf8("Verbindeung mit der Datenbank konnte nicht hergestellt werden."),QMessageBox::Ok);
-    mThumbManager.setDatenBankHandler( &mDatabaseHandler);
+
     QDir dir( QApplication::applicationDirPath());
     if(!dir.exists(".thumbs")){
         dir.mkdir(".thumbs");
@@ -183,8 +185,8 @@ void HPicSync::test(){
         qDebug() << "fehler"<< file.errorString();
     }
 */
-    //loadImages("C:/Users/hakah/me");
-    loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
+    loadImages("C:/Users/hakah/me");
+    // loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
     /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
     if(file.open(QIODevice::ReadOnly))
         qDebug() << true;
@@ -197,10 +199,11 @@ void HPicSync::test(){
 }
 void HPicSync::loadImages(const QString &folder){
     qDebug() << Q_FUNC_INFO;
-    const int size = mThumbManager.creatThumbsAndView( mOption.getThumbSize(),folder, mOldListWidget);
     mBar->setVisible(true);
-    mBar->setFormat("creating thumbnails...");
-    mBar->setRange(0,size);
+    const int size = mThumbManager.creatThumbs(folder,true,true);
+    mBar->setMaxCount(size);
+    mBar->setCount(0);
+    mBar->setCountVisible(true);
 
 }
 
@@ -231,6 +234,8 @@ void HPicSync::clickedPlus()
         mDirManager.addDir(str);
         mTreeComboBox->updateText();
     }
+   // HPSDirDialog *dialog = new HPSDirDialog(this);
+   // dialog->show();
 
 }
 
@@ -277,5 +282,35 @@ void HPicSync::saveImagesAndHashes()
 
 void HPicSync::refreshBar(int value)
 {
+    qDebug() << Q_FUNC_INFO << value;
     mBar->setValue(value);
+    if( mBar->maximum() == value){
+        mBar->setCount( mBar->count()+1);
+        if( mBar->maxCount() == mBar->count())
+            mBar->setVisible(false);
+    }
+}
+
+void HPicSync::initBar(const QString &dir, const int size)
+{
+    qDebug() << Q_FUNC_INFO << dir << size;
+
+    mBar->setFormat("creating thumbnails ("+dir+")...");
+    mBar->setRange(0,size);
+    mBar->setValue(0);
+
+}
+
+void HPicSync::initThumbManager()
+{
+    mThumbManager.setDatenBankHandler( &mDatabaseHandler);
+    mThumbManager.setListWidget( mOldListWidget);
+   const int size = mThumbManager.startWork();
+    if( size > 0){
+        mBar->setVisible(true);
+        mBar->setMaxCount(size);
+        mBar->setCount(0);
+        mBar->setCountVisible(true);
+
+    }
 }
