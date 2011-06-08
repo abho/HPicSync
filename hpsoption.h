@@ -27,6 +27,7 @@ public:
     const QStringList & getOrdner();
     void setOrdner(const QStringList &list);
     void addOrdner(const QString &dir);
+    void appendOrdner(const QStringList &list);
     void removeOrdner(const QString &dir);
     int getComboBoxView();
     void setComboBoxView(int view);
@@ -37,7 +38,11 @@ public:
     const QStringList& createThumbDirs();
     void setCreateThumbDirs(const QStringList &dirs);
     void removeCreateThumbDir(const QString &dir);
+    void addCreateThumbDir(const QString &dir);
     void appendCreateThumbDir(const QStringList &dirs);
+
+
+    void test();
 
 
 private:

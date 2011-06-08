@@ -1,25 +1,26 @@
 #include "hpsthumbmanager.h"
 
 HPSThumbManager::HPSThumbManager(HPSOption &option, QObject *parent) :
-    QObject(parent), mOption(option),mDatabaseHandler(NULL),mListWidget(NULL)
+    QObject(parent), mOption(option),mDatabaseHandler(NULL)
 {
 }
 
 
-int HPSThumbManager::creatThumbs( const QString &cDir,const bool subDirs,const bool view)
+void HPSThumbManager::creatThumbs( const QStringList &cDirs,const bool view)
 {
-    QStringList allSubDirs;
-    if(!mOption.getOrdner().contains(cDir))
-        allSubDirs << cDir;
-    if(subDirs)
-        subDirsFrom(cDir,allSubDirs);
-    qDebug() << allSubDirs;
-    if(!allSubDirs.isEmpty()){
-        mOption.appendCreateThumbDir(allSubDirs);
+
+    mOption.appendCreateThumbDir(allSubDirs);
+    makeThumbsAndView(cDirs.first(),view);
+
+}
+
+void HPSThumbManager::creatThumbs(const QString &cDir,const bool view){
+    if(!mOption.createThumbDirs().contains(cDir)){
+        mOption.addCreateThumbDir(dir);
         makeThumbsAndView(cDir,view);
     }
-    return allSubDirs.size();
 }
+
 void HPSThumbManager::fotosReady(int pos, int count)
 {
     qDebug() << Q_FUNC_INFO << pos << count;
@@ -207,20 +208,25 @@ void HPSThumbManager::subDirsFrom(const QString &dir, QStringList &dirs)
     const int size = list.size();
     for (int var = 0; var < size; ++var) {
         subDirsFrom(QString(dir+"/"+list.at(var)),dirs);
-        if(!mOption.getOrdner().contains(dir+"/"+list.at(var)))
+        if(!mOption.getOrdner().contains(dir+"/"+list.at(var))&&!mOption.createThumbDirs().contains(dir+"/"+list.at(var)))
             dirs.append(dir+"/"+list.at(var));
     }
 
 }
 
-int HPSThumbManager::startWork()
+void HPSThumbManager::startWork()
 {
-
+    qDebug() << Q_FUNC_INFO << mOption.createThumbDirs();
     if(!mOption.createThumbDirs().isEmpty()){
         if(mOption.createThumbDirs().contains( mOption.getComboBoxCurrentDir()))
             makeThumbsAndView( mOption.getComboBoxCurrentDir(),true);
         else
             makeThumbsAndView(mOption.createThumbDirs().first(),false);
     }
+     mOption.createThumbDirs().size();
+}
+
+int HPSThumbManager::workCount()
+{
     return mOption.createThumbDirs().size();
 }

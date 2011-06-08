@@ -159,3 +159,20 @@ void HPSOption::appendCreateThumbDir(const QStringList &dirs)
     mSetting.setValue("createthumbdirs",mCreateThumbDirs);
 }
 
+void HPSOption::test()
+{
+    mSetting.remove("createthumbdirs");
+}
+
+void HPSOption::appendOrdner(const QStringList &list)
+{
+    mOrdner.append(list);
+    mSetting.setValue("ordner",mOrdner);
+}
+
+void HPSOption::addCreateThumbDir(const QString &dir)
+{
+    mOrdner.append(dir);
+    mSetting.setValue("createtumbdirs",mCreateThumbDirs);
+}
+

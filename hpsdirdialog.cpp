@@ -6,9 +6,15 @@ HPSDirDialog::HPSDirDialog(QWidget *parent) :
 {
     setupUi(this);
     mModel.setFilter( QDir::AllDirs |QDir::NoDotAndDotDot);
+
      mTreeView->setModel( &mModel);
-     QModelIndex index = mModel.setRootPath("");
-     mTreeView->setRootIndex(index);
+     QHeaderView *header =mTreeView->header();
+     header->setSectionHidden(1,true);
+     header->setSectionHidden(2,true);
+     header->setSectionHidden(3,true);
+     QModelIndex index = mModel.setRootPath(QApplication::applicationDirPath());
+     mTreeView->setRootIndex(mModel.index(QDir::rootPath()));
+     mTreeView->setCurrentIndex(index);
 }
 
 HPSDirDialog::~HPSDirDialog()

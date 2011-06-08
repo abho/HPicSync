@@ -11,10 +11,11 @@ HPSDirManager::~HPSDirManager() {
 
 
 void HPSDirManager::addDir(const QString  &dir){
+
     if(!mOption.getOrdner().contains(dir)){
         mOption.addOrdner(dir);
         mOption.getComboBoxView()==HPSOption::ListView ? addDirToList(dir):addDirToTree( dir);
-       // qDebug() << dir << "hinzugefügt";
+        // qDebug() << dir << "hinzugefügt";
     }
 }
 
@@ -157,7 +158,7 @@ QList<QStandardItem*> HPSDirManager::makeView()
     currentModel->clear();
 
     if ( mOption.getComboBoxView() == HPSOption::ListView) {
-       // qDebug() << "ToList";
+        // qDebug() << "ToList";
         for (int i = 0; i < size; ++i) {
             addDirToList(dirs.at(i));
         }
@@ -173,7 +174,7 @@ QList<QStandardItem*> HPSDirManager::makeView()
 void HPSDirManager::removeDirFromList(const QString &dir)
 {
 
-//qDebug() << Q_FUNC_INFO << dir;
+    //qDebug() << Q_FUNC_INFO << dir;
     const int size = currentModel->rowCount();
     QStandardItem *item;
     for (int i = 0; i < size; ++i) {
@@ -202,7 +203,7 @@ void HPSDirManager::removeDirFromTree(const QString &dir)
             if(child->text() == folder.at(var)){
                 child->setData(child->data(Qt::UserRole+1).toInt()-1,Qt::UserRole+1);
                 if(child->data(Qt::UserRole+1).toInt() == 0){
-                   // qDebug() << child->text() << "entfernt";
+                    // qDebug() << child->text() << "entfernt";
                     parent->removeRow(i);
                     return;
                 }
@@ -214,5 +215,39 @@ void HPSDirManager::removeDirFromTree(const QString &dir)
     //qDebug() << parent->text() << "disablte";
     parent->setEnabled(false);
     parent->setToolTip("");
+
+}
+
+QStringList HPSDirManager::addDirsWithSubdirs(const QString &dir)
+{
+    QStringList dirs;
+    if (!dirs.contains(dir))
+        dirs.append(dir);
+    subDirsFrom(dir,dirs);
+    mOption.appendOrdner(list);
+    const int size = dirs.size();
+    if(mOption.getComboBoxView()==HPSOption::ListView){
+        for (int i = 0; i < size; ++i) {
+             addDirToList(dirs.at(i));
+        }
+    } else {
+        for (int i = 0; i < size; ++i) {
+             addDirToTree( dirs.at(i));
+        }
+    }
+
+    return dirs;
+}
+void HPSDirManager::subDirsFrom(const QString &dir, QStringList &dirs)
+{
+    QDir cDir(dir);
+    QStringList list = cDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
+    const int size = list.size();
+
+    for (int var = 0; var < size; ++var) {
+        subDirsFrom(QString(dir+"/"+list.at(var)),dirs);
+        if(!dirs.contains(dir+"/"+list.at(var)))
+            dirs.append(dir+"/"+list.at(var));
+    }
 
 }

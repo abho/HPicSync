@@ -11,6 +11,7 @@ class HPSDirManager : public QObject
 public:
     explicit HPSDirManager(HPSOption &option,QObject *parent = 0);
     ~HPSDirManager();
+    QStringList addDirsWithSubdirs(const QString &dir);
     void addDir(const QString  &dir);
     void setModel( QStandardItemModel *model);
     QList<QStandardItem*> makeView();
@@ -23,6 +24,7 @@ private:
     void addDirToTree(const QString &dir);
     void addDirToList(const QString &dir);
     void removeDirFromList(const QString &dir);
+    void subDirsFrom(const QString &dir, QStringList &dirs);
 void removeDirFromTree(const QString &dir);
     HPSOption &mOption;
     QStandardItemModel *currentModel;

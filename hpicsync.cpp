@@ -121,6 +121,7 @@ HPicSync::HPicSync(QWidget *parent)
     if(!dir.exists(".thumbs")){
         dir.mkdir(".thumbs");
     }
+    initThumbManager();
 
 
 }
@@ -185,8 +186,8 @@ void HPicSync::test(){
         qDebug() << "fehler"<< file.errorString();
     }
 */
-    loadImages("C:/Users/hakah/me");
-    // loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
+    //  loadImages("C:/Users/hakah/me");
+    loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
     /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
     if(file.open(QIODevice::ReadOnly))
         qDebug() << true;
@@ -199,12 +200,14 @@ void HPicSync::test(){
 }
 void HPicSync::loadImages(const QString &folder){
     qDebug() << Q_FUNC_INFO;
-    mBar->setVisible(true);
-    const int size = mThumbManager.creatThumbs(folder,true,true);
-    mBar->setMaxCount(size);
-    mBar->setCount(0);
-    mBar->setCountVisible(true);
 
+    const int size = mThumbManager.creatThumbs(folder,true,true);
+    if(size != 0){
+        mBar->setVisible(true);
+        mBar->setMaxCount(size);
+        mBar->setCount(0);
+        mBar->setCountVisible(true);
+    }
 }
 
 
@@ -229,14 +232,35 @@ void HPicSync::comboBoxViewChanged(int index)
 void HPicSync::clickedPlus()
 {
     const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
-    //qDebug() << str;
-    if (!str.isEmpty()&&!mDirManager.dirs().contains(str)) {
-        mDirManager.addDir(str);
-        mTreeComboBox->updateText();
-    }
-   // HPSDirDialog *dialog = new HPSDirDialog(this);
-   // dialog->show();
+    //(qDebug() << str;
+    if(!str.isEmpty()){
+        QMessageBox dialog(this);
+        dialog.setText( trUtf8("Unterordner auch hinzufügen?"));
+        QPushButton *jaButton = dialog.addButton("Ja",QMessageBox::YesRole);
+        QPushButton *neinButton =  dialog.addButton("Nein",QMessageBox::NoRole);
+        dialog.exec();
 
+        if(dialog.clickedButton() == jaButton) {
+
+            QStringList dirs = mDirManager.addDirsWithSubdirs(str);
+            if(!dirs.isEmpty()){
+
+                if(dirs.first() == str)
+                    mThumbManager.creatThumbs(dirs,true);
+                else
+                    mThumbManager.creatThumbs(dirs,false);
+                mTreeComboBox->findeAndSetCurrentItem(str);
+            }
+        } else if(dialog.clickedButton() == neinButton) {
+            if(!mOption.getOrdner().contains(str))
+                mDirManager.addDir(str);
+            mThumbManager.creatThumbs()
+        }
+    }
+}
+/* HPSDirDialog *dialog = new HPSDirDialog(this);
+    dialog->show();
+*/
 }
 
 void HPicSync::initCBOrdner(int index,const QString &dir)
@@ -305,7 +329,8 @@ void HPicSync::initThumbManager()
 {
     mThumbManager.setDatenBankHandler( &mDatabaseHandler);
     mThumbManager.setListWidget( mOldListWidget);
-   const int size = mThumbManager.startWork();
+    const int size = mThumbManager.startWork();
+    qDebug() << Q_FUNC_INFO << size;
     if( size > 0){
         mBar->setVisible(true);
         mBar->setMaxCount(size);

@@ -61,7 +61,15 @@ HPSOptionWidget::HPSOptionWidget(HPSOption *option,QWidget *parent) :
 
     tab->addTab(ordnerWidget,trUtf8("Ordner"));
 
-
+//testWidget............
+    QHBoxLayout *testBox = new QHBoxLayout();
+    QPushButton *testButton = new QPushButton("test");
+    QWidget *w = new QWidget();
+    testBox->addWidget( testButton);
+    w->setLayout(testBox);
+    tab->addTab( w,"test");
+    connect( testButton,SIGNAL(clicked()),this,SLOT(test()));
+    //-----------------
     QHBoxLayout *butBox = new QHBoxLayout();
     mUebernehmenButton = new QPushButton(trUtf8("Übernehmen"));
     mBeendenButton = new QPushButton(tr("Beenden"));
@@ -259,6 +267,11 @@ void HPSOptionWidget::reinsertDirItems()
         mListWidget->addItem( mDirItemList.at(var));
     }
 
+}
+
+void HPSOptionWidget::test()
+{
+    mOptionObject->test();
 }
 
 

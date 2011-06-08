@@ -18,13 +18,16 @@ class HPSThumbManager : public QObject
     Q_OBJECT
 public:
     explicit HPSThumbManager( HPSOption &option, QObject *parent = 0);
-    int creatThumbs(const QString &cDir,const bool subDirs,const bool view);
+    void creatThumbs(const QStringList &cDirs,const bool view);
+    void creatThumbs(const QString &cDir,const bool view);
+
     bool allThreadsClose();
     void closeAllThreads();
     void setDatenBankHandler(HPSDBHandler *handler);
     void setListWidget(QListWidget *listWidget);
     bool dirReady(const QString &dir);
-    int startWork();
+    void startWork();
+    int workCount();
 
 signals:
     void allThreadsDestroyed();

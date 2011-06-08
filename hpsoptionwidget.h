@@ -48,7 +48,7 @@ private slots:
     void textchanged(const QString & text);
     void sliderChanged(int i);
     void cRemoveDir();
-
+    void test();
 };
 
 
