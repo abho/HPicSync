@@ -37,7 +37,7 @@ void HPSDBHandler::finishTransaction()
 void HPSDBHandler::insertHash(const QString &hash, const QString &dir, const QString &name, const QString &lastModi, const int size,const QString &handyHash)
 {
     mQuery->prepare("insert into thumbnails(hash,dir,name,lastmodi,size,handyhash)"
-                 "values(:hash,:dir,:name,:lastmodi,:size,:handyhash)");
+                    "values(:hash,:dir,:name,:lastmodi,:size,:handyhash)");
     mQuery->bindValue(":hash",hash);
     mQuery->bindValue(":dir",dir);
     mQuery->bindValue(":name",name);
@@ -45,6 +45,25 @@ void HPSDBHandler::insertHash(const QString &hash, const QString &dir, const QSt
     mQuery->bindValue(":size", size);
     mQuery->bindValue(":handyhash",handyHash);
     if(! mQuery->exec()){
-       //qDebug() << Q_FUNC_INFO <<"insert" <<  mQuery->lastError().text();
+        //qDebug() << Q_FUNC_INFO <<"insert" <<  mQuery->lastError().text();
     }
+}
+
+QList<QStringList> HPSDBHandler::hashPaths(const QString &path)
+{
+    QList<QStringList> list;
+    QStringList hashList,nameList;
+    mQuery->prepare("select hash, name from thumbnails where dir = '"+path+"'");
+    if(! mQuery->exec()){
+        qDebug() << Q_FUNC_INFO <<"select" <<  mQuery->lastError().text();
+    }
+    while (mQuery->next()) {
+        hashList.append(mQuery->value(0).toString());
+        nameList.append(mQuery->value(1).toString());
+
+    }
+    list.append(hashList);
+    list.append(nameList);
+    return list;
+
 }

@@ -52,8 +52,10 @@ HPicSync::HPicSync(QWidget *parent)
     mDirManager.setModel( mTreeComboBox->standardModel());
     initCBOrdner(mOption.getComboBoxView(),mOption.getComboBoxCurrentDir());
     mPlusButton=new QPushButton(tr("plus"));
+    mMinusButton = new QPushButton( trUtf8("minus"));
     comboBox->addWidget(mTreeComboBox,10);
     comboBox->addWidget(mPlusButton,1);
+    comboBox->addWidget(mMinusButton,1);
 
     this->mOldListWidget = new QListWidget();
     this->mOldListWidget->setFlow(QListView::LeftToRight);
@@ -111,7 +113,9 @@ HPicSync::HPicSync(QWidget *parent)
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
     connect( &mThumbManager,SIGNAL(thumbsReady(int)),this,SLOT(refreshBar(int)));
     connect( &mThumbManager,SIGNAL(startThumbCreation(QString,int)),this,SLOT(initBar(QString,int)));
-
+    connect( &mThumbManager,SIGNAL(startCreation()),this,SLOT(startBar()));
+    connect( &mThumbManager,SIGNAL(creationReady()),this,SLOT(finishBar()));
+    connect( mMinusButton,SIGNAL(clicked()),this,SLOT(clickedMinus()));
     this->setGeometry(this->mOption.getGeometry());
 
     if(!mDatabaseHandler.openDatabase("picsync.db"))
@@ -128,7 +132,7 @@ HPicSync::HPicSync(QWidget *parent)
 HPicSync::~HPicSync()
 {
     mOption.setGeometry(this->geometry());
-    mOption.setComboBoxCurrentDir(mTreeComboBox->getCurrentDir());
+    mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
     mOption.setExpandDirs( mTreeComboBox->expandeDirs());
 }
 
@@ -186,8 +190,8 @@ void HPicSync::test(){
         qDebug() << "fehler"<< file.errorString();
     }
 */
-    //  loadImages("C:/Users/hakah/me");
-    loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
+    loadImages("C:/Users/hakah/me");
+    // loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
     /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
     if(file.open(QIODevice::ReadOnly))
         qDebug() << true;
@@ -199,7 +203,7 @@ void HPicSync::test(){
 
 }
 void HPicSync::loadImages(const QString &folder){
-    qDebug() << Q_FUNC_INFO;
+    /*qDebug() << Q_FUNC_INFO;
 
     const int size = mThumbManager.creatThumbs(folder,true,true);
     if(size != 0){
@@ -207,7 +211,8 @@ void HPicSync::loadImages(const QString &folder){
         mBar->setMaxCount(size);
         mBar->setCount(0);
         mBar->setCountVisible(true);
-    }
+    }*/
+    mThumbManager.creatThumbs(folder,true);
 }
 
 
@@ -225,7 +230,7 @@ void HPicSync::test2() {
 
 void HPicSync::comboBoxViewChanged(int index)
 {
-    initCBOrdner(index,mTreeComboBox->getCurrentDir());
+    initCBOrdner(index,mTreeComboBox->currentDir());
 
 }
 
@@ -235,33 +240,44 @@ void HPicSync::clickedPlus()
     //(qDebug() << str;
     if(!str.isEmpty()){
         QMessageBox dialog(this);
-        dialog.setText( trUtf8("Unterordner auch hinzufÃ¼gen?"));
-        QPushButton *jaButton = dialog.addButton("Ja",QMessageBox::YesRole);
-        QPushButton *neinButton =  dialog.addButton("Nein",QMessageBox::NoRole);
+        dialog.setText( trUtf8("Unterordner auch hinzufügen?"));
+        QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
+        QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
+        QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
         dialog.exec();
-
-        if(dialog.clickedButton() == jaButton) {
-
+        qDebug() <<Q_FUNC_INFO<< dialog.clickedButton();
+        if(dialog.clickedButton() == abbruchButton){
+            qDebug() << "abbruch";
+            return ;
+        } else if(dialog.clickedButton() == jaButton) {
+            qDebug() << "ja";
             QStringList dirs = mDirManager.addDirsWithSubdirs(str);
             if(!dirs.isEmpty()){
-
-                if(dirs.first() == str)
+                if(dirs.first() == str){
                     mThumbManager.creatThumbs(dirs,true);
-                else
+                }
+                else {
                     mThumbManager.creatThumbs(dirs,false);
-                mTreeComboBox->findeAndSetCurrentItem(str);
+                    if(mTreeComboBox->currentDir() != str)
+                        mThumbManager.loadThumbs(str);
+                }
             }
         } else if(dialog.clickedButton() == neinButton) {
-            if(!mOption.getOrdner().contains(str))
-                mDirManager.addDir(str);
-            mThumbManager.creatThumbs()
+            qDebug() << "nein";
+            if(mDirManager.addDir(str))
+                mThumbManager.creatThumbs(str,true);
+            else
+                if(mTreeComboBox->currentDir() != str)
+                    mThumbManager.loadThumbs(str);
         }
+        mTreeComboBox->findeAndSetCurrentItem(str);
+
     }
 }
 /* HPSDirDialog *dialog = new HPSDirDialog(this);
     dialog->show();
 */
-}
+
 
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
@@ -280,48 +296,51 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
 
 void HPicSync::comboBoxItemclicked(QModelIndex index)
 {
-    qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole);
+    QString path = index.data(Qt::UserRole).toString();
+    qDebug() << Q_FUNC_INFO << path;
+    if(path != QDir::fromNativeSeparators(mTreeComboBox->currentText())){
+        qDebug() << "neues";
+        if(mThumbManager.dirReady(path)){
+            mThumbManager.loadThumbs(path);
+        }else{
+            //anpassen
+        }
+
+    } else {
+        qDebug() << "currentItem clicked";
+    }
+
 }
 
 void HPicSync::ordnerRemoved(QStringList dirs)
 {
 
-    if(dirs.contains( mTreeComboBox->getCurrentDir()))
+    if(dirs.contains( mTreeComboBox->currentDir()))
         mTreeComboBox->setCurrentItem(NULL);
 
     mDirManager.removeDirs(dirs);
 
 }
 
-void HPicSync::saveImagesAndHashes()
-{
-    /*const int size = mThumbs.size();
-    QFile file;
-    for (int var = 0; var < size; ++var) {
-        file.setFileName();
-
-    }*/
-
-}
 
 void HPicSync::refreshBar(int value)
 {
     qDebug() << Q_FUNC_INFO << value;
     mBar->setValue(value);
-    if( mBar->maximum() == value){
-        mBar->setCount( mBar->count()+1);
-        if( mBar->maxCount() == mBar->count())
-            mBar->setVisible(false);
-    }
 }
 
 void HPicSync::initBar(const QString &dir, const int size)
 {
     qDebug() << Q_FUNC_INFO << dir << size;
 
-    mBar->setFormat("creating thumbnails ("+dir+")...");
-    mBar->setRange(0,size);
-    mBar->setValue(0);
+    mBar->setFormat("creating thumbnails: "+dir+"...("+QString::number(mThumbManager.workCount())+")");
+    if(size == 0){
+        mBar->setRange(0,1);
+        mBar->setValue(1);
+    }else {
+        mBar->setRange(0,size);
+        mBar->setValue(0);
+    }
 
 }
 
@@ -329,13 +348,38 @@ void HPicSync::initThumbManager()
 {
     mThumbManager.setDatenBankHandler( &mDatabaseHandler);
     mThumbManager.setListWidget( mOldListWidget);
-    const int size = mThumbManager.startWork();
-    qDebug() << Q_FUNC_INFO << size;
-    if( size > 0){
-        mBar->setVisible(true);
-        mBar->setMaxCount(size);
-        mBar->setCount(0);
-        mBar->setCountVisible(true);
+    mThumbManager.loadThumbs( mTreeComboBox->currentDir());
+    bool workToDo = mThumbManager.startWork();
+    qDebug() << Q_FUNC_INFO << workToDo;
+}
 
+void HPicSync::clickedMinus()
+{
+    QMessageBox dialog(this);
+    dialog.setText( trUtf8("Unterordner mitentfernen?"));
+    QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
+    QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
+    QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
+    dialog.exec();
+    if(dialog.clickedButton() == abbruchButton){
+        qDebug() << "abbruch";
+        return ;
+    } else if(dialog.clickedButton() == jaButton) {
+        qDebug() << "ja";
+        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),true);
+    } else if(dialog.clickedButton() == neinButton) {
+        qDebug() << "nein";
+        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
     }
+    mTreeComboBox->updateText();
+}
+
+void HPicSync::startBar()
+{
+    mBar->setVisible(true);
+}
+
+void HPicSync::finishBar()
+{
+    mBar->setVisible(false);
 }

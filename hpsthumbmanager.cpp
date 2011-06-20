@@ -8,17 +8,18 @@ HPSThumbManager::HPSThumbManager(HPSOption &option, QObject *parent) :
 
 void HPSThumbManager::creatThumbs( const QStringList &cDirs,const bool view)
 {
-
-    mOption.appendCreateThumbDir(allSubDirs);
+emit startCreation();
+    mOption.appendCreateThumbDir(cDirs);
     makeThumbsAndView(cDirs.first(),view);
 
 }
 
 void HPSThumbManager::creatThumbs(const QString &cDir,const bool view){
-    if(!mOption.createThumbDirs().contains(cDir)){
-        mOption.addCreateThumbDir(dir);
-        makeThumbsAndView(cDir,view);
-    }
+emit startCreation();
+    mOption.addCreateThumbDir(cDir);
+    qDebug() << Q_FUNC_INFO << mOption.createThumbDirs().size();
+    makeThumbsAndView(cDir,view);
+
 }
 
 void HPSThumbManager::fotosReady(int pos, int count)
@@ -30,11 +31,8 @@ void HPSThumbManager::fotosReady(int pos, int count)
 
             QImage *img =&this->mThumbs[i].image;
             item->setData(Qt::DisplayRole,mThumbs.at(i).name);
-            item->setData(Qt::DecorationRole,qVariantFromValue((void *) img));
-            //img =&this->fotos[i];
-            item->setData(Qt::UserRole+2,qVariantFromValue((void *) img));
-            item->setData(Qt::UserRole+1,i);
-            item->setData(Qt::UserRole+3, mOption.getThumbSize());
+            item->setData(Qt::DecorationRole,QPixmap::fromImage(*img));
+
             mListWidget->addItem(item);
         }
     }
@@ -104,7 +102,7 @@ void HPSThumbManager::setDatenBankHandler(HPSDBHandler *handler)
 void HPSThumbManager::hashesReady()
 {
     qDebug() << Q_FUNC_INFO << "hashesReady";
-    mOption.removeCreateThumbDir( mCurrentDir);
+    nextWork();
 }
 
 
@@ -118,7 +116,9 @@ void HPSThumbManager::reset()
 
 void  HPSThumbManager::makeThumbsAndView( const QString &cDir, const bool withView)
 {
-    qDebug() << Q_FUNC_INFO ;
+    if (withView)
+        mListWidget->clear();
+    qDebug() << Q_FUNC_INFO << cDir ;
     qDebug() << withView;
 
     mTimer.start();
@@ -130,6 +130,7 @@ void  HPSThumbManager::makeThumbsAndView( const QString &cDir, const bool withVi
     QFileInfoList fileNames = dir.entryInfoList(QStringList() << "*.jpg"<<"*.png");
     const int size= fileNames.size();
     qDebug() <<"fileNames.size"<<size;
+    emit startThumbCreation( mCurrentDir,size);
     if(size>0){
         mThumbs.resize(size);
         HPSThumb thumb;
@@ -139,7 +140,6 @@ void  HPSThumbManager::makeThumbsAndView( const QString &cDir, const bool withVi
             thumb.name =fileInfo.fileName();
             thumb.lastModi =fileInfo.lastModified().toString();
             thumb.size = fileInfo.size();
-            thumb.suffix = fileInfo.suffix();
             mThumbs[var]=thumb;
         }
         HPSImageLoader::setThumbVector( &mThumbs);
@@ -156,7 +156,7 @@ void  HPSThumbManager::makeThumbsAndView( const QString &cDir, const bool withVi
             else
                 end+=partSize;
             qDebug() << "pos"<<pos <<"end"<< end;
-            HPSImageLoader *imageLoader = new HPSImageLoader(mMutex,pos,end, mOption.getThumbSize());
+            HPSImageLoader *imageLoader = new HPSImageLoader(pos,end, mOption.getThumbSize());
             QThread *thread = new QThread();
             mThreads.insert(thread,imageLoader);
             imageLoader->moveToThread(thread);
@@ -175,13 +175,14 @@ void  HPSThumbManager::makeThumbsAndView( const QString &cDir, const bool withVi
             connect(imageLoader,SIGNAL(error(int)),this,SLOT(getError(int)));
             thread->start();
         }
+
+    } else {
+        nextWork();
     }
-    emit startThumbCreation( mCurrentDir,size);
-    if( size == 0)
-        emit thumbsReady(0);
+
 }
 bool HPSThumbManager::dirReady(const QString &dir)
-{
+{qDebug() << !mOption.createThumbDirs().contains(dir);
     return !mOption.createThumbDirs().contains(dir);
 }
 
@@ -208,25 +209,72 @@ void HPSThumbManager::subDirsFrom(const QString &dir, QStringList &dirs)
     const int size = list.size();
     for (int var = 0; var < size; ++var) {
         subDirsFrom(QString(dir+"/"+list.at(var)),dirs);
-        if(!mOption.getOrdner().contains(dir+"/"+list.at(var))&&!mOption.createThumbDirs().contains(dir+"/"+list.at(var)))
+        if(!mOption.dirs().contains(dir+"/"+list.at(var))&&!mOption.createThumbDirs().contains(dir+"/"+list.at(var)))
             dirs.append(dir+"/"+list.at(var));
     }
 
 }
 
-void HPSThumbManager::startWork()
+bool HPSThumbManager::startWork()
 {
     qDebug() << Q_FUNC_INFO << mOption.createThumbDirs();
     if(!mOption.createThumbDirs().isEmpty()){
+        emit startCreation();
         if(mOption.createThumbDirs().contains( mOption.getComboBoxCurrentDir()))
             makeThumbsAndView( mOption.getComboBoxCurrentDir(),true);
         else
             makeThumbsAndView(mOption.createThumbDirs().first(),false);
-    }
-     mOption.createThumbDirs().size();
+        return true;
+    }  else
+        return false;
 }
 
 int HPSThumbManager::workCount()
-{
+{qDebug() << Q_FUNC_INFO << mOption.createThumbDirs().size();
     return mOption.createThumbDirs().size();
+}
+
+void HPSThumbManager::loadThumbs(const QString &dir)
+{
+    qDebug() << Q_FUNC_INFO << dir;
+    if(mDatabaseHandler!=NULL){
+        mListWidget->clear();
+        QList<QStringList> list;
+        list = mDatabaseHandler->hashPaths(dir);
+        makeView(list);
+        qDebug() << Q_FUNC_INFO << mDatabaseHandler->hashPaths(dir);
+    } else {
+        qDebug() << "databasehandler erst inizalisieren.";
+    }
+}
+
+void HPSThumbManager::makeView(const QList<QStringList> &list)
+{
+    const QStringList &hashList = list.at(0);
+    const QStringList &nameList = list.at(1);
+    const int size = hashList.size();
+    QPixmap pix;
+    for (int var = 0; var < size; ++var) {
+        QListWidgetItem *item= new QListWidgetItem();
+        if(pix.load(QApplication::applicationDirPath()+"/.thumbs/"+hashList.at(var)+".png")){
+
+            item->setData(Qt::DisplayRole,nameList.at(var));
+            item->setData(Qt::DecorationRole,pix);
+        } else {
+            qDebug() << "fehler bei laden von "<<QApplication::applicationDirPath()+"/.thumbs/"+hashList.at(var)+".jpg";
+        }
+        //img =&this->fotos[i];
+        mListWidget->addItem(item);
+    }
+}
+
+void HPSThumbManager::nextWork()
+{
+    mOption.removeCreateThumbDir( mCurrentDir);
+    if(!mOption.createThumbDirs().isEmpty())
+        makeThumbsAndView(mOption.createThumbDirs().first(),false);
+    else
+        emit creationReady();
+
+
 }

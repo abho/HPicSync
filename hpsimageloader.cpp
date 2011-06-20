@@ -7,8 +7,8 @@
 QString HPSImageLoader::mFolder;
 QVector<HPSThumb> *HPSImageLoader::mThumbVec;
 
-HPSImageLoader::HPSImageLoader(QMutex &mutex, const int start,const int end, int size, QObject *parent) :
-    HPSWorkerClass(parent),mSize(size),mStartPos(start),mEnd(end),mMutex(mutex)
+HPSImageLoader::HPSImageLoader( const int start,const int end, int size, QObject *parent) :
+    HPSWorkerClass(parent),mSize(size),mStartPos(start),mEnd(end)
 {
 }
 
@@ -21,6 +21,7 @@ void HPSImageLoader::startWithView(){
 }
 
 void HPSImageLoader::load(bool withSignals){
+    QElapsedTimer timer;
     int i,packet,lastSend,nextSend;
     if(withSignals){
         packet=1;
@@ -28,40 +29,60 @@ void HPSImageLoader::load(bool withSignals){
         nextSend = 0;
         nextSend = packet-1;
     }
-
+    int image_width;
+    int image_height;
     QImageReader reader;
-    int sizeW  = mSize-5;
+    int sizeW  = mSize-4;
     int sizeH =mSize-20;
     int counter=0;
     QSize imageSize;
     QImage image;
     QByteArray block;
     QFile file;
+    timer.start();
 
-
-    //reader.setScaledSize(QSize(sizeW,sizeH));
     for(i  = mStartPos; i <= mEnd;i++){
         if(mEx){
             qDebug() <<"ex";
             deleteLater();
             return;
         }
+        qDebug() <<QThread::currentThreadId()<< "start" <<timer.elapsed();
         HPSThumb &thumb = (*mThumbVec)[i];
-        //reader.setFileName(mFolder+"/"+mFileNames->at(i));
 
-        file.setFileName(mFolder+"/"+thumb.name);
+        reader.setFileName(mFolder+"/"+thumb.name);
+        image_width = reader.size().width();
+        image_height = reader.size().height();
+        if (image_width > image_height) {
+            image_height = static_cast<double>(sizeW) / image_width * image_height;
+            image_width = sizeW;
+        } else if (image_width < image_height) {
+            image_width = static_cast<double>(sizeH) / image_height * image_width;
+            image_height = sizeH;
+        } else {
+            image_width = sizeW;
+            image_height = sizeH;
+        }
+        reader.setScaledSize(QSize(image_width, image_height));
+        thumb.image =  reader.read();
+         qDebug() <<QThread::currentThreadId()<< "readerload" <<timer.elapsed();
 
-        //if(reader.read(&image)){
-        if(file.open(QIODevice::ReadOnly))  {
+         file.setFileName(mFolder+"/"+thumb.name);
+        if(file.open(QIODevice::ReadOnly)&&!thumb.image.isNull())  {
             block =file.readAll();
+            qDebug() << QThread::currentThreadId()<<"open" <<timer.elapsed();
             file.close();
-            thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Sha1).toHex();
-
+            thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Md5).toHex();
+            qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
+            /*
             image.loadFromData(block);
-            image.setText(QString("name"),QString(thumb.name));
 
+qDebug() <<QThread::currentThreadId()<< "scale" <<timer.elapsed();
             thumb.image = image.scaled( 200,200,Qt::KeepAspectRatio).
-                    scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+                  scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+
+qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
+*/
 
             if(withSignals){
                 if(counter==nextSend){
@@ -72,27 +93,6 @@ void HPSImageLoader::load(bool withSignals){
                 }
             }
         } else {
-            /* mMutex.lock();
-            int count;
-            //qDebug() <<"fehler bei bild:" << ->dirName+->files.at(i);
-            qDebug() << counter%packet;
-            if(counter%packet!=0){
-                // qDebug() << "fehler ready" << (i-(i%5)) << (i-(i-(i%5)));
-                 qDebug()<<"i"<< i;
-                count=counter%packet;
-           } else{
-                count =0;
-            }
-            if(mSendError ==false ){
-                qDebug() << count;
-                emit ready(i-count,count,mFileNames->at(i));
-            }else{
-                emit ready(i-count,count,"");
-}
-            deleteLater();
-            mSendError=true;
-            mMutex.unlock();
-            return;*/
             qDebug() << "error" << i;
             emit error(i);
             thumb.error = true;

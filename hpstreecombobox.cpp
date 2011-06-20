@@ -160,7 +160,7 @@ void HPSTreeCombobox::setCurrentItem(QStandardItem *item)
 
 
 
-const QString HPSTreeCombobox::getCurrentDir()
+const QString HPSTreeCombobox::currentDir()
 {
     return mCIndex.isValid()?mCIndex.data(Qt::UserRole).toString():QString("");
 }

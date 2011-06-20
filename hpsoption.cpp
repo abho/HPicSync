@@ -36,14 +36,14 @@ int HPSOption::getThumbSize(){
 const QRect & HPSOption::getGeometry(){
     return mGeometry;
 }
-const QStringList &HPSOption::getOrdner(){
+const QStringList &HPSOption::dirs(){
     return mOrdner;
 }
-void HPSOption::setOrdner(const QStringList &list){
+void HPSOption::setDirs(const QStringList &list){
     mOrdner =list;
     mSetting.setValue("ordner",mOrdner);
 }
-void HPSOption::addOrdner(const QString &dir){
+void HPSOption::addDir(const QString &dir){
     qDebug() << "addordner first" << mOrdner;
     mOrdner.append(dir);
     mSetting.setValue("ordner",mOrdner);
@@ -118,7 +118,7 @@ void HPSOption::setComboBoxCurrentDir(const QString &currentDir)
     mSetting.setValue("cbCurrentDir",mComboBoxCurrentDir);
 }
 
-void HPSOption::removeOrdner(const QString &dir)
+void HPSOption::removeDir(const QString &dir)
 {
     mOrdner.removeOne(dir);
     mSetting.setValue("ordner",mOrdner);
@@ -159,12 +159,14 @@ void HPSOption::appendCreateThumbDir(const QStringList &dirs)
     mSetting.setValue("createthumbdirs",mCreateThumbDirs);
 }
 
-void HPSOption::test()
+void HPSOption::test(const QString &str)
 {
-    mSetting.remove("createthumbdirs");
+    qDebug() << Q_FUNC_INFO << str << "removed";
+    mSetting.remove(str);
+
 }
 
-void HPSOption::appendOrdner(const QStringList &list)
+void HPSOption::appendDirs(const QStringList &list)
 {
     mOrdner.append(list);
     mSetting.setValue("ordner",mOrdner);
@@ -172,7 +174,16 @@ void HPSOption::appendOrdner(const QStringList &list)
 
 void HPSOption::addCreateThumbDir(const QString &dir)
 {
-    mOrdner.append(dir);
-    mSetting.setValue("createtumbdirs",mCreateThumbDirs);
+    mCreateThumbDirs.append(dir);
+    mSetting.setValue("createthumbdirs",mCreateThumbDirs);
+}
+
+void HPSOption::removeDirs(const QStringList &dirs)
+{
+    const int size = dirs.size();
+    for (int var = 0; var < size; ++var) {
+        mOrdner.removeOne(dirs.at(var));
+    }
+    mSetting.setValue("ordner",mOrdner);
 }
 

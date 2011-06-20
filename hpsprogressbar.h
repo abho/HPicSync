@@ -12,21 +12,13 @@ class HPSProgressBar : public QProgressBar
 public:
     explicit HPSProgressBar(QWidget *parent = 0);
     void setCount(const int count);
-    void setMaxCount(const int count);
-     int count();
-    const int maxCount();
-    void setCountVisible(bool x);
+    const int count();
 
 protected:
     void paintEvent ( QPaintEvent * );
 
 private:
     int mCount;
-    int mMaxCount;
-    bool mCountVisible;
-    QString mCountString;
-
-    void refreshCountString();
 
 };
 

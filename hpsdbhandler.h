@@ -16,6 +16,7 @@ public:
     void startTransaction();
     void finishTransaction();
     void insertHash(const QString &hash,const QString &dir,const QString &name,const QString &lastModi, const int size,const QString &handyHash);
+    QList<QStringList> hashPaths(const QString &path);
 signals:
 
 public slots:

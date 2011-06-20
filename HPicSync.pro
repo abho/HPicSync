@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     hpsthumb.cpp \
     hpsoldlistdelegate.cpp \
     hpsprogressbar.cpp \
-    hpsdirdialog.cpp
+    hpsdirdialog.cpp \
+    hpsdirlister.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -52,7 +53,8 @@ HEADERS  += \
     hpsthumb.h \
     hpsoldlistdelegate.h \
     hpsprogressbar.h \
-    hpsdirdialog.h
+    hpsdirdialog.h \
+    hpsdirlister.h
 
 
 RESOURCES += \

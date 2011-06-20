@@ -12,7 +12,7 @@ class HPSImageLoader : public HPSWorkerClass
 {
     Q_OBJECT
 public:
-    explicit HPSImageLoader(QMutex &mutex,const int startWithView,const int end,const int size,QObject *parent = 0);
+    explicit HPSImageLoader(const int startWithView,const int end,const int size,QObject *parent = 0);
     ~HPSImageLoader();
 
     static void setThumbVector(QVector<HPSThumb> * thumbVec);
@@ -21,7 +21,6 @@ public:
 private:
 
     const int mSize,mStartPos,mEnd;
-    QMutex &mMutex;
 
 
     static QVector<HPSThumb> *mThumbVec;

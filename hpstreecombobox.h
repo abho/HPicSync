@@ -30,7 +30,7 @@ public:
     void setExpandedItems(const QList<QStandardItem*> &items);
     void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
-    const QString getCurrentDir();
+    const QString currentDir();
     const QStringList &expandeDirs();
 
 public Q_SLOTS:

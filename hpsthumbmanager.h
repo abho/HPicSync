@@ -25,14 +25,17 @@ public:
     void closeAllThreads();
     void setDatenBankHandler(HPSDBHandler *handler);
     void setListWidget(QListWidget *listWidget);
+    void loadThumbs(const QString & dir);
     bool dirReady(const QString &dir);
-    void startWork();
+    bool startWork();
     int workCount();
 
 signals:
     void allThreadsDestroyed();
-    void startThumbCreation( const QString&,const int);
+    void startThumbCreation(const QString&,const int);
     void thumbsReady(const int);
+    void creationReady();
+    void startCreation();
 public slots:
 
 private:
@@ -52,6 +55,8 @@ private:
     void  reset();
     void  makeThumbsAndView(const QString &cDir,const bool withView);
     void subDirsFrom(const QString &dir,QStringList &dirs);
+    void makeView(const QList<QStringList> &list);
+    void nextWork();
 
 private slots:
      void fertigTime();

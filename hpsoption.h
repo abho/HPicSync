@@ -24,11 +24,12 @@ public:
     void setPassword(const QString &password);
     int getPort();
     void setPort(int port);
-    const QStringList & getOrdner();
-    void setOrdner(const QStringList &list);
-    void addOrdner(const QString &dir);
-    void appendOrdner(const QStringList &list);
-    void removeOrdner(const QString &dir);
+    const QStringList & dirs();
+    void setDirs(const QStringList &list);
+    void addDir(const QString &dir);
+    void appendDirs(const QStringList &list);
+    void removeDir(const QString &dir);
+    void removeDirs(const QStringList &dirs);
     int getComboBoxView();
     void setComboBoxView(int view);
     const QString & getComboBoxCurrentDir();
@@ -42,7 +43,7 @@ public:
     void appendCreateThumbDir(const QStringList &dirs);
 
 
-    void test();
+    void test(const QString &);
 
 
 private:

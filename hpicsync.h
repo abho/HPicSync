@@ -25,7 +25,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 private:
-    QPushButton *mCloseButton,*mRefreshButton,*mOptionButton,*mtMarkAllButton,*mMarkSelectedButton,*mCopyButton,*mPlusButton;
+    QPushButton *mCloseButton,*mRefreshButton,*mOptionButton,*mtMarkAllButton,*mMarkSelectedButton,*mCopyButton,*mPlusButton,*mMinusButton;
     QListWidget *mNewListWidget,*mOldListWidget;
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
 
@@ -47,7 +47,6 @@ private:
     void loadImages(const QString &folder);
     void initCBOrdner(int index,const QString &dir);
     void initThumbManager();
-    void saveImagesAndHashes();
 private slots:
     void showOption();
     void test();
@@ -59,6 +58,9 @@ private slots:
     void comboBoxViewChanged(int);
     void ordnerRemoved(QStringList dirs);
     void comboBoxItemclicked( QModelIndex );
+    void clickedMinus();
+    void startBar();
+    void finishBar();
 
 
 };

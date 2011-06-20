@@ -63,12 +63,17 @@ HPSOptionWidget::HPSOptionWidget(HPSOption *option,QWidget *parent) :
 
 //testWidget............
     QHBoxLayout *testBox = new QHBoxLayout();
-    QPushButton *testButton = new QPushButton("test");
+    QPushButton *testButton = new QPushButton("ordner");
+    testButton->setObjectName("ordner");
+    QPushButton *test2Button = new QPushButton("createthumbdirs");
+    test2Button->setObjectName("createthumbdirs");
     QWidget *w = new QWidget();
     testBox->addWidget( testButton);
+    testBox->addWidget( test2Button);
     w->setLayout(testBox);
     tab->addTab( w,"test");
     connect( testButton,SIGNAL(clicked()),this,SLOT(test()));
+    connect( test2Button,SIGNAL(clicked()),this,SLOT(test()));
     //-----------------
     QHBoxLayout *butBox = new QHBoxLayout();
     mUebernehmenButton = new QPushButton(trUtf8("Übernehmen"));
@@ -97,7 +102,7 @@ void HPSOptionWidget::resetAndShow(){
     if(!mOptionObject->getGeometryOption().isNull()){
         setGeometry(mOptionObject->getGeometryOption());
     }
-    if (mListWidget->count() != mOptionObject->getOrdner().size()) {
+    if (mListWidget->count() != mOptionObject->dirs().size()) {
         loadOrdner();
     }
     setVisible(true);
@@ -235,8 +240,8 @@ void HPSOptionWidget::zuruecksetzten()
 
 void HPSOptionWidget::loadOrdner()
 {
-    for (int var = mListWidget->count(); var < mOptionObject->getOrdner().size(); ++var) {
-        QListWidgetItem * item = new QListWidgetItem(QDir::toNativeSeparators(mOptionObject->getOrdner().at(var)),mListWidget);
+    for (int var = mListWidget->count(); var < mOptionObject->dirs().size(); ++var) {
+        QListWidgetItem * item = new QListWidgetItem(QDir::toNativeSeparators(mOptionObject->dirs().at(var)),mListWidget);
 
     }
 }
@@ -271,7 +276,8 @@ void HPSOptionWidget::reinsertDirItems()
 
 void HPSOptionWidget::test()
 {
-    mOptionObject->test();
+    QPushButton *but = (QPushButton*)sender();
+    mOptionObject->test(but->objectName());
 }
 
 
