@@ -6,39 +6,37 @@
 #include "hpstreecombobox.h"
 #include "hpsoption.h"
 #include "hpsdirlister.h"
+#include "hpsknotdirmodel.h"
+#include "hpsdomdirmodel.h"
 class HPSDirManager : public QObject
 {
     Q_OBJECT
 public:
     explicit HPSDirManager(HPSOption &option,QObject *parent = 0);
     ~HPSDirManager();
-    QStringList addDirsWithSubdirs(const QString &dir);
-    bool addDir(const QString  &dir);
+    bool addDir(const QString  &dir,bool withSub);
     void setModel( QStandardItemModel *model);
-    QList<QStandardItem*> makeView();
-    //void removeDirs(QStringList dirs);
+    void makeView();
     void removeDir(const QString &dir,bool withSub);
-
+    void saveDirModel();
+    void reset();
     const QStringList & dirs();
 
 private:
-    void addDirToTree(QList<QStandardItem*> & expandedItems,const QString &dir);
-    void addDirToTree(const QString &dir);
-    void addDirToList(const QString &dir);
-    void removeDirFromList(const QString &dir,bool withSub);
-    void subDirsFrom(const QString &dir, QStringList &dirs);
 
-    void removeDirFromTree(const QString &dir,bool withsub);
-    void findChildren(const QStandardItem *item, QStringList &list);
+    void startDirLister(const QString &dir);
+
+
     HPSOption &mOption;
     QStandardItemModel *mCurrentModel;
-    HPSDirLister *mDirLister;
+    HPSKnotDirModel mKnotDirModel;
+    HPSDomDirModel mDomDirModel;
 
 
 signals:
 
 public slots:
-    void removeDirs(QStringList dirs);
+    void checkWork();
 };
 
 #endif // HPSDIRMANAGER_H

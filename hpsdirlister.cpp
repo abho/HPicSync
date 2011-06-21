@@ -1,9 +1,13 @@
 #include "hpsdirlister.h"
 
-HPSDirLister::HPSDirLister(HPSOption &option,const QStringList &saversFiles,const QString &path,QObject *parent) :
-    QObject(parent),mOption(option),mPath(path),mEx(false)
+
+
+
+HPSDirLister::HPSDirLister(HPSKnotDirModel &model, const QString &path,QObject *parent) :
+    QObject(parent), mSaver(model),mPath(path),mEx(false)
 {
-    mSaver.setList(saversFiles);
+    //mSaver.setList(saversFiles);
+
 }
 
 HPSDirLister::~HPSDirLister(){
@@ -23,7 +27,7 @@ void HPSDirLister::startWork()
 
 void HPSDirLister::subDirsFrom(const QString &dir)
 {
-    if(!mOption.dirs().contains(dir)){
+    if(!mSaver.contains(dir)){
         mDir.setPath(dir);
         QStringList list = mDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
         foreach (const QString str, list) {
@@ -34,8 +38,7 @@ void HPSDirLister::subDirsFrom(const QString &dir)
             }
         }
         if(!mEx){
-            //mSaver.add(dir);
-            //if(!mOption.dirs().contains(dir))
+            mSaver.add(dir);
             mList.append(dir);
             if(mList.size()%10 == 0)
                 chunkDone();
@@ -48,12 +51,15 @@ void HPSDirLister::kill()
     mEx = true;
 }
 
-QStringList HPSDirLister::saverDirs()
-{
-    return mSaver.list();
-}
+
 
 QStringList HPSDirLister::dirs()
 {
     return mList;
 }
+
+
+
+
+
+

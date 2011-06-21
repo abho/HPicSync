@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network gui sql
+QT       += core network gui sql xml
 
 TARGET = HPicSync
 TEMPLATE = app
@@ -31,7 +31,9 @@ SOURCES += main.cpp\
     hpsoldlistdelegate.cpp \
     hpsprogressbar.cpp \
     hpsdirdialog.cpp \
-    hpsdirlister.cpp
+    hpsdirlister.cpp \
+    hpsknotdirmodel.cpp \
+    hpsdomdirmodel.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -54,7 +56,9 @@ HEADERS  += \
     hpsoldlistdelegate.h \
     hpsprogressbar.h \
     hpsdirdialog.h \
-    hpsdirlister.h
+    hpsdirlister.h \
+    hpsknotdirmodel.h \
+    hpsdomdirmodel.h
 
 
 RESOURCES += \
