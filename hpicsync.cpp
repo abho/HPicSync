@@ -134,12 +134,9 @@ HPicSync::~HPicSync()
     mOption.setGeometry(this->geometry());
     mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
     mOption.setExpandDirs( mTreeComboBox->expandeDirs());
+    mDirManager.saveDirModel();
+    mDirManager.reset();
 }
-
-
-
-
-
 void HPicSync::closeEvent(QCloseEvent *event){
     qDebug() << "closeEvent" << mThumbManager.allThreadsClose();
     if(mThumbManager.allThreadsClose()){
@@ -149,55 +146,18 @@ void HPicSync::closeEvent(QCloseEvent *event){
         connect(&mThumbManager,SIGNAL(allThreadsDestroyed()),this,SLOT(close()));
         event->ignore();
     }
-
 }
-
-
-
 void HPicSync::showOption(){
     if(this->mOptionWidget== NULL){
         this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
         connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
-        //connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)), &mDirManager,SLOT(removeDirs(QStringList)));
         connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)),this,SLOT(ordnerRemoved(QStringList)));
         qDebug() << "optionWidget is null";
     }
     this->mOptionWidget->resetAndShow();
 }
 void HPicSync::test(){
-    /* qDebug()<< "start socket";
-    this->tcpModul = new HPSTCPModul(&this->option,this);
-    this->tcpModul->startSearch();
-*/
-    // qDebug() << " start loader";
-    //this->loadImages();
-    //this->dirManager.showTree();
-    //this->coOrdner->setViewToList();
-    //this->dirManager.makeListView(this->coOrdner->model());
 
-    // this->dirManager.makeTreeView(this->coOrdner->model());
-    /*QFile file("muh.jpg");
-    if(file.open(QIODevice::ReadOnly)){
-        QElapsedTimer timer;
-        QByteArray block = file.readAll();
-        timer.start();
-        QCryptographicHash::hash(block,QCryptographicHash::Sha1);
-        qDebug() << timer.elapsed();
-        timer.restart();
-        QCryptographicHash::hash(block,QCryptographicHash::Md5);
-        qDebug() << timer.elapsed();
-    }else {
-        qDebug() << "fehler"<< file.errorString();
-    }
-*/
-    //loadImages("C:/Users/hakah/me");
-    // loadImages("/home/hakah/Dokumente/HFotoCrapper-build-desktop/image");
-    /*QFile file("C:/Users/hakah/me/fastfertig.jpg");
-    if(file.open(QIODevice::ReadOnly))
-        qDebug() << true;
-    else
-        qDebug()<< false;
-*/
     mDirManager.reset();
 
 
@@ -215,26 +175,17 @@ void HPicSync::loadImages(const QString &folder){
     }*/
     mThumbManager.creatThumbs(folder,true);
 }
-
-
-
 void HPicSync::socketError(QAbstractSocket::SocketError error){
     qDebug() << "error "<< error;
 }
 void HPicSync::test2() {
     // qDebug() << this->socket->state();
-
-
 }
-
-
-
 void HPicSync::comboBoxViewChanged(int index)
 {
     initCBOrdner(index,mTreeComboBox->currentDir());
 
 }
-
 void HPicSync::clickedPlus()
 {
     const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
@@ -258,14 +209,8 @@ void HPicSync::clickedPlus()
             mDirManager.addDir(str,false);
         }
        // mTreeComboBox->findeAndSetCurrentItem(str);
-
     }
 }
-/* HPSDirDialog *dialog = new HPSDirDialog(this);
-    dialog->show();
-*/
-
-
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
     //qDebug() << "initCBOrdner" << index << dir;
@@ -275,10 +220,8 @@ void HPicSync::initCBOrdner(int index,const QString &dir)
     } else {
         mTreeComboBox->setViewToTree();
     }
-    //QList<QStandardItem*> expandesIems= mDirManager.makeView();
-    //if(!expandesIems.isEmpty())
-    //  mTreeComboBox->setExpandedItems( expandesIems );
-    //mTreeComboBox->findeAndSetCurrentItem(dir);
+     mDirManager.makeView();
+     mTreeComboBox->loadExpanded();
 }
 
 void HPicSync::comboBoxItemclicked(QModelIndex index)

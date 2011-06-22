@@ -11,6 +11,7 @@ HPSKnotDirModel::HPSKnotDirModel()
 }
 
 HPSKnotDirModel::~HPSKnotDirModel(){
+    delete mTmpRoot;
     delete mRoot;
 }
 
@@ -23,7 +24,6 @@ void HPSKnotDirModel::add(const QString &str)
     DirKnot *child;
     int i;
     bool found = true;
-
     const int size = list.size();
     for (int var = 0; var < size; ++var) {
         if(found){
@@ -34,8 +34,10 @@ void HPSKnotDirModel::add(const QString &str)
                 if(child->name == list.at(var)) {
                     if(var == size-1){
                         child->isActive=true;
+                        child->path = str;
                         child->item->setEnabled(true);
-                        child->item->setData(str,Qt::UserRole);
+                        child->item->setData(str,Qt::UserRole);                        
+                        child->item->setToolTip(str);
                     }
                     break;
                 }
@@ -45,12 +47,17 @@ void HPSKnotDirModel::add(const QString &str)
                 child = new DirKnot;
                 child->name = list.at(var);
                 child->item = new QStandardItem(child->name);
+                child->item->setData(false,Qt::UserRole+1);
 
                 parent->item->appendRow(child->item);
                 if(var == size-1){
                     child->isActive = true;
                     child->item->setEnabled(true);
                     child->item->setData(str,Qt::UserRole);
+                    child->path = str;
+                    child->item->setToolTip(str);
+                } else {
+                    child->item->setEnabled(false);
                 }
                 parent->children.append(child);
             }
@@ -59,16 +66,20 @@ void HPSKnotDirModel::add(const QString &str)
             child = new DirKnot;
             child->name = list.at(var);
             child->item = new QStandardItem(child->name);
+            child->item->setData(false,Qt::UserRole+1);
             parent->item->appendRow(child->item);
             if(var == size-1){
                 child->isActive = true;
+                child->path = str;
                 child->item->setEnabled(true);
                 child->item->setData(str,Qt::UserRole);
+                child->item->setToolTip(str);
+            } else {
+                child->item->setEnabled(false);
             }
             parent->children.append(child);
         }
         parent = child;
-
     }
 }
 
@@ -151,10 +162,9 @@ void HPSKnotDirModel::clear()
     if(mRoot->item->hasChildren()){
         const int size = mRoot->item->rowCount();
         for (int var = 0; var < size; ++var) {
-           delete mRoot->item->takeChild(0,0);
+            delete mRoot->item->takeChild(0,0);
         }
     }
-    delete mRoot;
 }
 
 DirKnot * HPSKnotDirModel::root()
@@ -169,7 +179,6 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
     if( isTreeView){
         const int size = mTmpRoot->rowCount();
         for(  int i = 0 ;  i < size ; ++i ) {
-
             tmpItem = mTmpRoot->takeRow(0).first();
             qDebug() << tmpItem->text();
             item->appendRow(tmpItem);

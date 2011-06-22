@@ -11,6 +11,7 @@
 #include <QStandardItem>
 #include <QListView>
 #include <QtCore/QStringList>
+#include "hpsknotdirmodel.h"
 
 
 class QStandardItemModel;
@@ -27,7 +28,7 @@ public:
     bool eventFilter(QObject* object, QEvent* event);
     virtual void showPopup();
     virtual void hidePopup();
-    void setExpandedItems(const QList<QStandardItem*> &items);
+    void loadExpanded();
     void findeAndSetCurrentItem(const QString &dir);
     void setCurrentItem(QStandardItem *item);
     const QString currentDir();
@@ -48,6 +49,7 @@ private:
     QTreeView *mTreeView;
     QListView *mListView;
     QStandardItem* findIndex( QStandardItem *item,const QString &dir);
+    void loadExpandedItem(QStandardItem * item);
 protected:
     QModelIndex mDefaultRootIndex;
     QModelIndex mCIndex;

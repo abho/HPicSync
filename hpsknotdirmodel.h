@@ -5,7 +5,7 @@
 #include <QDebug>
 class DirKnot{
 public:
-    DirKnot(): children(QList<DirKnot*>()),isActive(false),isExpanded(false),item(NULL){}
+    DirKnot(): children(QList<DirKnot*>()),path(""),isActive(false),item(NULL){}
     ~DirKnot(){
         QList<DirKnot*> &list = children ;
         const int size = list.size();
@@ -15,9 +15,9 @@ public:
     }
 
     QString name;
+    QString path;
     QList<DirKnot*> children;
     bool isActive;
-    bool isExpanded;
     QStandardItem* item;
 };
 class HPSKnotDirModel

@@ -39,8 +39,9 @@ void HPSDomDirModel::addDomKnot(QDomDocument &doc,QDomElement &e,DirKnot *knot)
         child = list.at(i);
         c = doc.createElement( "knot" );
         c.setAttribute("name",child->name);
-        c.setAttribute("active",knot->isActive);
-        c.setAttribute("expanded",knot->isExpanded);
+        c.setAttribute("active",child->isActive);
+        c.setAttribute("expanded",child->item->data(Qt::UserRole+1).toBool());
+        c.setAttribute("path",child->path);
         addDomKnot(doc,c,child);
         e.appendChild(c);
     }
@@ -87,12 +88,14 @@ void HPSDomDirModel::setDomKnot(QDomElement &e, DirKnot *parent)
                 child = new DirKnot;
                 child->name = element.attribute("name");
                 child->isActive = element.attribute("active").toInt();
-                child->isExpanded = element.attribute("expanded").toInt();
+                child->path = element.attribute("path");
                 newItem = new QStandardItem(child->name);
                 newItem->setEnabled(child->isActive);
-
                 child->item = newItem;
+                child->item->setData(element.attribute("expanded").toInt(),Qt::UserRole+1);
+                child->item->setToolTip(child->path);
                 setDomKnot(element,child);
+
                 parent->children.append(child);
                 parent->item->appendRow(child->item);
 

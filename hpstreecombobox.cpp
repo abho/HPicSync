@@ -131,16 +131,7 @@ void HPSTreeCombobox::updateText()
         lineEdit()->setText("");
     }
 }
-void HPSTreeCombobox::setExpandedItems(const QList<QStandardItem *> &items)
-{
 
-    if (mTreeView!=NULL) {
-        const int size = items.size();
-        for (int var = 0; var < size; ++var) {
-            mTreeView->expand( static_cast<QStandardItemModel *>(model())->indexFromItem(items.at(var)));
-        }
-    }
-}
 QStandardItemModel *HPSTreeCombobox::standardModel() const
 {
     return static_cast<QStandardItemModel *>(model());
@@ -149,7 +140,7 @@ QStandardItemModel *HPSTreeCombobox::standardModel() const
 void HPSTreeCombobox::setCurrentItem(QStandardItem *item)
 {
     QModelIndex index;
-//qDebug() << Q_FUNC_INFO <<  index << index.isValid();
+    //qDebug() << Q_FUNC_INFO <<  index << index.isValid();
     if(item != NULL){
         index = standardModel()->indexFromItem(item);
         view()->setCurrentIndex(index);
@@ -191,20 +182,41 @@ QStandardItem* HPSTreeCombobox::findIndex(QStandardItem *item,const QString &dir
 
 void HPSTreeCombobox::saveExpandItem(const QModelIndex &index)
 {
-    //qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
-    if(!mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
-        mExpandeDirs.append(index.data(Qt::UserRole).toString());
+    qDebug() << Q_FUNC_INFO << index.data(Qt::DisplayRole).toString();
+    standardModel()->itemFromIndex(index)->setData(true,Qt::UserRole+1);
 }
 
 void HPSTreeCombobox::removeExpandItem(const QModelIndex &index)
 {
     //qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
-    if(mExpandeDirs.contains(index.data(Qt::UserRole).toString()))
-        mExpandeDirs.removeOne(index.data(Qt::UserRole).toString());
+    standardModel()->itemFromIndex(index)->setData(false,Qt::UserRole+1);
 }
 const QStringList & HPSTreeCombobox::expandeDirs()
 {
     return mExpandeDirs;
+}
+
+void HPSTreeCombobox::loadExpanded()
+{
+    if(mTreeView != NULL){
+        qDebug() << Q_FUNC_INFO;
+        loadExpandedItem( standardModel()->invisibleRootItem());
+    }
+}
+
+void HPSTreeCombobox::loadExpandedItem(QStandardItem *item)
+{
+    QStandardItem *child;
+    if(item->hasChildren()){
+        const int size = item->rowCount();
+        for ( int i = 0 ; i < size ; ++i){
+            child = item->child(i,0);
+            if(child->data(Qt::UserRole+1).toBool()){
+                mTreeView->expand( standardModel()->indexFromItem( child));
+            }
+            loadExpandedItem(child);
+        }
+    }
 }
 
 

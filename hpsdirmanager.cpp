@@ -28,12 +28,6 @@ const QStringList & HPSDirManager::dirs()
     return mOption.dirs();
 }
 
-
-
-
-
-
-
 void HPSDirManager::setModel(QStandardItemModel *model)
 {
     mCurrentModel = model;
@@ -98,7 +92,6 @@ void HPSDirManager::saveDirModel()
 
 void HPSDirManager::reset()
 {
-    mCurrentModel->clear();
     mKnotDirModel.clear();
 }
 
