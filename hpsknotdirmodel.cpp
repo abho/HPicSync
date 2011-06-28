@@ -33,50 +33,29 @@ void HPSKnotDirModel::add(const QString &str)
                 child = children.at(i);
                 if(child->name == list.at(var)) {
                     if(var == size-1){
-                        child->isActive=true;
-                        child->path = str;
                         child->item->setEnabled(true);
-                        child->item->setData(str,Qt::UserRole);                        
-                        child->item->setToolTip(str);
+                        child->item->setData(QDir::fromNativeSeparators(str),Qt::UserRole);
+                        child->item->setToolTip(QDir::toNativeSeparators(str));
                     }
                     break;
                 }
             }
             if(i == length){
                 found = false;
-                child = new DirKnot;
-                child->name = list.at(var);
-                child->item = new QStandardItem(child->name);
-                child->item->setData(false,Qt::UserRole+1);
-
+                if(var == size-1)
+                    child = creatNewActiveKnot(list.at(var),str,false);
+                else
+                    child = creatNewDeactiveKnot(list.at(var),false);
                 parent->item->appendRow(child->item);
-                if(var == size-1){
-                    child->isActive = true;
-                    child->item->setEnabled(true);
-                    child->item->setData(str,Qt::UserRole);
-                    child->path = str;
-                    child->item->setToolTip(str);
-                } else {
-                    child->item->setEnabled(false);
-                }
                 parent->children.append(child);
             }
 
         } else {
-            child = new DirKnot;
-            child->name = list.at(var);
-            child->item = new QStandardItem(child->name);
-            child->item->setData(false,Qt::UserRole+1);
+            if(var == size-1)
+                child = creatNewActiveKnot(list.at(var),str,false);
+            else
+                child = creatNewDeactiveKnot(list.at(var),false);
             parent->item->appendRow(child->item);
-            if(var == size-1){
-                child->isActive = true;
-                child->path = str;
-                child->item->setEnabled(true);
-                child->item->setData(str,Qt::UserRole);
-                child->item->setToolTip(str);
-            } else {
-                child->item->setEnabled(false);
-            }
             parent->children.append(child);
         }
         parent = child;
@@ -105,7 +84,7 @@ bool HPSKnotDirModel::contains(const QString &str)
         }
         parent = child;
     }
-    if(parent->isActive)
+    if(parent->item->isEnabled())
         return true;
     else
         return false;
@@ -130,7 +109,7 @@ void HPSKnotDirModel::removeWithSubs(const QString &str)
 void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
 {
     const QString name = list.takeFirst();
-    QList<DirKnot*> children =parent->children;
+    QList<DirKnot*> children = parent->children;
     DirKnot* child;
     bool last = false;
     int var;
@@ -141,7 +120,6 @@ void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
             if(!list.isEmpty()){
                 removeDir(child,list,withSub);
             }else {
-                child->isActive = false;
                 child->item->setEnabled(false);
                 last=true;
             }
@@ -149,7 +127,7 @@ void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
         }
     }
     if(child->children.size()==0 || (last&&withSub)){
-        parent->item->takeRow(var);
+        delete parent->item->takeChild(var,0);
         delete parent->children.takeAt(var);
     }
 }
@@ -193,6 +171,34 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
         }
         mRoot->item = mTmpRoot;
     }
+}
+
+DirKnot * HPSKnotDirModel::creatNewActiveKnot(const QString &name, const QString &path, const bool isExpanded)
+{
+    DirKnot *newKnot = new DirKnot();
+    newKnot->name = name;
+
+    QStandardItem *newItem = new QStandardItem(name);
+    newItem->setEnabled(true);
+    newItem->setToolTip(QDir::toNativeSeparators(path));
+    newItem->setData(isExpanded,Qt::UserRole+1);
+    newItem->setData(QDir::fromNativeSeparators(path),Qt::UserRole);
+    newKnot->item = newItem;
+
+    return newKnot;
+}
+
+DirKnot * HPSKnotDirModel::creatNewDeactiveKnot(const QString &name, const bool isExpanded)
+{
+    DirKnot *newKnot = new DirKnot();
+    newKnot->name = name;
+
+    QStandardItem *newItem = new QStandardItem(name);
+    newItem->setEnabled(false);
+    newItem->setData(isExpanded,Qt::UserRole+1);
+    newKnot->item = newItem;
+
+    return newKnot;
 }
 
 

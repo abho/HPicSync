@@ -55,8 +55,15 @@ void HPSDirManager::makeView()
 
 void HPSDirManager::removeDir(const QString &dir, bool withSub)
 {
-
-
+    if ( mOption.getComboBoxView() == HPSOption::ListView) {
+        // qDebug() << "ToList";
+    } else {
+        //qDebug() << "toTree";
+        if(withSub)
+            mKnotDirModel.removeWithSubs(dir);
+        else
+            mKnotDirModel.remove(dir);
+    }
 
 }
 

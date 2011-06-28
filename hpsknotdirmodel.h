@@ -2,10 +2,11 @@
 #define HPSKNOTDIRMODEL_H
 
 #include <QStandardItem>
+#include <QDir>
 #include <QDebug>
 class DirKnot{
 public:
-    DirKnot(): children(QList<DirKnot*>()),path(""),isActive(false),item(NULL){}
+    DirKnot(): children(QList<DirKnot*>()),item(NULL){}
     ~DirKnot(){
         QList<DirKnot*> &list = children ;
         const int size = list.size();
@@ -15,9 +16,7 @@ public:
     }
 
     QString name;
-    QString path;
     QList<DirKnot*> children;
-    bool isActive;
     QStandardItem* item;
 };
 class HPSKnotDirModel
@@ -32,6 +31,8 @@ public:
     void setTreeView(bool isTreeView,QStandardItem *item);
     void clear();
     DirKnot * root();
+   static DirKnot * creatNewActiveKnot(const QString &name,const QString &path,const bool isExpanded);
+    static DirKnot * creatNewDeactiveKnot(const QString &name,const bool isExpanded);
 private:
     void removeDir(DirKnot *parent, QStringList &list,bool withSub);
     void removeAll(DirKnot *parent);

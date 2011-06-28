@@ -211,18 +211,30 @@ void HPicSync::clickedPlus()
        // mTreeComboBox->findeAndSetCurrentItem(str);
     }
 }
-void HPicSync::initCBOrdner(int index,const QString &dir)
+
+void HPicSync::clickedMinus()
 {
-    //qDebug() << "initCBOrdner" << index << dir;
-    if(index == HPSOption::ListView){
-        mOption.setExpandDirs(mTreeComboBox->expandeDirs());
-        mTreeComboBox->setViewToList();
-    } else {
-        mTreeComboBox->setViewToTree();
+
+    QMessageBox dialog(this);
+    dialog.setText( trUtf8("Unterordner mitentfernen?"));
+    QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
+    QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
+    QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
+    dialog.exec();
+    if(dialog.clickedButton() == abbruchButton){
+        qDebug() << "abbruch";
+        return ;
+    } else if(dialog.clickedButton() == jaButton) {
+        qDebug() << "ja";
+        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),true);
+    } else if(dialog.clickedButton() == neinButton) {
+        qDebug() << "nein";
+        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
     }
-     mDirManager.makeView();
-     mTreeComboBox->loadExpanded();
+    mTreeComboBox->findeAndSetCurrentItem("");
+
 }
+
 
 void HPicSync::comboBoxItemclicked(QModelIndex index)
 {
@@ -274,6 +286,20 @@ void HPicSync::initBar(const QString &dir, const int size)
 
 }
 
+void HPicSync::initCBOrdner(int index,const QString &dir)
+{
+    //qDebug() << "initCBOrdner" << index << dir;
+    if(index == HPSOption::ListView){
+        mOption.setExpandDirs(mTreeComboBox->expandeDirs());
+        mTreeComboBox->setViewToList();
+    } else {
+        mTreeComboBox->setViewToTree();
+    }
+     mDirManager.makeView();
+     mTreeComboBox->loadExpanded();
+     mTreeComboBox->findeAndSetCurrentItem(mOption.getComboBoxCurrentDir());
+}
+
 void HPicSync::initThumbManager()
 {
     mThumbManager.setDatenBankHandler( &mDatabaseHandler);
@@ -283,28 +309,7 @@ void HPicSync::initThumbManager()
     qDebug() << Q_FUNC_INFO << workToDo;
 }
 
-void HPicSync::clickedMinus()
-{
-    /*
-    QMessageBox dialog(this);
-    dialog.setText( trUtf8("Unterordner mitentfernen?"));
-    QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
-    QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
-    QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
-    dialog.exec();
-    if(dialog.clickedButton() == abbruchButton){
-        qDebug() << "abbruch";
-        return ;
-    } else if(dialog.clickedButton() == jaButton) {
-        qDebug() << "ja";
-        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),true);
-    } else if(dialog.clickedButton() == neinButton) {
-        qDebug() << "nein";
-        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
-    }
-    mTreeComboBox->updateText();
-    */
-}
+
 
 void HPicSync::startBar()
 {
