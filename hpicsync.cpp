@@ -48,7 +48,7 @@ HPicSync::HPicSync(QWidget *parent)
 
     QHBoxLayout *comboBox = new QHBoxLayout();
 
-    this->mTreeComboBox = new HPSTreeCombobox(this);
+    this->mTreeComboBox = new HPSComboBox(this);
     mDirManager.setModel( mTreeComboBox->standardModel());
     initCBOrdner(mOption.getComboBoxView(),mOption.getComboBoxCurrentDir());
     mPlusButton=new QPushButton(tr("plus"));
@@ -109,7 +109,7 @@ HPicSync::HPicSync(QWidget *parent)
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
     this->connect(this->mRefreshButton,SIGNAL(clicked()),this,SLOT(test()));
     this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
-    connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
+    //connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
     connect( &mThumbManager,SIGNAL(thumbsReady(int)),this,SLOT(refreshBar(int)));
     connect( &mThumbManager,SIGNAL(startThumbCreation(QString,int)),this,SLOT(initBar(QString,int)));
@@ -133,7 +133,7 @@ HPicSync::~HPicSync()
 {
     mOption.setGeometry(this->geometry());
     mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
-    mOption.setExpandDirs( mTreeComboBox->expandeDirs());
+    //mOption.setExpandDirs( mTreeComboBox->expandeDirs());
     mDirManager.saveDirModel();
     mDirManager.reset();
 }
@@ -231,7 +231,7 @@ void HPicSync::clickedMinus()
         qDebug() << "nein";
         mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
     }
-    mTreeComboBox->findeAndSetCurrentItem("");
+    mTreeComboBox->setItemByText("");
 
 }
 
@@ -289,15 +289,16 @@ void HPicSync::initBar(const QString &dir, const int size)
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
     //qDebug() << "initCBOrdner" << index << dir;
+
+    mDirManager.makeView();
     if(index == HPSOption::ListView){
-        mOption.setExpandDirs(mTreeComboBox->expandeDirs());
-        mTreeComboBox->setViewToList();
+        //mOption.setExpandDirs(mTreeComboBox->expandeDirs());
+        mTreeComboBox->setView(HPSComboBox::ListView);
     } else {
-        mTreeComboBox->setViewToTree();
+        mTreeComboBox->setView(HPSComboBox::TreeView);
+        mTreeComboBox->loadExpanded();
     }
-     mDirManager.makeView();
-     mTreeComboBox->loadExpanded();
-     mTreeComboBox->findeAndSetCurrentItem(mOption.getComboBoxCurrentDir());
+     mTreeComboBox->setItemByText(dir);
 }
 
 void HPicSync::initThumbManager()

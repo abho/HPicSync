@@ -155,6 +155,11 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
     qDebug() << Q_FUNC_INFO << isTreeView <<item->text();
     QStandardItem *tmpItem;
     if( isTreeView){
+        const int count = item->rowCount();
+        for ( int i = 0 ; i < count ; ++i){
+            delete item->takeRow(i).first();
+        }
+        qDebug() << item->rowCount();
         const int size = mTmpRoot->rowCount();
         for(  int i = 0 ;  i < size ; ++i ) {
             tmpItem = mTmpRoot->takeRow(0).first();
@@ -170,6 +175,7 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
             mTmpRoot->appendRow(tmpItem);
         }
         mRoot->item = mTmpRoot;
+        makeListView(mRoot,item);
     }
 }
 
@@ -199,6 +205,27 @@ DirKnot * HPSKnotDirModel::creatNewDeactiveKnot(const QString &name, const bool 
     newKnot->item = newItem;
 
     return newKnot;
+}
+
+void HPSKnotDirModel::makeListView(DirKnot *parent,QStandardItem *root)
+{
+
+    const QList<DirKnot*> &list = parent->children;
+    const int size = list.size();
+    DirKnot *child;
+    QStandardItem *newItem,*oldItem;
+    QString path;
+    for ( int i = 0 ; i < size ; ++i){
+      child = list.at(i);
+        oldItem= child->item;
+        if( oldItem->isEnabled()){
+            path = oldItem->data(Qt::UserRole).toString();
+        newItem = new QStandardItem(QDir::toNativeSeparators(path));
+        newItem->setData( path,Qt::UserRole);
+        root->appendRow(newItem);
+        }
+        makeListView(child,root);
+    }
 }
 
 

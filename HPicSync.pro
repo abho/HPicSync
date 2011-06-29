@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     hpspasswordwidget.cpp \
     hpsselectaddresswidget.cpp \
     hpstcpmodul.cpp \
-    hpstreecombobox.cpp \
     hpsdbhandler.cpp \
     hpsthumbmanager.cpp \
     hpsworkerclass.cpp \
@@ -33,7 +32,9 @@ SOURCES += main.cpp\
     hpsdirdialog.cpp \
     hpsdirlister.cpp \
     hpsknotdirmodel.cpp \
-    hpsdomdirmodel.cpp
+    hpsdomdirmodel.cpp \
+    hpspopupwidget.cpp \
+    hpscombobox.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -47,7 +48,6 @@ HEADERS  += \
     hpspasswordwidget.h \
     hpsselectaddresswidget.h \
     hpstcpmodul.h \
-    hpstreecombobox.h \
     hpsdbhandler.h \
     hpsthumbmanager.h \
     hpsworkerclass.h \
@@ -58,7 +58,9 @@ HEADERS  += \
     hpsdirdialog.h \
     hpsdirlister.h \
     hpsknotdirmodel.h \
-    hpsdomdirmodel.h
+    hpsdomdirmodel.h \
+    hpspopupwidget.h \
+    hpscombobox.h
 
 
 RESOURCES += \
@@ -69,4 +71,5 @@ OTHER_FILES += \
     knopfGruen.png
 
 FORMS += \
-    hpsdirdialog.ui
+    hpsdirdialog.ui \
+    hpspopupwidget.ui

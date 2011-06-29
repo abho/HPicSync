@@ -31,11 +31,13 @@ public:
     void setTreeView(bool isTreeView,QStandardItem *item);
     void clear();
     DirKnot * root();
-   static DirKnot * creatNewActiveKnot(const QString &name,const QString &path,const bool isExpanded);
+
+    static DirKnot * creatNewActiveKnot(const QString &name,const QString &path,const bool isExpanded);
     static DirKnot * creatNewDeactiveKnot(const QString &name,const bool isExpanded);
 private:
     void removeDir(DirKnot *parent, QStringList &list,bool withSub);
     void removeAll(DirKnot *parent);
+    void makeListView(DirKnot *parent,QStandardItem *root);
     DirKnot* mRoot;
     QStandardItem *mTmpRoot;
 

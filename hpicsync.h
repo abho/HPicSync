@@ -14,6 +14,7 @@
 #include "hpsoldlistdelegate.h"
 #include "hpsprogressbar.h"
 #include "hpsdirdialog.h"
+#include "hpscombobox.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -29,7 +30,8 @@ private:
     QListWidget *mNewListWidget,*mOldListWidget;
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
 
-  HPSTreeCombobox *mTreeComboBox;
+  //HPSTreeCombobox *mTreeComboBox;
+  HPSComboBox *mTreeComboBox;
 
 
     HPSOption mOption;
