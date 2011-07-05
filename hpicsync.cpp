@@ -2,7 +2,7 @@
 #include <QDebug>
 
 HPicSync::HPicSync(QWidget *parent)
-    : QMainWindow(parent),mOptionWidget(NULL),mDirManager(mOption),mThumbManager( mOption),mMoreThanOneSelected(false)
+    : QMainWindow(parent),mOptionWidget(NULL),mThumbManager( mOption),mDirManager(mThumbManager,mOption),mMoreThanOneSelected(false)
 {
 
 
@@ -109,11 +109,12 @@ HPicSync::HPicSync(QWidget *parent)
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
     this->connect(this->mRefreshButton,SIGNAL(clicked()),this,SLOT(test()));
     this->connect(this->mCopyButton,SIGNAL(clicked()),this,SLOT(test2()));
-    //connect( mTreeComboBox,SIGNAL(itemClicked(QModelIndex)),this,SLOT(comboBoxItemclicked(QModelIndex)));
+    connect( mTreeComboBox,SIGNAL(dirChanged(QString)),this,SLOT(comboBoxDirClicked(QString)));
     connect(mPlusButton,SIGNAL(clicked()),this,SLOT(clickedPlus()));
     connect( &mThumbManager,SIGNAL(thumbsReady(int)),this,SLOT(refreshBar(int)));
     connect( &mThumbManager,SIGNAL(startThumbCreation(QString,int)),this,SLOT(initBar(QString,int)));
-    connect( &mThumbManager,SIGNAL(startCreation()),this,SLOT(startBar()));
+    connect( &mThumbManager,SIGNAL(dirCreationReady(QString)),&mDirManager,SLOT(finishAddDir(QString)));
+    //connect( &mThumbManager,SIGNAL(startCreation()),this,SLOT(startBar()));
     connect( &mThumbManager,SIGNAL(creationReady()),this,SLOT(finishBar()));
     connect( mMinusButton,SIGNAL(clicked()),this,SLOT(clickedMinus()));
     this->setGeometry(this->mOption.getGeometry());
@@ -198,15 +199,18 @@ void HPicSync::clickedPlus()
         QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
         dialog.exec();
         qDebug() <<Q_FUNC_INFO<< dialog.clickedButton();
+
         if(dialog.clickedButton() == abbruchButton){
             qDebug() << "abbruch";
             return ;
         } else if(dialog.clickedButton() == jaButton) {
             qDebug() << "ja";
-           mDirManager.addDir(str,true);
+            startBar();
+           mDirManager.startAddDir(str,true);
         } else if(dialog.clickedButton() == neinButton) {
             qDebug() << "nein";
-            mDirManager.addDir(str,false);
+            startBar();
+            mDirManager.startAddDir(str,false);
         }
        // mTreeComboBox->findeAndSetCurrentItem(str);
     }
@@ -237,21 +241,16 @@ void HPicSync::clickedMinus()
 }
 
 
-void HPicSync::comboBoxItemclicked(QModelIndex index)
+void HPicSync::comboBoxDirClicked(QString dir)
 {
-    QString path = index.data(Qt::UserRole).toString();
-    qDebug() << Q_FUNC_INFO << path;
-    if(path != QDir::fromNativeSeparators(mTreeComboBox->currentText())){
-        qDebug() << "neues";
-        if(mThumbManager.dirReady(path)){
-            mThumbManager.loadThumbs(path);
+    qDebug() << Q_FUNC_INFO << dir;
+
+
+        if(mThumbManager.dirReady(dir)){
+            mThumbManager.loadThumbs(dir);
         }else{
             //anpassen
         }
-
-    } else {
-        qDebug() << "currentItem clicked";
-    }
 
 }
 
@@ -268,13 +267,13 @@ void HPicSync::ordnerRemoved(QStringList dirs)
 
 void HPicSync::refreshBar(int value)
 {
-    qDebug() << Q_FUNC_INFO << value;
+    //qDebug() << Q_FUNC_INFO << value;
     mBar->setValue(value);
 }
 
 void HPicSync::initBar(const QString &dir, const int size)
 {
-    qDebug() << Q_FUNC_INFO << dir << size;
+    //qDebug() << Q_FUNC_INFO << dir << size;
 
     mBar->setFormat("creating thumbnails: "+dir+"...("+QString::number(mThumbManager.workCount())+")");
     if(size == 0){
@@ -307,8 +306,8 @@ void HPicSync::initThumbManager()
     mThumbManager.setDatenBankHandler( &mDatabaseHandler);
     mThumbManager.setListWidget( mOldListWidget);
     mThumbManager.loadThumbs( mTreeComboBox->currentDir());
-    bool workToDo = mThumbManager.startWork();
-    qDebug() << Q_FUNC_INFO << workToDo;
+    //bool workToDo = mThumbManager.startWork();
+    qDebug() << Q_FUNC_INFO ;
 }
 
 

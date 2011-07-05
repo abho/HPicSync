@@ -12,7 +12,7 @@ void HPSProgressBar::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     QStyle *style = this->style();
 
-    style->drawItemText(&painter,region,Qt::AlignCenter, palette(),true, text());
+    style->drawItemText(&painter,region,Qt::AlignRight, palette(),true, text());
 
 }
 

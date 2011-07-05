@@ -19,6 +19,7 @@ signals:
     void workDone();
     void workSemiDone();
     void chunkDone();
+    void dirDone(QString);
 public slots:
     void startWork();
     void kill();
@@ -26,6 +27,7 @@ private:
     HPSKnotDirModel &mDirModel;
     QString mPath;
     QStringList mList;
+    QElapsedTimer timer;
     QDir mDir;
     bool mEx;
 

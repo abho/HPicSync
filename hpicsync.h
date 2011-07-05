@@ -37,9 +37,10 @@ private:
     HPSOption mOption;
     HPSOptionWidget *mOptionWidget;
     HPSTCPModul *mTcpModul;
+    HPSThumbManager mThumbManager;
     HPSDirManager mDirManager;
     HPSDBHandler mDatabaseHandler;
-    HPSThumbManager mThumbManager;
+
     HPSProgressBar *mBar;
     QElapsedTimer mTimer;
     bool mMoreThanOneSelected;
@@ -59,7 +60,7 @@ private slots:
     void clickedPlus();
     void comboBoxViewChanged(int);
     void ordnerRemoved(QStringList dirs);
-    void comboBoxItemclicked( QModelIndex );
+    void comboBoxDirClicked( QString);
     void clickedMinus();
     void startBar();
     void finishBar();

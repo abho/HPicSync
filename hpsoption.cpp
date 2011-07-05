@@ -22,6 +22,7 @@ HPSOption::HPSOption() :
     mComboBoxCurrentDir = mSetting.value("cbCurrentDir","" ).toString();
     mExpandDirs = mSetting.value("expandDirs",QStringList()).toStringList();
     mCreateThumbDirs = mSetting.value("createthumbdirs",QStringList()).toStringList();
+    mDirFromDirlister = mSetting.value("dirfromdirlister",QString("")).toString();
 }
 
 
@@ -185,5 +186,16 @@ void HPSOption::removeDirs(const QStringList &dirs)
         mOrdner.removeOne(dirs.at(var));
     }
     mSetting.setValue("ordner",mOrdner);
+}
+
+const QString & HPSOption::dirFromDirlister()
+{
+    return mDirFromDirlister;
+}
+
+void HPSOption::setDirFromDirlister(const QString &dir)
+{
+    mDirFromDirlister = dir;
+    mSetting.setValue("dirfromdirlister",mDirFromDirlister);
 }
 

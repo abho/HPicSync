@@ -19,9 +19,8 @@ void HPSOldListDelegate::paint ( QPainter * painter, const QStyleOptionViewItem 
     QRect r= option.rect;
     //   qDebug() << "nr:" << index.data(Qt::UserRole+1).toInt();
 
-   // QImage *img = (QImage *)index.data(Qt::DecorationRole).value<void *>();
+    // QImage *img = (QImage *)index.data(Qt::DecorationRole).value<void *>();
 
-qDebug()<<option.textElideMode;
 
     const QPixmap &pix = index.data(Qt::DecorationRole).value<QPixmap>();
     if (option.state & QStyle::State_Selected)

@@ -65,15 +65,15 @@ void HPSImageLoader::load(bool withSignals){
         }
         reader.setScaledSize(QSize(image_width, image_height));
         thumb.image =  reader.read();
-         qDebug() <<QThread::currentThreadId()<< "readerload" <<timer.elapsed();
+         //qDebug() <<QThread::currentThreadId()<< "readerload" <<timer.elapsed();
 
          file.setFileName(mFolder+"/"+thumb.name);
         if(file.open(QIODevice::ReadOnly)&&!thumb.image.isNull())  {
             block =file.readAll();
-            qDebug() << QThread::currentThreadId()<<"open" <<timer.elapsed();
+            //qDebug() << QThread::currentThreadId()<<"open" <<timer.elapsed();
             file.close();
             thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Md5).toHex();
-            qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
+            //qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
             /*
             image.loadFromData(block);
 
@@ -86,19 +86,19 @@ qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
 
             if(withSignals){
                 if(counter==nextSend){
-                    qDebug() << thread()<<"ready" << i<<  lastSend+1<< packet;
+            //        qDebug() << thread()<<"ready" << i<<  lastSend+1<< packet;
                     emit ready(lastSend+1,packet);
                     lastSend =i;
                     nextSend+=packet;
                 }
             }
         } else {
-            qDebug() << "error" << i;
+            //qDebug() << "error" << i;
             emit error(i);
             thumb.error = true;
             if(withSignals){
                 if(i-1!=lastSend){
-                    qDebug() << "fehler ready" << lastSend+1 << i-lastSend-1;
+                  //  qDebug() << "fehler ready" << lastSend+1 << i-lastSend-1;
                     emit ready(lastSend+1,i-lastSend-1);
 
                 }
@@ -112,7 +112,7 @@ qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
     //qDebug() << "fertig: " << i;
     if(withSignals){
         if(lastSend != i-1){
-            qDebug() <<thread() <<  "ganz ready" << lastSend+1 << i-lastSend-1;
+            //qDebug() <<thread() <<  "ganz ready" << lastSend+1 << i-lastSend-1;
             emit ready(lastSend+1,i-lastSend-1);
         }
     }

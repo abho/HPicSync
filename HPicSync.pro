@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     hpsknotdirmodel.cpp \
     hpsdomdirmodel.cpp \
     hpspopupwidget.cpp \
-    hpscombobox.cpp
+    hpscombobox.cpp \
+    hpsdirchecker.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -60,7 +61,8 @@ HEADERS  += \
     hpsknotdirmodel.h \
     hpsdomdirmodel.h \
     hpspopupwidget.h \
-    hpscombobox.h
+    hpscombobox.h \
+    hpsdirchecker.h
 
 
 RESOURCES += \

@@ -18,7 +18,10 @@ void HPSDirLister::startWork()
 {
     mEx = false;
     qDebug() << "start" << mPath;
+    timer.start();
+
     subDirsFrom(mPath);
+    qDebug() << "ready " << timer.elapsed();
     if(!mEx)
         emit workDone();
     else
@@ -27,14 +30,13 @@ void HPSDirLister::startWork()
 
 void HPSDirLister::subDirsFrom(const QString &dir)
 {
-    qDebug() << Q_FUNC_INFO << dir.toUtf8();
+    //qDebug() << Q_FUNC_INFO << dir.toUtf8();
 
     if(!mEx){
         if(!mDirModel.contains(dir)){
-            mDirModel.add(dir);
-            mList.append(dir);
-            if(mList.size()%10 == 0)
-                chunkDone();
+            //mDirModel.add(dir);
+           // mList.append(dir);
+            emit dirDone(dir);
         }
     }
 

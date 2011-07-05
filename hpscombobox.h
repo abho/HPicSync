@@ -26,7 +26,8 @@ public:
 
 
 signals:
-
+    void dirClicked(QString);
+    void dirChanged(QString);
 private slots:
     void onMPopupItemClicked(QString);
     void onMPopupExit();

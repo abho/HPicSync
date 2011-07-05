@@ -1,8 +1,8 @@
 #include "hpsdirmanager.h"
 #include <QDebug>
 
-HPSDirManager::HPSDirManager(HPSOption &option, QObject *parent) :
-    QObject(parent),mOption(option)
+HPSDirManager::HPSDirManager(HPSThumbManager &thumbManager,HPSOption &option, QObject *parent) :
+    QObject(parent),mOption(option),mThumbManager(thumbManager)
 {
     if( mDomDirModel.load( mKnotDirModel ))
         qDebug() << Q_FUNC_INFO << "dirmodele erfolgreich geladen";
@@ -14,12 +14,14 @@ HPSDirManager::~HPSDirManager() {
 }
 
 
-bool HPSDirManager::addDir(const QString  &dir,bool withsub){
+bool HPSDirManager::startAddDir(const QString  &dir,bool withsub){
 
     if(withsub)
         startDirLister(dir);
-    else
-        mKnotDirModel.add(dir);
+    else{
+        if(!mKnotDirModel.contains(dir))
+            checkDir(dir);
+    }
     return true;
 }
 
@@ -66,15 +68,17 @@ void HPSDirManager::removeDir(const QString &dir, bool withSub)
         QList<QStandardItem*> list;
         QStandardItem *item;
         if(withSub)
-           list = mCurrentModel->findItems(QDir::toNativeSeparators(dir),Qt::MatchStartsWith);
+            list = mCurrentModel->findItems(QDir::toNativeSeparators(dir),Qt::MatchStartsWith);
         else
-           list = mCurrentModel->findItems(QDir::toNativeSeparators(dir));
+            list = mCurrentModel->findItems(QDir::toNativeSeparators(dir));
 
         const int size = list.size();
         for(  int i = 0 ;  i < size ; ++i ) {
             qDebug()<< Q_FUNC_INFO << list.at(i)->data(Qt::UserRole).toString();
+            mCurrentModel->removeRow(list.at(i)->row());
+
         }
-}
+    }
 }
 
 
@@ -84,6 +88,7 @@ void HPSDirManager::removeDir(const QString &dir, bool withSub)
 void HPSDirManager::startDirLister(const QString &dir)
 {
     qDebug() << Q_FUNC_INFO;
+    mOption.setDirFromDirlister(dir);
     QThread *thread = new QThread();
     HPSDirLister *dirLister = new HPSDirLister( mKnotDirModel,dir);
     dirLister->moveToThread(thread);
@@ -91,14 +96,16 @@ void HPSDirManager::startDirLister(const QString &dir)
     connect(dirLister,SIGNAL(destroyed()),thread,SLOT(quit()));
     connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()));
     connect(dirLister,SIGNAL(workDone()),this,SLOT(checkWork()));
+    connect(dirLister,SIGNAL(dirDone(QString)),this,SLOT(checkDir(QString)));
     thread->start();
 }
 
 void HPSDirManager::checkWork()
 {
-    HPSDirLister *dirLister = (HPSDirLister*) sender();
-    qDebug()<<Q_FUNC_INFO << dirLister->dirs().size();
-    saveDirModel();
+    // HPSDirLister *dirLister = (HPSDirLister*) sender();
+    qDebug()<<Q_FUNC_INFO ;
+    //saveDirModel();
+    mOption.setDirFromDirlister("");
 
 }
 
@@ -111,6 +118,17 @@ void HPSDirManager::reset()
 {
     mKnotDirModel.clear();
 }
+
+void HPSDirManager::checkDir(QString str)
+{
+    mThumbManager.creatThumbs(str,false);
+}
+
+void HPSDirManager::finishAddDir( QString str)
+{
+    mKnotDirModel.add(str);
+}
+
 
 
 

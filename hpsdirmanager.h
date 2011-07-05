@@ -8,13 +8,15 @@
 #include "hpsdirlister.h"
 #include "hpsknotdirmodel.h"
 #include "hpsdomdirmodel.h"
+#include "hpsthumbmanager.h"
 class HPSDirManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSDirManager(HPSOption &option,QObject *parent = 0);
+    explicit HPSDirManager(HPSThumbManager &thumbManager,HPSOption &option,QObject *parent = 0);
     ~HPSDirManager();
-    bool addDir(const QString  &dir,bool withSub);
+    bool startAddDir(const QString  &dir,bool withSub);
+
     void setModel( QStandardItemModel *model);
     void makeView();
     void removeDir(const QString &dir,bool withSub);
@@ -26,17 +28,19 @@ private:
 
     void startDirLister(const QString &dir);
 
-
     HPSOption &mOption;
+    HPSThumbManager &mThumbManager;
     QStandardItemModel *mCurrentModel;
     HPSKnotDirModel mKnotDirModel;
     HPSDomDirModel mDomDirModel;
 
-
 signals:
-
-public slots:
+    void dirToRemove(QString);
+private slots:
     void checkWork();
+    void checkDir(QString str);
+public slots:
+    void finishAddDir(QString str);
 };
 
 #endif // HPSDIRMANAGER_H

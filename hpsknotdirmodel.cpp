@@ -209,20 +209,20 @@ DirKnot * HPSKnotDirModel::creatNewDeactiveKnot(const QString &name, const bool 
 
 void HPSKnotDirModel::makeListView(DirKnot *parent,QStandardItem *root)
 {
-
     const QList<DirKnot*> &list = parent->children;
     const int size = list.size();
     DirKnot *child;
     QStandardItem *newItem,*oldItem;
     QString path;
     for ( int i = 0 ; i < size ; ++i){
-      child = list.at(i);
+        child = list.at(i);
         oldItem= child->item;
         if( oldItem->isEnabled()){
             path = oldItem->data(Qt::UserRole).toString();
-        newItem = new QStandardItem(QDir::toNativeSeparators(path));
-        newItem->setData( path,Qt::UserRole);
-        root->appendRow(newItem);
+            newItem = new QStandardItem(QDir::toNativeSeparators(path));
+            newItem->setData( path,Qt::UserRole);
+            newItem->setToolTip(path);
+            root->appendRow(newItem);
         }
         makeListView(child,root);
     }

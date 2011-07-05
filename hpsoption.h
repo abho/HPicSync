@@ -41,6 +41,8 @@ public:
     void removeCreateThumbDir(const QString &dir);
     void addCreateThumbDir(const QString &dir);
     void appendCreateThumbDir(const QStringList &dirs);
+    void setDirFromDirlister(const QString &dir);
+    const QString & dirFromDirlister();
 
 
     void test(const QString &);
@@ -50,6 +52,7 @@ private:
     QString mComboBoxCurrentDir;
     QSettings mSetting;
     QString mQuellOrdner,mUsername,mPassword;
+    QString mDirFromDirlister;
     int mThumbSize,mPort;
     QRect mGeometry,mGeometryOption;
     QStringList mOrdner;

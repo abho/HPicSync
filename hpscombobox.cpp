@@ -50,6 +50,7 @@ void HPSComboBox::onMPopupExit()
 void HPSComboBox::onMPopupItemClicked(QString str)
 {
     lineEdit()->setText(QDir::toNativeSeparators(str));
+    emit dirChanged(str);
 }
 
 void HPSComboBox::setView(int view)
