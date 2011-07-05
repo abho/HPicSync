@@ -21,7 +21,7 @@ void HPSOldListDelegate::paint ( QPainter * painter, const QStyleOptionViewItem 
 
    // QImage *img = (QImage *)index.data(Qt::DecorationRole).value<void *>();
 
-
+qDebug()<<option.textElideMode;
 
     const QPixmap &pix = index.data(Qt::DecorationRole).value<QPixmap>();
     if (option.state & QStyle::State_Selected)
@@ -31,7 +31,7 @@ void HPSOldListDelegate::paint ( QPainter * painter, const QStyleOptionViewItem 
 
     style->drawItemPixmap(painter,rec,Qt::AlignHCenter,pix);
     style->drawItemText(painter,QRect(r.left()+2,r.top()+r.height()-20,
-                                      r.width()-4,20),Qt::AlignHCenter,opt.palette,true,index.data(Qt::DisplayRole).toString());
+                                      r.width()-4,20),Qt::AlignLeft,opt.palette,true,index.data(Qt::DisplayRole).toString());
 
 }
 

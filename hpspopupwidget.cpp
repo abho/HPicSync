@@ -57,9 +57,9 @@ void HPSPopupWidget::closeEvent(QCloseEvent *event)
 
 bool HPSPopupWidget::eventFilter(QObject *o, QEvent *event)
 {
-    if (event->type() == QEvent::MouseButtonPress ){
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick || event->type() == QEvent::MouseButtonRelease){
 
-        //qDebug() << Q_FUNC_INFO;
+        qDebug() << Q_FUNC_INFO<< event->type();
         QMouseEvent* m = static_cast<QMouseEvent*>(event);
         QModelIndex index = ui->mTreeView->indexAt(m->pos());
 
@@ -72,6 +72,7 @@ bool HPSPopupWidget::eventFilter(QObject *o, QEvent *event)
             qDebug() << index.data(Qt::UserRole).toString();
 
             if(index.flags().testFlag(Qt::ItemIsEnabled)){
+                qDebug() << "exit";
                 emit itemClicked(index.data(Qt::UserRole).toString());
                 hide();
                 emit exit();
@@ -79,6 +80,7 @@ bool HPSPopupWidget::eventFilter(QObject *o, QEvent *event)
 
         }
         //qDebug() << index;
+
     }
     return false;
 }
@@ -95,14 +97,20 @@ void HPSPopupWidget::setItem(QStandardItem *item)
 
 void HPSPopupWidget::on_mTreeView_activated(const QModelIndex &index)
 {
-    emit itemClicked(index.data(Qt::UserRole).toString());
-    hide();
-    emit exit();
+    qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString() << index.flags().testFlag(Qt::ItemIsEnabled);
+    QRect vrect = ui->mTreeView->visualRect(index);
+    if( index.flags().testFlag(Qt::ItemIsEnabled)&&vrect.contains(mapFromGlobal(QCursor::pos()))){
+        qDebug() << "ecit";
+        emit itemClicked(index.data(Qt::UserRole).toString());
+        hide();
+        emit exit();
+    }
 
 }
 
 void HPSPopupWidget::on_mListView_activated(const QModelIndex &index)
 {
+    qDebug() << Q_FUNC_INFO << index.data(Qt::UserRole).toString();
     emit itemClicked(index.data(Qt::UserRole).toString());
     hide();
     emit exit();
@@ -161,4 +169,19 @@ void HPSPopupWidget::on_mTreeView_collapsed(const QModelIndex &index)
 bool HPSPopupWidget::isListView()
 {
     return !ui->mListView->isHidden();
+}
+
+void HPSPopupWidget::on_mListView_clicked(const QModelIndex &index)
+{
+    emit itemClicked(index.data(Qt::UserRole).toString());
+    hide();
+    emit exit();
+}
+
+void HPSPopupWidget::clearSelection()
+{ if( ui->mListView->isHidden()){
+        ui->mTreeView->selectionModel()->clearSelection();
+    }else{
+        ui->mListView->selectionModel()->clearSelection();
+    }
 }

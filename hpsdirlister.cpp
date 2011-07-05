@@ -4,7 +4,7 @@
 
 
 HPSDirLister::HPSDirLister(HPSKnotDirModel &model, const QString &path,QObject *parent) :
-    QObject(parent), mSaver(model),mPath(path),mEx(false)
+    QObject(parent), mDirModel(model),mPath(path),mEx(false)
 {
     //mSaver.setList(saversFiles);
 
@@ -17,7 +17,7 @@ HPSDirLister::~HPSDirLister(){
 void HPSDirLister::startWork()
 {
     mEx = false;
-    qDebug() << "start";
+    qDebug() << "start" << mPath;
     subDirsFrom(mPath);
     if(!mEx)
         emit workDone();
@@ -27,23 +27,27 @@ void HPSDirLister::startWork()
 
 void HPSDirLister::subDirsFrom(const QString &dir)
 {
-    if(!mSaver.contains(dir)){
-        mDir.setPath(dir);
-        QStringList list = mDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
-        foreach (const QString str, list) {
-            if(!mEx){
-                subDirsFrom(QString(dir+"/"+str));
-            } else {
-                break;
-            }
-        }
-        if(!mEx){
-            mSaver.add(dir);
+    qDebug() << Q_FUNC_INFO << dir.toUtf8();
+
+    if(!mEx){
+        if(!mDirModel.contains(dir)){
+            mDirModel.add(dir);
             mList.append(dir);
             if(mList.size()%10 == 0)
                 chunkDone();
         }
     }
+
+    mDir.setPath(dir);
+    QStringList list = mDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
+    foreach (const QString str, list) {
+        if(!mEx){
+            subDirsFrom(QString(dir+"/"+QString::fromLatin1(str.toLatin1())));
+        } else {
+            break;
+        }
+    }
+
 }
 
 void HPSDirLister::kill()

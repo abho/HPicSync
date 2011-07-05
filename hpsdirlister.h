@@ -23,7 +23,7 @@ public slots:
     void startWork();
     void kill();
 private:
-    HPSKnotDirModel &mSaver;
+    HPSKnotDirModel &mDirModel;
     QString mPath;
     QStringList mList;
     QDir mDir;

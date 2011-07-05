@@ -21,6 +21,8 @@ public:
     void loadExpanded();
     QStandardItemModel * standardModel();
     const QString  currentDir();
+    void clearSelection();
+
 
 
 signals:
@@ -34,7 +36,7 @@ private:
 
     void initPopup();
     QStandardItem *findItemInList(const QString &dir);
-        QStandardItem *findItemInTree(const QString &dir);
+    QStandardItem *findItemInTree(const QString &dir);
 
     void loadExpandedItem(QStandardItem * item);
 };

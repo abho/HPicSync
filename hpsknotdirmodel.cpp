@@ -127,7 +127,7 @@ void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
         }
     }
     if(child->children.size()==0 || (last&&withSub)){
-        delete parent->item->takeChild(var,0);
+        delete parent->item->takeRow(var).first();
         delete parent->children.takeAt(var);
     }
 }
@@ -157,7 +157,7 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
     if( isTreeView){
         const int count = item->rowCount();
         for ( int i = 0 ; i < count ; ++i){
-            delete item->takeRow(i).first();
+            delete item->takeRow(0).first();
         }
         qDebug() << item->rowCount();
         const int size = mTmpRoot->rowCount();

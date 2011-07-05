@@ -63,7 +63,7 @@ HPicSync::HPicSync(QWidget *parent)
     this->mOldListWidget->setUniformItemSizes(true);
     this->mOldListWidget->setResizeMode(QListView::Adjust);
     this->mOldListWidget->setAutoScroll(false);
-    this->mOldListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->mOldListWidget->setSelectionMode(QAbstractItemView::NoSelection);
     HPSOldListDelegate *delegateOld = new HPSOldListDelegate(this->mOption.getThumbSize(),this);
     this->mOldListWidget->setItemDelegate(delegateOld);
 
@@ -231,7 +231,8 @@ void HPicSync::clickedMinus()
         qDebug() << "nein";
         mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
     }
-    mTreeComboBox->setItemByText("");
+    mTreeComboBox->clearSelection();
+
 
 }
 

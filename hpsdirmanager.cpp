@@ -55,16 +55,26 @@ void HPSDirManager::makeView()
 
 void HPSDirManager::removeDir(const QString &dir, bool withSub)
 {
-    if ( mOption.getComboBoxView() == HPSOption::ListView) {
-        // qDebug() << "ToList";
-    } else {
-        //qDebug() << "toTree";
-        if(withSub)
-            mKnotDirModel.removeWithSubs(dir);
-        else
-            mKnotDirModel.remove(dir);
-    }
 
+    qDebug() <<  Q_FUNC_INFO;
+    if(withSub)
+        mKnotDirModel.removeWithSubs(dir);
+    else
+        mKnotDirModel.remove(dir);
+
+    if ( mOption.getComboBoxView() == HPSOption::ListView) {
+        QList<QStandardItem*> list;
+        QStandardItem *item;
+        if(withSub)
+           list = mCurrentModel->findItems(QDir::toNativeSeparators(dir),Qt::MatchStartsWith);
+        else
+           list = mCurrentModel->findItems(QDir::toNativeSeparators(dir));
+
+        const int size = list.size();
+        for(  int i = 0 ;  i < size ; ++i ) {
+            qDebug()<< Q_FUNC_INFO << list.at(i)->data(Qt::UserRole).toString();
+        }
+}
 }
 
 

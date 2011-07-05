@@ -22,7 +22,7 @@ bool HPSDomDirModel::save( HPSKnotDirModel &model)
         return false;
     }else {
         QTextStream ts( &file );
-        ts << doc.toString();
+        doc.save(ts,1,QDomNode::EncodingFromTextStream);
         file.close();
         qDebug() << "test.xml" << "saved" << timer.elapsed();
         return true;

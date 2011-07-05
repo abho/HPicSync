@@ -49,7 +49,7 @@ void HPSComboBox::onMPopupExit()
 
 void HPSComboBox::onMPopupItemClicked(QString str)
 {
-    lineEdit()->setText(str);
+    lineEdit()->setText(QDir::toNativeSeparators(str));
 }
 
 void HPSComboBox::setView(int view)
@@ -141,4 +141,10 @@ QStandardItem * HPSComboBox::findItemInTree(const QString &dir)
 QStandardItemModel * HPSComboBox::standardModel()
 {
     return mPopup->model();
+}
+
+void HPSComboBox::clearSelection()
+{
+    mLineEdit->setText("");
+    mPopup->clearSelection();
 }

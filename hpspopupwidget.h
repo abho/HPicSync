@@ -26,6 +26,7 @@ public:
     void setView(int view);
     void expanded(const QModelIndex &index);
     bool isListView();
+    void clearSelection();
     enum View{
         ListView,TreeView
     };
@@ -38,6 +39,8 @@ private slots:
     void on_mTreeView_activated(const QModelIndex &index);
     void on_mListView_activated(const QModelIndex &index);
     void on_mTreeView_collapsed(const QModelIndex &index);
+
+    void on_mListView_clicked(const QModelIndex &index);
 
 signals:
     void exit();
