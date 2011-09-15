@@ -10,17 +10,18 @@
 #include "hpshashsaver.h"
 #include "hpsthumb.h"
 #include "hpsoption.h"
+#include "hpsthreadmanager.h"
 
 class HPSDirChecker : public QObject
 {
     Q_OBJECT
 public:
     explicit HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
-    void creatThumbs(const QStringList &cDirs);
+   /* void creatThumbs(const QStringList &cDirs);
     void creatThumbs(const QString &cDir);
     bool allThreadsClose();
     void closeAllThreads();
-    int workCount();
+    int  workCount();
     bool startWork();
 
 signals:
@@ -42,7 +43,7 @@ private slots:
      void fotoReady();
      void checkIfAllClose();
      void getError(int error);
-     void hashesReady();
+     void hashesReady();*/
 
 private:
     HPSOption &mOption;
@@ -54,14 +55,14 @@ private:
     bool mEx;
     int mCountError;
     int mThumbsLoaded;
-
+/*
     void saveHashes();
-    void  reset();
-    void  makeThumbsAndView(const QString &cDir,const bool withView);
+    void reset();
+    void makeThumbsAndView(const QString &cDir,const bool withView);
     void subDirsFrom(const QString &dir,QStringList &dirs);
     void makeView(const QList<QStringList> &list);
     void nextWork();
-
+*/
 };
 
 #endif // HPSDIRCHECKER_H

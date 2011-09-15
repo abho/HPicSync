@@ -12,17 +12,13 @@ class HPSImageLoader : public HPSWorkerClass
 {
     Q_OBJECT
 public:
-    explicit HPSImageLoader(const int startWithView,const int end,const int size,QObject *parent = 0);
+    explicit HPSImageLoader(QObject *parent = 0);
     ~HPSImageLoader();
 
     static void setThumbVector(QVector<HPSThumb> * thumbVec);
     static void setFolder(const QString &folder);
 
 private:
-
-    const int mSize,mStartPos,mEnd;
-
-
     static QVector<HPSThumb> *mThumbVec;
     static QString mFolder;
 
@@ -35,6 +31,7 @@ signals:
 public slots:
     void startWithView();
     void startWithoutView();
+    void start(const int start,const int end, int size,bool withView);
 private slots:
     void load(bool withSignals);
 };

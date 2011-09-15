@@ -3,10 +3,9 @@
 
 
 
-HPSDirLister::HPSDirLister(HPSKnotDirModel &model, const QString &path,QObject *parent) :
-    QObject(parent), mDirModel(model),mPath(path),mEx(false)
+HPSDirLister::HPSDirLister(HPSKnotDirModel &model,QObject *parent) :
+    QObject(parent), mDirModel(model),mEx(false)
 {
-    //mSaver.setList(saversFiles);
 
 }
 
@@ -14,13 +13,13 @@ HPSDirLister::~HPSDirLister(){
     qDebug() <<Q_FUNC_INFO << "tot";
 }
 
-void HPSDirLister::startWork()
+void HPSDirLister::startWork(const QString &path)
 {
     mEx = false;
-    qDebug() << "start" << mPath;
+    qDebug() << "start" << path;
     timer.start();
 
-    subDirsFrom(mPath);
+    subDirsFrom(path);
     qDebug() << "ready " << timer.elapsed();
     if(!mEx)
         emit workDone();
@@ -30,19 +29,15 @@ void HPSDirLister::startWork()
 
 void HPSDirLister::subDirsFrom(const QString &dir)
 {
-    //qDebug() << Q_FUNC_INFO << dir.toUtf8();
-
     if(!mEx){
         if(!mDirModel.contains(dir)){
-            //mDirModel.add(dir);
-           // mList.append(dir);
             emit dirDone(dir);
         }
     }
 
     mDir.setPath(dir);
     QStringList list = mDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
-    foreach (const QString str, list) {
+    foreach (const QString &str, list) {
         if(!mEx){
             subDirsFrom(QString(dir+"/"+QString::fromLatin1(str.toLatin1())));
         } else {

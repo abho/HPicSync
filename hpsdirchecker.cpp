@@ -4,14 +4,14 @@ HPSDirChecker::HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *
     QObject(parent),mOption(option),mDatabaseHandler(dbHandler)
 {
 }
-
+/*
 void HPSThumbManager::creatThumbs( const QStringList &cDirs)
 {
 
     //emit startCreation();
-  /*  mOption.appendCreateThumbDir(cDirs);
-    makeThumbsAndView(cDirs.first(),view);
-*/
+  //  mOption.appendCreateThumbDir(cDirs);
+   // makeThumbsAndView(cDirs.first(),view);
+
 }
 void HPSThumbManager::creatThumbs(const QString &cDir){
     //emit startCreation();
@@ -187,4 +187,4 @@ void HPSThumbManager::nextWork()
         emit creationReady();
 
 
-}
+}*/

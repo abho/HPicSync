@@ -1,6 +1,10 @@
 #include "hpsdirmanager.h"
 #include <QDebug>
 
+
+/*!
+
+  */
 HPSDirManager::HPSDirManager(HPSThumbManager &thumbManager,HPSOption &option, QObject *parent) :
     QObject(parent),mOption(option),mThumbManager(thumbManager)
 {
@@ -87,7 +91,7 @@ void HPSDirManager::removeDir(const QString &dir, bool withSub)
 
 void HPSDirManager::startDirLister(const QString &dir)
 {
-    qDebug() << Q_FUNC_INFO;
+    /*qDebug() << Q_FUNC_INFO;
     mOption.setDirFromDirlister(dir);
     QThread *thread = new QThread();
     HPSDirLister *dirLister = new HPSDirLister( mKnotDirModel,dir);
@@ -98,6 +102,7 @@ void HPSDirManager::startDirLister(const QString &dir)
     connect(dirLister,SIGNAL(workDone()),this,SLOT(checkWork()));
     connect(dirLister,SIGNAL(dirDone(QString)),this,SLOT(checkDir(QString)));
     thread->start();
+    */
 }
 
 void HPSDirManager::checkWork()
@@ -121,7 +126,7 @@ void HPSDirManager::reset()
 
 void HPSDirManager::checkDir(QString str)
 {
-    mThumbManager.creatThumbs(str,false);
+    //mThumbManager.creatThumbs(str,false);
 }
 
 void HPSDirManager::finishAddDir( QString str)

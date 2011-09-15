@@ -11,7 +11,7 @@ class HPSDirLister : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSDirLister(HPSKnotDirModel &model, const QString &path,QObject *parent = 0);
+    explicit HPSDirLister(HPSKnotDirModel &model, QObject *parent = 0);
     ~HPSDirLister();
     QStringList dirs();
 
@@ -21,11 +21,10 @@ signals:
     void chunkDone();
     void dirDone(QString);
 public slots:
-    void startWork();
+    void startWork(const QString &path);
     void kill();
 private:
     HPSKnotDirModel &mDirModel;
-    QString mPath;
     QStringList mList;
     QElapsedTimer timer;
     QDir mDir;
