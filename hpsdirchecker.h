@@ -17,7 +17,10 @@ class HPSDirChecker : public QObject
     Q_OBJECT
 public:
     explicit HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
-   /* void creatThumbs(const QStringList &cDirs);
+    ~HPSDirChecker();
+    void close();
+
+    /* void creatThumbs(const QStringList &cDirs);
     void creatThumbs(const QString &cDir);
     bool allThreadsClose();
     void closeAllThreads();
@@ -52,7 +55,8 @@ private:
     QString mCurrentDir;
     QVector<HPSThumb> mThumbs;
     QMap<QThread *,HPSWorkerClass *> mThreads;
-    bool mEx;
+    bool mShutDown;
+    bool mIsRunning;
     int mCountError;
     int mThumbsLoaded;
 /*

@@ -76,4 +76,8 @@ OTHER_FILES += \
 
 FORMS += \
     hpsdirdialog.ui \
-    hpspopupwidget.ui
+    hpspopupwidget.ui \
+    hpicsync.ui
+
+
+

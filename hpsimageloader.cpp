@@ -8,7 +8,7 @@ QString HPSImageLoader::mFolder;
 QVector<HPSThumb> *HPSImageLoader::mThumbVec;
 
 HPSImageLoader::HPSImageLoader(  QObject *parent) :
-    HPSWorkerClass(parent)
+    QObject(parent),mIsRunning(false),mShutDown(false)
 {
 }
 
@@ -21,7 +21,7 @@ void HPSImageLoader::startWithView(){
 }
 
 void HPSImageLoader::load(bool withSignals){
-   /* QElapsedTimer timer;
+    /* QElapsedTimer timer;
     int i,packet,lastSend,nextSend;
     if(withSignals){
         packet=1;
@@ -75,7 +75,7 @@ void HPSImageLoader::load(bool withSignals){
             thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Md5).toHex();
             //qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
 */
-            /*
+    /*
             image.loadFromData(block);
 
 qDebug() <<QThread::currentThreadId()<< "scale" <<timer.elapsed();
@@ -84,7 +84,7 @@ qDebug() <<QThread::currentThreadId()<< "scale" <<timer.elapsed();
 
 qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
 */
-/*
+    /*
             if(withSignals){
                 if(counter==nextSend){
             //        qDebug() << thread()<<"ready" << i<<  lastSend+1<< packet;
@@ -149,6 +149,18 @@ void HPSImageLoader::setThumbVector(QVector<HPSThumb> *thumbVec)
 
 void HPSImageLoader::start(const int start, const int end, int size, bool withView)
 {
+    mIsRunning = true;
+    if(mShutDown)
+        deleteLater();
+    mIsRunning = false;
+}
+
+void HPSImageLoader::close()
+{
+    if(mIsRunning)
+        mShutDown = true;
+    else
+        deleteLater();
 }
 
 

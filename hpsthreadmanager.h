@@ -19,22 +19,28 @@ class HPSThreadManager : public QObject
 public:
     explicit HPSThreadManager(HPSKnotDirModel &knotModel,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
     enum ThreadTyp { DirLister,DirChecker,ImageLoader};
-
+    HPSDirLister* dirLister();
+    HPSDirChecker* dirChecker();
+    QVector<HPSImageLoader*> &imageLoaders();
+    void closeAllThreads();
+    bool threadClosed();
 
 signals:
-
+    void  allThreadsAreClosed();
 public slots:
+private slots:
+    void onThreadFinished();
 private:
     void initDirLister(HPSKnotDirModel &knotModel);
     void initDirChecker(HPSOption &option,HPSDBHandler *dbHandler);
     void initImagerLoaders();
 
 
-
-    QList<QThread> mThreads;
+    QVector<QThread*> mThreads;
     QVector<HPSImageLoader*> mImageLoaders;
     HPSDirLister *mDirLister;
     HPSDirChecker *mDirChecker;
+    bool mThreadsClosed;
 };
 
 #endif // HPSTHREADMANAGER_H

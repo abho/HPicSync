@@ -134,6 +134,11 @@ void HPSDirManager::finishAddDir( QString str)
     mKnotDirModel.add(str);
 }
 
+HPSKnotDirModel & HPSDirManager::knotDirModel()
+{
+    return mKnotDirModel;
+}
+
 
 
 

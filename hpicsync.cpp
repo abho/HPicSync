@@ -4,8 +4,9 @@
 HPicSync::HPicSync(QWidget *parent)
     : QMainWindow(parent),mOptionWidget(NULL),mThumbManager( mOption),mDirManager(mThumbManager,mOption),mMoreThanOneSelected(false)
 {
+    ui->setupUi(this);
 
-    QHBoxLayout *optionBox = new QHBoxLayout();
+   /* QHBoxLayout *optionBox = new QHBoxLayout();
     this->mOptionButton = new QPushButton(tr("Option"));
     optionBox->addStretch();
     optionBox->addWidget(this->mOptionButton);
@@ -103,7 +104,8 @@ HPicSync::HPicSync(QWidget *parent)
     this->statusBar()->addWidget(this->mConnectPixRotLabel);
     this->statusBar()->addWidget(this->mConnectLabel);
     this->statusBar()->addPermanentWidget( mBar);
-/*
+*/
+ /*
     this->connect(this->mCloseButton,SIGNAL(clicked()),this,SLOT(close()));
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
     this->connect(this->mRefreshButton,SIGNAL(clicked()),this,SLOT(test()));
@@ -117,14 +119,15 @@ HPicSync::HPicSync(QWidget *parent)
     connect( &mThumbManager,SIGNAL(creationReady()),this,SLOT(finishBar()));
     connect( mMinusButton,SIGNAL(clicked()),this,SLOT(clickedMinus()));
     this->setGeometry(this->mOption.getGeometry());
-
+*/
     if(!mDatabaseHandler.openDatabase("picsync.db"))
         QMessageBox::critical(this, trUtf8("Fehler"), trUtf8("Verbindeung mit der Datenbank konnte nicht hergestellt werden."),QMessageBox::Ok);
-*/
+
     QDir dir( QApplication::applicationDirPath());
     if(!dir.exists(".thumbs")){
         dir.mkdir(".thumbs");
     }
+    mThreadManager = new HPSThreadManager(mDirManager.knotDirModel(),mOption,&mDatabaseHandler,this);
     initThumbManager();
 
 
@@ -132,24 +135,26 @@ HPicSync::HPicSync(QWidget *parent)
 HPicSync::~HPicSync()
 {
     /*
-    mOption.setGeometry(this->geometry());
-    mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
+
     //mOption.setExpandDirs( mTreeComboBox->expandeDirs());
-    mDirManager.saveDirModel();
-    mDirManager.reset();*/
+    */
 }
 void HPicSync::closeEvent(QCloseEvent *event){
-    /*qDebug() << "closeEvent" << mThumbManager.allThreadsClose();
-    if(mThumbManager.allThreadsClose()){
+    qDebug() << "closeEvent" << mThreadManager->threadClosed();
+    if(mThreadManager->threadClosed()){
+        mOption.setGeometry(this->geometry());
+        mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
+        mDirManager.saveDirModel();
+        mDirManager.reset();
         event->accept();
     } else {
-        mThumbManager.closeAllThreads();
-        connect(&mThumbManager,SIGNAL(allThreadsDestroyed()),this,SLOT(close()));
+        mThreadManager->closeAllThreads();
+        connect(mThreadManager,SIGNAL(allThreadsAreClosed()),this,SLOT(close()));
         event->ignore();
-    }*/
+    }
 }
 void HPicSync::showOption(){
-  /*  if(this->mOptionWidget== NULL){
+    /*  if(this->mOptionWidget== NULL){
         this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
         connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
         connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)),this,SLOT(ordnerRemoved(QStringList)));
@@ -175,7 +180,7 @@ void HPicSync::loadImages(const QString &folder){
         mBar->setCount(0);
         mBar->setCountVisible(true);
     }*/
-   // mThumbManager.creatThumbs(folder,true);
+    // mThumbManager.creatThumbs(folder,true);
 }
 void HPicSync::socketError(QAbstractSocket::SocketError error){
     //qDebug() << "error "<< error;
@@ -220,7 +225,7 @@ void HPicSync::clickedPlus()
 
 void HPicSync::clickedMinus()
 {
-/*
+    /*
     QMessageBox dialog(this);
     dialog.setText( trUtf8("Unterordner mitentfernen?"));
     QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
@@ -245,7 +250,7 @@ void HPicSync::clickedMinus()
 
 void HPicSync::comboBoxDirClicked(QString dir)
 {
-  /*  qDebug() << Q_FUNC_INFO << dir;
+    /*  qDebug() << Q_FUNC_INFO << dir;
 
 
         if(mThumbManager.dirReady(dir)){
@@ -259,7 +264,7 @@ void HPicSync::comboBoxDirClicked(QString dir)
 void HPicSync::ordnerRemoved(QStringList dirs)
 {
 
-  /*  if(dirs.contains( mTreeComboBox->currentDir()))
+    /*  if(dirs.contains( mTreeComboBox->currentDir()))
         mTreeComboBox->setCurrentItem(NULL);
 
     mDirManager.removeDirs(dirs);
@@ -270,13 +275,13 @@ void HPicSync::ordnerRemoved(QStringList dirs)
 void HPicSync::refreshBar(int value)
 {
     //qDebug() << Q_FUNC_INFO << value;
-   // mBar->setValue(value);
+    // mBar->setValue(value);
 }
 
 void HPicSync::initBar(const QString &dir, const int size)
 {
     //qDebug() << Q_FUNC_INFO << dir << size;
-/*
+    /*
     mBar->setFormat("creating thumbnails: "+dir+"...("+QString::number(mThumbManager.workCount())+")");
     if(size == 0){
         mBar->setRange(0,1);
@@ -290,7 +295,7 @@ void HPicSync::initBar(const QString &dir, const int size)
 
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
-   /* //qDebug() << "initCBOrdner" << index << dir;
+    /* //qDebug() << "initCBOrdner" << index << dir;
 
     mDirManager.makeView();
     if(index == HPSOption::ListView){
@@ -318,10 +323,10 @@ void HPicSync::initThumbManager()
 
 void HPicSync::startBar()
 {
- //   mBar->setVisible(true);
+    //   mBar->setVisible(true);
 }
 
 void HPicSync::finishBar()
 {
-   // mBar->setVisible(false);
+    // mBar->setVisible(false);
 }

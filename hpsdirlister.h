@@ -22,13 +22,14 @@ signals:
     void dirDone(QString);
 public slots:
     void startWork(const QString &path);
-    void kill();
+    void close();
 private:
     HPSKnotDirModel &mDirModel;
     QStringList mList;
     QElapsedTimer timer;
     QDir mDir;
-    bool mEx;
+    bool mIsRunning;
+    bool mShutDown;
 
     void subDirsFrom(const QString &dir);
 

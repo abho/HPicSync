@@ -1,10 +1,22 @@
 #include "hpsdirchecker.h"
 
 HPSDirChecker::HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *parent) :
-    QObject(parent),mOption(option),mDatabaseHandler(dbHandler)
+    QObject(parent),mOption(option),mDatabaseHandler(dbHandler),mShutDown(false),mIsRunning(false)
 {
 }
+HPSDirChecker::~HPSDirChecker(){
+    qDebug() << Q_FUNC_INFO << "tot";
+}
+
+void HPSDirChecker::close()
+{
+    if( mIsRunning)
+        mShutDown =true;
+    else
+        deleteLater();
+}
 /*
+
 void HPSThumbManager::creatThumbs( const QStringList &cDirs)
 {
 

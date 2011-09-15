@@ -21,6 +21,7 @@ public:
     void makeView();
     void removeDir(const QString &dir,bool withSub);
     void saveDirModel();
+    HPSKnotDirModel &knotDirModel();
     void reset();
     const QStringList & dirs();
 

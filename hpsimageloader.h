@@ -8,7 +8,7 @@
 #include "hpsworkerclass.h"
 #include "hpsthumb.h"
 //muh
-class HPSImageLoader : public HPSWorkerClass
+class HPSImageLoader : public QObject
 {
     Q_OBJECT
 public:
@@ -17,10 +17,13 @@ public:
 
     static void setThumbVector(QVector<HPSThumb> * thumbVec);
     static void setFolder(const QString &folder);
+    void close();
 
 private:
     static QVector<HPSThumb> *mThumbVec;
     static QString mFolder;
+    bool mIsRunning;
+    bool mShutDown;
 
 signals:
     void fotosReady();

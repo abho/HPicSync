@@ -15,6 +15,8 @@
 #include "hpsprogressbar.h"
 #include "hpsdirdialog.h"
 #include "hpscombobox.h"
+#include "hpsthreadmanager.h"
+#include  "ui_hpicsync.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -26,6 +28,8 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 private:
+
+    Ui::HPicSync *ui;
     QPushButton *mCloseButton,*mRefreshButton,*mOptionButton,*mtMarkAllButton,*mMarkSelectedButton,*mCopyButton,*mPlusButton,*mMinusButton;
     QListWidget *mNewListWidget,*mOldListWidget;
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
@@ -40,6 +44,7 @@ private:
     HPSThumbManager mThumbManager;
     HPSDirManager mDirManager;
     HPSDBHandler mDatabaseHandler;
+    HPSThreadManager *mThreadManager;
 
     HPSProgressBar *mBar;
     QElapsedTimer mTimer;
@@ -50,6 +55,7 @@ private:
     void loadImages(const QString &folder);
     void initCBOrdner(int index,const QString &dir);
     void initThumbManager();
+
 private slots:
     void showOption();
     void test();

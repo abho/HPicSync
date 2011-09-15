@@ -4,7 +4,7 @@
 
 
 HPSDirLister::HPSDirLister(HPSKnotDirModel &model,QObject *parent) :
-    QObject(parent), mDirModel(model),mEx(false)
+    QObject(parent), mDirModel(model),mIsRunning(false),mShutDown(false)
 {
 
 }
@@ -15,21 +15,24 @@ HPSDirLister::~HPSDirLister(){
 
 void HPSDirLister::startWork(const QString &path)
 {
-    mEx = false;
+    mIsRunning = true;
     qDebug() << "start" << path;
     timer.start();
 
     subDirsFrom(path);
     qDebug() << "ready " << timer.elapsed();
-    if(!mEx)
+    if(mShutDown)
         emit workDone();
-    else
+    else{
         emit workSemiDone();
+        deleteLater();
+    }
+    mIsRunning = false;
 }
 
 void HPSDirLister::subDirsFrom(const QString &dir)
 {
-    if(!mEx){
+    if(!mShutDown){
         if(!mDirModel.contains(dir)){
             emit dirDone(dir);
         }
@@ -38,7 +41,7 @@ void HPSDirLister::subDirsFrom(const QString &dir)
     mDir.setPath(dir);
     QStringList list = mDir.entryList(QStringList()<< "*",QDir::Dirs|QDir::NoSymLinks|QDir::NoDotAndDotDot);
     foreach (const QString &str, list) {
-        if(!mEx){
+        if(!mShutDown){
             subDirsFrom(QString(dir+"/"+QString::fromLatin1(str.toLatin1())));
         } else {
             break;
@@ -47,9 +50,13 @@ void HPSDirLister::subDirsFrom(const QString &dir)
 
 }
 
-void HPSDirLister::kill()
+void HPSDirLister::close()
 {
-    mEx = true;
+
+    if( mIsRunning)
+        mShutDown = true;
+    else
+        deleteLater();
 }
 
 
