@@ -19,22 +19,25 @@ public:
     explicit HPSDirChecker(HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
     ~HPSDirChecker();
     void close();
+  signals:
+    void dirChecked(QString dir);
+
+public slots:
+    void checkDir(QString dir);
 
     // void creatThumbs(const QStringList &cDirs);
     //void creatThumbs(const QString &cDir);
 
     //int  workCount();
-    //bool startWork();
+
     /*
-signals:
+
 
     void startThumbCreation(const QString&,const int);
     void thumbsReady(const int);
     void creationReady();
     void startCreation();
     void dirCreationReady(QString dir);
-
-public slots:
 
 
 
@@ -55,16 +58,19 @@ private:
     QVector<HPSThumb> mThumbs;
     bool mShutDown;
     bool mIsRunning;
+    bool mIsWorking;
     int mCountError;
     int mThumbsLoaded;
     QStringList mDirQueue;
+    void startWork(const QString &cDir,const bool withView);
+    void workReady();
+    void nextWork();
     /*
     void saveHashes();
     void reset();
-    void makeThumbsAndView(const QString &cDir,const bool withView);
     void subDirsFrom(const QString &dir,QStringList &dirs);
     void makeView(const QList<QStringList> &list);
-    void nextWork();
+
 */
 };
 
