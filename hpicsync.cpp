@@ -3,6 +3,7 @@
 
 HPicSync::HPicSync(QWidget *parent)
     : QMainWindow(parent),mOptionWidget(NULL),mThumbManager( mOption),mDirManager(mThumbManager,mOption),mMoreThanOneSelected(false)
+    , ui(new Ui::HPicSync)
 {
     ui->setupUi(this);
 
@@ -134,6 +135,7 @@ HPicSync::HPicSync(QWidget *parent)
 }
 HPicSync::~HPicSync()
 {
+    delete ui;
     /*
 
     //mOption.setExpandDirs( mTreeComboBox->expandeDirs());
@@ -143,7 +145,7 @@ void HPicSync::closeEvent(QCloseEvent *event){
     qDebug() << "closeEvent" << mThreadManager->threadClosed();
     if(mThreadManager->threadClosed()){
         mOption.setGeometry(this->geometry());
-        mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
+        //mOption.setComboBoxCurrentDir(mTreeComboBox->currentDir());
         mDirManager.saveDirModel();
         mDirManager.reset();
         event->accept();
@@ -153,16 +155,7 @@ void HPicSync::closeEvent(QCloseEvent *event){
         event->ignore();
     }
 }
-void HPicSync::showOption(){
-    /*  if(this->mOptionWidget== NULL){
-        this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
-        connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
-        connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)),this,SLOT(ordnerRemoved(QStringList)));
-        qDebug() << "optionWidget is null";
-    }
-    this->mOptionWidget->resetAndShow();
-*/
-}
+
 void HPicSync::test(){
 
     //mDirManager.reset();
@@ -329,4 +322,15 @@ void HPicSync::startBar()
 void HPicSync::finishBar()
 {
     // mBar->setVisible(false);
+}
+
+void HPicSync::on_butOption_clicked()
+{
+    if(this->mOptionWidget== NULL){
+        this->mOptionWidget = new HPSOptionWidget(&this->mOption,this);
+        connect(mOptionWidget,SIGNAL(comboBoxViewSelectedChanged(int)),this,SLOT(comboBoxViewChanged(int)));
+        connect( mOptionWidget,SIGNAL(dirsRemoved(QStringList)),this,SLOT(ordnerRemoved(QStringList)));
+       // qDebug() << "optionWidget is null";
+    }
+    this->mOptionWidget->resetAndShow();
 }

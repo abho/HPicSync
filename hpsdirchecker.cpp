@@ -1,7 +1,8 @@
 #include "hpsdirchecker.h"
 
-HPSDirChecker::HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *parent) :
-    QObject(parent),mOption(option),mDatabaseHandler(dbHandler),mShutDown(false),mIsRunning(false)
+HPSDirChecker::HPSDirChecker(HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent) :
+    QObject(parent),mThreadManager(threadManager),mOption(option),mDatabaseHandler(dbHandler),
+    mShutDown(false),mIsRunning(false)
 {
 }
 HPSDirChecker::~HPSDirChecker(){
@@ -33,16 +34,8 @@ void HPSThumbManager::creatThumbs(const QString &cDir){
         makeThumbsAndView(cDir,view);
 
 }
-void HPSThumbManager::threadClear()
-{
-    QThread *thread =(QThread*)sender();
-    mThreads.remove(thread);
-    thread->deleteLater();
-}
-bool HPSThumbManager::allThreadsClose()
-{
-    return mThreads.isEmpty();
-}
+
+
 void HPSThumbManager::fotosReady(int pos, int count)
 {
     qDebug() << Q_FUNC_INFO << pos << count;

@@ -57,7 +57,6 @@ private:
     void initThumbManager();
 
 private slots:
-    void showOption();
     void test();
     void socketError(QAbstractSocket::SocketError error);
     void test2();
@@ -72,6 +71,7 @@ private slots:
     void finishBar();
 
 
+    void on_butOption_clicked();
 };
 
 #endif // HPICSYNC_H

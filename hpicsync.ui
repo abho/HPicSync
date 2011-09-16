@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>922</width>
-    <height>607</height>
+    <width>595</width>
+    <height>352</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,20 +115,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox"/>
+           <widget class="HPSComboBox" name="comboBox"/>
           </item>
           <item>
            <widget class="QToolButton" name="butPlus">
@@ -179,8 +166,39 @@
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>10</height>
+    </size>
+   </property>
+  </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HPSComboBox</class>
+   <extends>QComboBox</extends>
+   <header>hpscombobox.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>butClose</sender>
+   <signal>clicked()</signal>
+   <receiver>HPicSync</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>885</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

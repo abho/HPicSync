@@ -53,10 +53,11 @@ void HPSThumbManager::makeView(const QList<QStringList> &list)
 
 void HPSThumbManager::startDirChecker()
 {
-    mDirChecker = new HPSDirChecker(mOption,mDatabaseHandler);
+   /* mDirChecker = new HPSDirChecker(*this,mOption,mDatabaseHandler);
     QThread *newThread = new QThread();
     connect(mDirChecker,SIGNAL(destroyed()),newThread,SLOT(quit()));
     connect(newThread,SIGNAL(finished()),this,SLOT(clearThread()));
+*/
 }
 
 void HPSThumbManager::clearThread()

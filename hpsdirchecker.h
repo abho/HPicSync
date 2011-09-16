@@ -16,19 +16,18 @@ class HPSDirChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSDirChecker(HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
+    explicit HPSDirChecker(HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
     ~HPSDirChecker();
     void close();
 
-    /* void creatThumbs(const QStringList &cDirs);
-    void creatThumbs(const QString &cDir);
-    bool allThreadsClose();
-    void closeAllThreads();
-    int  workCount();
-    bool startWork();
+    // void creatThumbs(const QStringList &cDirs);
+    //void creatThumbs(const QString &cDir);
 
+    //int  workCount();
+    //bool startWork();
+    /*
 signals:
-    void allThreadsDestroyed();
+
     void startThumbCreation(const QString&,const int);
     void thumbsReady(const int);
     void creationReady();
@@ -41,7 +40,6 @@ public slots:
 
 private slots:
      void fertigTime();
-     void threadClear();
      void fotosReady(int pos, int count);
      void fotoReady();
      void checkIfAllClose();
@@ -49,17 +47,18 @@ private slots:
      void hashesReady();*/
 
 private:
+
+    HPSThreadManager &mThreadManager;
     HPSOption &mOption;
     HPSDBHandler *mDatabaseHandler;
-
     QString mCurrentDir;
     QVector<HPSThumb> mThumbs;
-    QMap<QThread *,HPSWorkerClass *> mThreads;
     bool mShutDown;
     bool mIsRunning;
     int mCountError;
     int mThumbsLoaded;
-/*
+    QStringList mDirQueue;
+    /*
     void saveHashes();
     void reset();
     void makeThumbsAndView(const QString &cDir,const bool withView);

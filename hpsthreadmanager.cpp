@@ -31,7 +31,7 @@ void HPSThreadManager::initDirLister(HPSKnotDirModel &knotModel)
 void HPSThreadManager::initDirChecker(HPSOption &option,HPSDBHandler *dbHandler)
 {
 
-    mDirChecker = new HPSDirChecker(option,dbHandler);
+    mDirChecker = new HPSDirChecker(*this,option,dbHandler);
     mDirChecker->moveToThread(mThreads[DirChecker]);
     connect(mDirChecker,SIGNAL(destroyed()),mThreads[DirChecker],SLOT(quit()));
 
