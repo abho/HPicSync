@@ -9,11 +9,12 @@
 #include "hpsknotdirmodel.h"
 #include "hpsdomdirmodel.h"
 #include "hpsthumbmanager.h"
+#include "hpsthreadmanager.h"
 class HPSDirManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSDirManager(HPSThumbManager &thumbManager,HPSOption &option,QObject *parent = 0);
+    explicit HPSDirManager(HPSThreadManager &threadManager,HPSDBHandler &dbHandler,HPSOption &option,QObject *parent = 0);
     ~HPSDirManager();
     bool startAddDir(const QString  &dir,bool withSub);
 
@@ -24,24 +25,24 @@ public:
     HPSKnotDirModel &knotDirModel();
     void reset();
     const QStringList & dirs();
+signals:
+    void dirToRemove(QString);
+    void checkDir(QString dir);
+    void startDirLister(QString dir);
 
+public slots:
+    void finishAddDir(QString str);
+private slots:
+    void checkWork();
 private:
 
-    void startDirLister(const QString &dir);
-
     HPSOption &mOption;
-    HPSThumbManager &mThumbManager;
+   HPSThreadManager &mThreadManager;
     QStandardItemModel *mCurrentModel;
     HPSKnotDirModel mKnotDirModel;
     HPSDomDirModel mDomDirModel;
 
-signals:
-    void dirToRemove(QString);
-private slots:
-    void checkWork();
-    void checkDir(QString str);
-public slots:
-    void finishAddDir(QString str);
+
 };
 
 #endif // HPSDIRMANAGER_H

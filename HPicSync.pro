@@ -24,8 +24,6 @@ SOURCES += main.cpp\
     hpstcpmodul.cpp \
     hpsdbhandler.cpp \
     hpsthumbmanager.cpp \
-    hpsworkerclass.cpp \
-    hpshashsaver.cpp \
     hpsthumb.cpp \
     hpsoldlistdelegate.cpp \
     hpsprogressbar.cpp \
@@ -52,8 +50,6 @@ HEADERS  += \
     hpstcpmodul.h \
     hpsdbhandler.h \
     hpsthumbmanager.h \
-    hpsworkerclass.h \
-    hpshashsaver.h \
     hpsthumb.h \
     hpsoldlistdelegate.h \
     hpsprogressbar.h \
@@ -77,7 +73,15 @@ OTHER_FILES += \
 FORMS += \
     hpsdirdialog.ui \
     hpspopupwidget.ui \
-    hpicsync.ui
+    hpicsync.ui \
+    hpsoptionwidget.ui
+
+
+
+
+
+
+
 
 
 

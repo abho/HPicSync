@@ -24,30 +24,29 @@ class HPicSync : public QMainWindow
     Q_OBJECT
 public:
     HPicSync(QWidget *parent = 0);
+    QVector<QListWidgetItem*> & tmpListWidgetItems();
     ~HPicSync();
+public slots:
+    void onImageLoaderThumbsReady(int pos,int count);
 protected:
     void closeEvent(QCloseEvent *event);
 private:
 
     Ui::HPicSync *ui;
-    QPushButton *mCloseButton,*mRefreshButton,*mOptionButton,*mtMarkAllButton,*mMarkSelectedButton,*mCopyButton,*mPlusButton,*mMinusButton;
-    QListWidget *mNewListWidget,*mOldListWidget;
     QLabel *mPixOldLoadCountLabel,*mConnectPixRotLabel,*mConnectPixGruenLabel,*mConnectLabel;
-
-  //HPSTreeCombobox *mTreeComboBox;
-  HPSComboBox *mTreeComboBox;
 
 
     HPSOption mOption;
     HPSOptionWidget *mOptionWidget;
     HPSTCPModul *mTcpModul;
-    HPSThumbManager mThumbManager;
-    HPSDirManager mDirManager;
+    HPSThreadManager mThreadManager;
     HPSDBHandler mDatabaseHandler;
-    HPSThreadManager *mThreadManager;
+    HPSDirManager mDirManager;
+    HPSThumbManager mThumbManager;
 
     HPSProgressBar *mBar;
     QElapsedTimer mTimer;
+    QVector<QListWidgetItem*> mTmpListWidgetItems;
     bool mMoreThanOneSelected;
     int mPosImages;
     QMutex mMutex;
@@ -72,6 +71,8 @@ private slots:
 
 
     void on_butOption_clicked();
+    void on_butPlus_clicked();
+    void onMoptionwidgetThumbsizechanged(int size);
 };
 
 #endif // HPICSYNC_H

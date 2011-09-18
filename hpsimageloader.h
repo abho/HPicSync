@@ -5,9 +5,8 @@
 #include <QImageReader>
 #include <QtCore>
 #include <QtAlgorithms>
-#include "hpsworkerclass.h"
 #include "hpsthumb.h"
-//muh
+
 class HPSImageLoader : public QObject
 {
     Q_OBJECT
@@ -17,26 +16,26 @@ public:
 
     static void setThumbVector(QVector<HPSThumb> * thumbVec);
     static void setFolder(const QString &folder);
+    static const QString &folder();
+    void setWork(const int start,const int end, int size,bool withView);
     void close();
 
-private:
-    static QVector<HPSThumb> *mThumbVec;
-    static QString mFolder;
-    bool mIsRunning;
-    bool mShutDown;
-
 signals:
-    void fotosReady();
     void error(const int errorPos);
     void fertig();
     void ready(int pos,int count);
 
 public slots:
-    void startWithView();
-    void startWithoutView();
-    void start(const int start,const int end, int size,bool withView);
-private slots:
-    void load(bool withSignals);
+    void startWork();
+
+private:
+    static QVector<HPSThumb> *mThumbVec;
+    static QString mFolder;
+    int mStartPos,mEndPos,mSize;
+    bool mWithView;
+    bool mIsRunning;
+    bool mShutDown;
+
 };
 
 #endif // HPSIMAGELOADER_H

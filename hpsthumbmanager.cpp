@@ -1,7 +1,7 @@
 #include "hpsthumbmanager.h"
 
-HPSThumbManager::HPSThumbManager(HPSOption &option, QObject *parent) :
-    QObject(parent), mOption(option),mDatabaseHandler(NULL),mDirChecker(NULL)
+HPSThumbManager::HPSThumbManager(HPSDBHandler &handler,HPSOption &option, QObject *parent) :
+    QObject(parent), mOption(option),mDatabaseHandler(handler)
 {
 }
 void HPSThumbManager::fertigTime()
@@ -9,10 +9,7 @@ void HPSThumbManager::fertigTime()
    // qDebug() << "fertig" << mTimer.elapsed();
 
 }
-void HPSThumbManager::setDatenBankHandler(HPSDBHandler *handler)
-{
-    mDatabaseHandler = handler;
-}
+
 
 void HPSThumbManager::setListWidget(QListWidget *listWidget)
 {
@@ -21,15 +18,12 @@ void HPSThumbManager::setListWidget(QListWidget *listWidget)
 void HPSThumbManager::loadThumbs(const QString &dir)
 {
     qDebug() << Q_FUNC_INFO << dir;
-    if(mDatabaseHandler!=NULL){
+
         mListWidget->clear();
         QList<QStringList> list;
-        list = mDatabaseHandler->hashPaths(dir);
+        list = mDatabaseHandler.hashPaths(dir);
         makeView(list);
-        qDebug() << Q_FUNC_INFO << mDatabaseHandler->hashPaths(dir);
-    } else {
-        qDebug() << "databasehandler erst inizalisieren.";
-    }
+
 }
 void HPSThumbManager::makeView(const QList<QStringList> &list)
 {

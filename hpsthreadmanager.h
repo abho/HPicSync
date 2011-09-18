@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QtCore>
 #include <QtGui>
-#include "hpsworkerclass.h"
 #include "hpsoption.h"
 #include "hpsdbhandler.h"
 
@@ -17,13 +16,16 @@ class HPSThreadManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSThreadManager(HPSKnotDirModel &knotModel,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
+    explicit HPSThreadManager(QObject *parent = 0);
     enum ThreadTyp { DirLister,DirChecker,ImageLoader};
     HPSDirLister* dirLister();
     HPSDirChecker* dirChecker();
     QVector<HPSImageLoader*> &imageLoaders();
     void closeAllThreads();
     bool threadClosed();
+    void initDirLister(HPSKnotDirModel &knotModel);
+    void initDirChecker(HPSOption &option,HPSDBHandler &dbHandler);
+    void initImagerLoaders();
 
 signals:
     void  allThreadsAreClosed();
@@ -31,9 +33,7 @@ public slots:
 private slots:
     void onThreadFinished();
 private:
-    void initDirLister(HPSKnotDirModel &knotModel);
-    void initDirChecker(HPSOption &option,HPSDBHandler *dbHandler);
-    void initImagerLoaders();
+
 
 
     QVector<QThread*> mThreads;

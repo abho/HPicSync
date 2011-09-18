@@ -16,12 +16,12 @@ HPSDirLister::~HPSDirLister(){
 void HPSDirLister::startWork(const QString &path)
 {
     mIsRunning = true;
-    qDebug() << "start" << path;
+    qDebug() << Q_FUNC_INFO << "start" << path;
     timer.start();
 
     subDirsFrom(path);
-    qDebug() << "ready " << timer.elapsed();
-    if(mShutDown)
+    qDebug() << Q_FUNC_INFO << "ready " << timer.elapsed();
+    if(!mShutDown)
         emit workDone();
     else{
         emit workSemiDone();

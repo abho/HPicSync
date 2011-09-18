@@ -15,15 +15,24 @@ HPSImageLoader::HPSImageLoader(  QObject *parent) :
 HPSImageLoader::~HPSImageLoader(){
     qDebug() << Q_FUNC_INFO<<"tot";
 }
-void HPSImageLoader::startWithView(){
-    qDebug() <<Q_FUNC_INFO << "start loader";
-    load(true);
+
+void HPSImageLoader::setFolder(const QString &folder)
+{
+    mFolder = folder;
+}
+void HPSImageLoader::setThumbVector(QVector<HPSThumb> *thumbVec)
+{
+    mThumbVec = thumbVec;
 }
 
-void HPSImageLoader::load(bool withSignals){
-    /* QElapsedTimer timer;
+void HPSImageLoader::startWork()
+{
+    qDebug() << Q_FUNC_INFO << thread();
+    mIsRunning = true;
+
+     QElapsedTimer timer;
     int i,packet,lastSend,nextSend;
-    if(withSignals){
+    if(mWithView){
         packet=1;
         lastSend = mStartPos-1;
         nextSend = 0;
@@ -41,13 +50,11 @@ void HPSImageLoader::load(bool withSignals){
     QFile file;
     timer.start();
 
-    for(i  = mStartPos; i <= mEnd;i++){
-        if(mEx){
-            qDebug() <<"ex";
-            deleteLater();
-            return;
+    for(i  = mStartPos; i <= mEndPos;i++){
+        if(mShutDown){
+            break;
         }
-        qDebug() <<QThread::currentThreadId()<< "start" <<timer.elapsed();
+        //qDebug() <<QThread::currentThreadId()<< "start" <<timer.elapsed();
         HPSThumb &thumb = (*mThumbVec)[i];
 
         reader.setFileName(mFolder+"/"+thumb.name);
@@ -74,7 +81,6 @@ void HPSImageLoader::load(bool withSignals){
             file.close();
             thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Md5).toHex();
             //qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
-*/
     /*
             image.loadFromData(block);
 
@@ -84,8 +90,7 @@ qDebug() <<QThread::currentThreadId()<< "scale" <<timer.elapsed();
 
 qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
 */
-    /*
-            if(withSignals){
+            if(mWithView){
                 if(counter==nextSend){
             //        qDebug() << thread()<<"ready" << i<<  lastSend+1<< packet;
                     emit ready(lastSend+1,packet);
@@ -97,62 +102,30 @@ qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
             //qDebug() << "error" << i;
             emit error(i);
             thumb.error = true;
-            if(withSignals){
+            if(mWithView){
                 if(i-1!=lastSend){
                   //  qDebug() << "fehler ready" << lastSend+1 << i-lastSend-1;
                     emit ready(lastSend+1,i-lastSend-1);
-
                 }
                 lastSend=i;
                 nextSend=counter+packet;
             }
         }
         counter++;
-        fotosReady();
     }
     //qDebug() << "fertig: " << i;
-    if(withSignals){
+    if(mWithView){
         if(lastSend != i-1){
             //qDebug() <<thread() <<  "ganz ready" << lastSend+1 << i-lastSend-1;
             emit ready(lastSend+1,i-lastSend-1);
         }
     }
-    deleteLater();
-    emit fertig();
-    */
-}
-
-
-
-
-
-
-
-
-
-
-void HPSImageLoader::setFolder(const QString &folder)
-{
-    mFolder = folder;
-}
-
-void HPSImageLoader::startWithoutView()
-{
-    load(false);
-
-}
-
-void HPSImageLoader::setThumbVector(QVector<HPSThumb> *thumbVec)
-{
-    mThumbVec = thumbVec;
-}
-
-void HPSImageLoader::start(const int start, const int end, int size, bool withView)
-{
-    mIsRunning = true;
     if(mShutDown)
         deleteLater();
-    mIsRunning = false;
+    else{
+        emit fertig();
+        mIsRunning = false;
+    }
 }
 
 void HPSImageLoader::close()
@@ -161,6 +134,19 @@ void HPSImageLoader::close()
         mShutDown = true;
     else
         deleteLater();
+}
+
+void HPSImageLoader::setWork(const int start, const int end, int size, bool withView)
+{
+    mSize = size;
+    mStartPos = start;
+    mEndPos = end;
+    mWithView = withView;
+}
+
+const QString & HPSImageLoader::folder()
+{
+    return mFolder;
 }
 
 

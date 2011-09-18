@@ -9,6 +9,7 @@
 
 HPSOldListDelegate::HPSOldListDelegate(int size, QObject *parent) :QStyledItemDelegate(parent),mSize(size)
 {
+    qDebug() << Q_FUNC_INFO << size;
 }
 void HPSOldListDelegate::paint ( QPainter * painter, const QStyleOptionViewItem & option,
                                  const QModelIndex & index ) const{

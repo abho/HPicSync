@@ -6,8 +6,6 @@
 #include <QDebug>
 #include "hpsimageloader.h"
 #include "hpsdbhandler.h"
-#include "hpsworkerclass.h"
-#include "hpshashsaver.h"
 #include "hpsthumb.h"
 #include "hpsoption.h"
 #include "hpsthreadmanager.h"
@@ -16,62 +14,47 @@ class HPSDirChecker : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSDirChecker(HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent = 0);
+    explicit HPSDirChecker(QVector<QListWidgetItem*> &vec,HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler &dbHandler,QObject *parent = 0);
     ~HPSDirChecker();
     void close();
   signals:
     void dirChecked(QString dir);
+    void startImageloaders();
+    void newItemListWidgtesReady(int pos, int count);
+
 
 public slots:
     void checkDir(QString dir);
-
-    // void creatThumbs(const QStringList &cDirs);
-    //void creatThumbs(const QString &cDir);
-
-    //int  workCount();
-
-    /*
-
-
-    void startThumbCreation(const QString&,const int);
-    void thumbsReady(const int);
-    void creationReady();
-    void startCreation();
-    void dirCreationReady(QString dir);
-
-
-
-private slots:
-     void fertigTime();
      void fotosReady(int pos, int count);
-     void fotoReady();
-     void checkIfAllClose();
-     void getError(int error);
-     void hashesReady();*/
+     void imageLoaderFertig();
+     void imageLoaderError(int errorPos);
+     void onImageLoaderDestroyed();
 
 private:
 
+    QVector<QListWidgetItem*> &mTmpListWidgetItems;
     HPSThreadManager &mThreadManager;
     HPSOption &mOption;
-    HPSDBHandler *mDatabaseHandler;
+    HPSDBHandler &mDatabaseHandler;
     QString mCurrentDir;
-    QVector<HPSThumb> mThumbs;
+    QVector<HPSThumb> mThumbs;    
+    int mCountError;
+    int mThumbsLoaded;
+    int mCountDestroyedImageLoader;
     bool mShutDown;
     bool mIsRunning;
     bool mIsWorking;
-    int mCountError;
-    int mThumbsLoaded;
+    QPair<int, int> mCountImageLoader;
     QStringList mDirQueue;
-    void startWork(const QString &cDir,const bool withView);
-    void workReady();
-    void nextWork();
-    /*
-    void saveHashes();
-    void reset();
-    void subDirsFrom(const QString &dir,QStringList &dirs);
-    void makeView(const QList<QStringList> &list);
 
-*/
+
+    void startWork(const QString &cDir,const bool withView);
+    void workReady(const QString &dir);
+    void nextWork();
+    bool saveThumbsToDB(const QString &dir);
+
+
+
 };
 
 #endif // HPSDIRCHECKER_H

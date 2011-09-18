@@ -1,9 +1,22 @@
 #include "hpsdirchecker.h"
 
-HPSDirChecker::HPSDirChecker(HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent) :
-    QObject(parent),mThreadManager(threadManager),mOption(option),mDatabaseHandler(dbHandler),
+HPSDirChecker::HPSDirChecker(QVector<QListWidgetItem*> &vec,HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler &dbHandler,QObject *parent) :
+    QObject(parent),mTmpListWidgetItems(vec),mThreadManager(threadManager),mOption(option),
+    mDatabaseHandler(dbHandler),mCountDestroyedImageLoader(0),
     mShutDown(false),mIsRunning(false),mIsWorking(false)
 {
+    mThreadManager.initImagerLoaders();
+    QVector<HPSImageLoader*> &imageLoaders =  mThreadManager.imageLoaders();
+    HPSImageLoader *imageLoader;
+    for (int i = 0; i < imageLoaders.size(); ++i) {
+        imageLoader = imageLoaders[i];
+        connect(this,SIGNAL(startImageloaders()),imageLoader,SLOT(startWork()));
+        connect(imageLoader,SIGNAL(ready(int,int)),this,SLOT(fotosReady(int,int)));
+        connect(imageLoader,SIGNAL(fertig()),this,SLOT(imageLoaderFertig()));
+        connect(imageLoader,SIGNAL(error(int)),this,SLOT(imageLoaderError(int)));
+        connect(imageLoader,SIGNAL(destroyed()),this,SLOT(onImageLoaderDestroyed()));
+    }
+
 }
 HPSDirChecker::~HPSDirChecker(){
     qDebug() << Q_FUNC_INFO << "tot";
@@ -19,11 +32,11 @@ void HPSDirChecker::close()
 
 void HPSDirChecker::checkDir(QString dir)
 {
-
+qDebug() << Q_FUNC_INFO << dir;
     mDirQueue.append(dir);
     if(!mIsWorking){
         mIsWorking = true;
-        makeThumbsAndView(dir,false);
+        startWork(dir,false);
 
     }
 }
@@ -39,47 +52,30 @@ void HPSDirChecker::startWork(const QString &cDir, const bool withView)
     if(size>0){
         mThumbs.resize(size);
         HPSThumb thumb;
-
         for (int var = 0; var <size; ++var) {
-            const QFileInfo &fileInfo =fileNames.at(var);
+            const QFileInfo &fileInfo =fileInfos.at(var);
             thumb.name =fileInfo.fileName();
             thumb.lastModi =fileInfo.lastModified().toString();
             thumb.size = fileInfo.size();
             mThumbs[var]=thumb;
         }
         HPSImageLoader::setThumbVector( &mThumbs);
-        HPSImageLoader::setFolder( mCurrentDir);
+        HPSImageLoader::setFolder( cDir);
 
+        int number = imageLoaders.size();
         int partSize= size/number;
-        //qDebug() << "partSize" << partSize;
-        //mFileNames[9]="muh";
         int pos=0, end=-1;
+        mCountImageLoader.first = number;
+        mCountImageLoader.second = 0;
         for (int  i = 0; i< number;i++){
             pos =end+1;
             if(i==number-1)
                 end=size-1;
             else
                 end+=partSize;
-            //qDebug() << "pos"<<pos <<"end"<< end;
-            HPSImageLoader *imageLoader = new HPSImageLoader(pos,end, mOption.getThumbSize());
-            QThread *thread = new QThread();
-            mThreads.insert(thread,imageLoader);
-            imageLoader->moveToThread(thread);
-
-            connect(imageLoader,SIGNAL(destroyed()),thread,SLOT(quit()));
-            connect(thread,SIGNAL(finished()),this,SLOT(threadClear()));
-
-            if(withView) {
-                connect(thread,SIGNAL(started()),imageLoader,SLOT(startWithView()));
-                connect(imageLoader,SIGNAL(ready(int,int)),this,SLOT(fotosReady(int,int)));
-            } else {
-                connect(thread,SIGNAL(started()),imageLoader,SLOT(startWithoutView()));
-            }
-            connect(imageLoader,SIGNAL(fotosReady()),this,SLOT(fotoReady()));
-            connect(imageLoader,SIGNAL(fertig()),this,SLOT(fertigTime()));
-            connect(imageLoader,SIGNAL(error(int)),this,SLOT(getError(int)));
-            thread->start();
+            imageLoaders[i]->setWork(pos,end,mOption.getThumbSize(),withView);
         }
+        emit startImageloaders();
 
     } else {
         workReady(cDir);
@@ -98,100 +94,81 @@ void HPSDirChecker::nextWork()
 {
 
     if(!mDirQueue.isEmpty()){
-
-        makeThumbsAndView(mDirQueue.first()mOption.createThumbDirs().first(),false);
+        startWork(mDirQueue.first(),false);
     }else
         mIsWorking = false;
 
 
 }
-/*
 
-void HPSThumbManager::creatThumbs( const QStringList &cDirs)
+void HPSDirChecker::imageLoaderFertig()
 {
-
-    //emit startCreation();
-  //  mOption.appendCreateThumbDir(cDirs);
-   // makeThumbsAndView(cDirs.first(),view);
-
-}
-void HPSThumbManager::creatThumbs(const QString &cDir){
-    //emit startCreation();
-    mOption.addCreateThumbDir(cDir);
-    qDebug() << Q_FUNC_INFO << cDir;
-    if(mOption.createThumbDirs().size() == 1)
-        makeThumbsAndView(cDir,view);
-
+    qDebug() << Q_FUNC_INFO;
+    mCountImageLoader.second++;
+    if( mCountImageLoader.first == mCountImageLoader.second){
+        if(!saveThumbsToDB(HPSImageLoader::folder()))
+            workReady(HPSImageLoader::folder());
+        if(!mShutDown)
+            nextWork();
+        else
+            deleteLater();
+    }
 }
 
+void HPSDirChecker::imageLoaderError(int errorPos)
+{
+    qDebug() << Q_FUNC_INFO << errorPos;
+}
 
-void HPSThumbManager::fotosReady(int pos, int count)
+void HPSDirChecker::fotosReady(int pos, int count)
 {
     qDebug() << Q_FUNC_INFO << pos << count;
     if(count !=0 ){
+        QListWidgetItem *item;
         for(int i = pos;i<pos+count;i++){
-            QListWidgetItem *item= new QListWidgetItem();
-
+            item = new QListWidgetItem();
             QImage *img =&this->mThumbs[i].image;
             item->setData(Qt::DisplayRole,mThumbs.at(i).name);
             item->setData(Qt::DecorationRole,QPixmap::fromImage(*img));
-
-            mListWidget->addItem(item);
+            mTmpListWidgetItems[i] = item;
         }
+        emit newItemListWidgtesReady(pos,count);
     }
 }
-void HPSThumbManager::checkIfAllClose()
+
+bool HPSDirChecker::saveThumbsToDB(const QString &dir)
 {
-    if(mThreads.empty())
-        emit allThreadsDestroyed();
+    QElapsedTimer timer;
+    timer.start();
+    bool error = false;
+    mDatabaseHandler.startTransaction();
+    const int size = mThumbs.size();
+
+    for (int var = 0; var < size; ++var) {
+        if(mShutDown){
+            error = true;
+            break;
+        }
+        const HPSThumb &thumb = mThumbs.at(var);
+        if(!thumb.error) {
+            //qDebug() << QApplication::applicationDirPath()+"/.thumbs/"+thumb.hash+"."+QFileInfo(thumb.name).suffix();
+            if(!thumb.image.save(QApplication::applicationDirPath()+"/.thumbs/"+thumb.hash+".png")){
+                qDebug()<< Q_FUNC_INFO<<"thumb konnte nicht gespeichert werden";
+            }else  {
+                mDatabaseHandler.insertHash( thumb.hash, dir, thumb.name, thumb.lastModi, thumb.size,"");
+            }
+        }
+    }
+    mDatabaseHandler.finishTransaction();
+
+    return error;
 }
 
-void HPSThumbManager::getError(int error)
+void HPSDirChecker::onImageLoaderDestroyed()
 {
-    mCountError++;
-    qDebug() << Q_FUNC_INFO;
-    qDebug()<< "error while creating thumbnail of" << mThumbs.at(error).name;
+    mCountDestroyedImageLoader++;
+    if(mCountDestroyedImageLoader == mCountImageLoader.first){
+        if( mShutDown)
+            deleteLater();
+    }
 }
-
-void HPSThumbManager::saveHashes()
-{
-    HPSHashSaver *hashSaver = new HPSHashSaver(mDatabaseHandler, mThumbs, mCurrentDir);
-    QThread *thread = new QThread();
-    mThreads.insert(thread,hashSaver);
-    hashSaver->moveToThread(thread);
-    connect(thread,SIGNAL(started()),hashSaver,SLOT(start()));
-    connect(hashSaver,SIGNAL(destroyed()),thread,SLOT(quit()));
-    connect(thread,SIGNAL(finished()),this,SLOT(threadClear()));
-    connect(hashSaver,SIGNAL(finish()),this,SLOT(hashesReady()));
-    thread->start();
-}
-void HPSThumbManager::hashesReady()
-{
-    //qDebug() << Q_FUNC_INFO << "hashesReady";
-    nextWork();
-}
-
-void HPSThumbManager::reset()
-{
-    mThumbsLoaded = 0;
-    mThumbs.clear();
-    mCountError  = 0;
-}
-
-
-void HPSThumbManager::fotoReady()
-{
-    //qDebug() << Q_FUNC_INFO ;
-    mThumbsLoaded++;
-    emit thumbsReady( mThumbsLoaded);
-    if(mThumbsLoaded == mThumbs.size())
-        saveHashes();
-}
-
-
-int HPSThumbManager::workCount()
-{
-    //qDebug() << Q_FUNC_INFO << mOption.createThumbDirs().size();
-    return mOption.createThumbDirs().size();
-}
-

@@ -14,10 +14,8 @@ class HPSThumbManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSThumbManager( HPSOption &option, QObject *parent = 0);
+    explicit HPSThumbManager(HPSDBHandler &handler, HPSOption &option, QObject *parent = 0);
 
-
-    void setDatenBankHandler(HPSDBHandler *handler);
     void setListWidget(QListWidget *listWidget);
     void loadThumbs(const QString & dir);
     void startDirChecker();
@@ -28,8 +26,7 @@ public slots:
 
 private:
     HPSOption &mOption;
-    HPSDBHandler *mDatabaseHandler;
-    HPSDirChecker *mDirChecker;
+    HPSDBHandler &mDatabaseHandler;
     QString mCurrentDir;
     QListWidget *mListWidget;
     QElapsedTimer mTimer;

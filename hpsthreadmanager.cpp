@@ -2,8 +2,9 @@
 #include "hpsdirlister.h"
 #include "hpsdirchecker.h"
 #include "hpsimageloader.h"
+#include "hpicsync.h"
 
-HPSThreadManager::HPSThreadManager(HPSKnotDirModel &knotModel,HPSOption &option,HPSDBHandler *dbHandler,QObject *parent) :
+HPSThreadManager::HPSThreadManager(QObject *parent) :
     QObject(parent),mThreads(2+QThread::idealThreadCount()),mThreadsClosed(false)
 {
 
@@ -15,9 +16,6 @@ HPSThreadManager::HPSThreadManager(HPSKnotDirModel &knotModel,HPSOption &option,
         connect(t,SIGNAL(finished()),this,SLOT(onThreadFinished()));
         mThreads[i] = t;
     }
-    initDirLister(knotModel);
-    initDirChecker(option,dbHandler);
-    initImagerLoaders();
 }
 
 void HPSThreadManager::initDirLister(HPSKnotDirModel &knotModel)
@@ -28,17 +26,20 @@ void HPSThreadManager::initDirLister(HPSKnotDirModel &knotModel)
 
 }
 
-void HPSThreadManager::initDirChecker(HPSOption &option,HPSDBHandler *dbHandler)
+void HPSThreadManager::initDirChecker(HPSOption &option,HPSDBHandler &dbHandler)
 {
+HPicSync * p =static_cast<HPicSync*>(parent());
+    mDirChecker = new HPSDirChecker(p->tmpListWidgetItems(),*this,option,dbHandler);
 
-    mDirChecker = new HPSDirChecker(*this,option,dbHandler);
     mDirChecker->moveToThread(mThreads[DirChecker]);
     connect(mDirChecker,SIGNAL(destroyed()),mThreads[DirChecker],SLOT(quit()));
+    connect(mDirChecker,SIGNAL(newItemListWidgtesReady(int,int)),p,SLOT(onImageLoaderThumbsReady(int,int)));
 
 }
 
 void HPSThreadManager::initImagerLoaders()
 {
+
     mImageLoaders.resize(QThread::idealThreadCount());
     for (int i = 0; i < mImageLoaders.size(); ++i) {
         mImageLoaders[i] = new HPSImageLoader();

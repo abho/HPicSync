@@ -5,46 +5,48 @@
 /*!
 
   */
-HPSDirManager::HPSDirManager(HPSThumbManager &thumbManager,HPSOption &option, QObject *parent) :
-    QObject(parent),mOption(option),mThumbManager(thumbManager)
+HPSDirManager::HPSDirManager(HPSThreadManager &threadManager,HPSDBHandler &dbHandler,HPSOption &option, QObject *parent) :
+    QObject(parent),mOption(option),mThreadManager(threadManager)
 {
     if( mDomDirModel.load( mKnotDirModel ))
         qDebug() << Q_FUNC_INFO << "dirmodele erfolgreich geladen";
     else
         qDebug() << Q_FUNC_INFO << "dirmodele konnte nicht egladen werden";
+
+    mThreadManager.initDirLister(mKnotDirModel);
+    mThreadManager.initDirChecker(mOption,dbHandler);
+    HPSDirChecker * dirChecker = mThreadManager.dirChecker();
+    HPSDirLister * dirLister = mThreadManager.dirLister();
+
+    connect(dirChecker,SIGNAL(dirChecked(QString)),this,SLOT(finishAddDir(QString)));
+    connect(dirLister,SIGNAL(dirDone(QString)),dirChecker,SLOT(checkDir(QString)));
+    connect(this,SIGNAL(checkDir(QString)),dirChecker,SLOT(checkDir(QString)));
+    connect(this,SIGNAL(startDirLister(QString)),dirLister,SLOT(startWork(QString)));
+    connect(dirLister,SIGNAL(workDone()),this,SLOT(checkWork()));
 }
 HPSDirManager::~HPSDirManager() {
 
 }
-
-
 bool HPSDirManager::startAddDir(const QString  &dir,bool withsub){
-
+qDebug() << Q_FUNC_INFO << dir <<withsub;
     if(withsub)
-        startDirLister(dir);
+        emit startDirLister(dir);
     else{
         if(!mKnotDirModel.contains(dir))
-            checkDir(dir);
+            emit checkDir(dir);
     }
     return true;
 }
-
 const QStringList & HPSDirManager::dirs()
 {
     return mOption.dirs();
 }
-
 void HPSDirManager::setModel(QStandardItemModel *model)
 {
     mCurrentModel = model;
 }
-
 void HPSDirManager::makeView()
 {
-
-
-    //mCurrentModel->clear();
-
     if ( mOption.getComboBoxView() == HPSOption::ListView) {
         // qDebug() << "ToList";
         mKnotDirModel.setTreeView(false,mCurrentModel->invisibleRootItem());
@@ -54,11 +56,6 @@ void HPSDirManager::makeView()
     }
 
 }
-
-
-
-
-
 void HPSDirManager::removeDir(const QString &dir, bool withSub)
 {
 
@@ -82,36 +79,14 @@ void HPSDirManager::removeDir(const QString &dir, bool withSub)
             mCurrentModel->removeRow(list.at(i)->row());
 
         }
-    }
-}
-
-
-
-
-
-void HPSDirManager::startDirLister(const QString &dir)
-{
-    /*qDebug() << Q_FUNC_INFO;
-    mOption.setDirFromDirlister(dir);
-    QThread *thread = new QThread();
-    HPSDirLister *dirLister = new HPSDirLister( mKnotDirModel,dir);
-    dirLister->moveToThread(thread);
-    connect(thread,SIGNAL(started()),dirLister,SLOT(startWork()));
-    connect(dirLister,SIGNAL(destroyed()),thread,SLOT(quit()));
-    connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()));
-    connect(dirLister,SIGNAL(workDone()),this,SLOT(checkWork()));
-    connect(dirLister,SIGNAL(dirDone(QString)),this,SLOT(checkDir(QString)));
-    thread->start();
-    */
+   }
 }
 
 void HPSDirManager::checkWork()
 {
     // HPSDirLister *dirLister = (HPSDirLister*) sender();
     qDebug()<<Q_FUNC_INFO ;
-    //saveDirModel();
     mOption.setDirFromDirlister("");
-
 }
 
 void HPSDirManager::saveDirModel()
@@ -123,21 +98,16 @@ void HPSDirManager::reset()
 {
     mKnotDirModel.clear();
 }
-
-void HPSDirManager::checkDir(QString str)
-{
-    //mThumbManager.creatThumbs(str,false);
-}
-
 void HPSDirManager::finishAddDir( QString str)
 {
     mKnotDirModel.add(str);
 }
-
 HPSKnotDirModel & HPSDirManager::knotDirModel()
 {
     return mKnotDirModel;
 }
+
+
 
 
 
