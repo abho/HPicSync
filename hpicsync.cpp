@@ -275,7 +275,25 @@ void HPicSync::on_butPlus_clicked()
     const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
     //(qDebug() << str;
     if(!str.isEmpty()){
-        mDirManager.startAddDir(str,true);
+        QMessageBox dialog(this);
+        dialog.setText( trUtf8("Unterordner auch hinzufügen?"));
+        QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
+        QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
+        QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
+        dialog.exec();
+
+        if(dialog.clickedButton() == abbruchButton){
+            qDebug() << "abbruch";
+            return ;
+        } else if(dialog.clickedButton() == jaButton) {
+            qDebug() << "ja";
+            //startBar();
+           mDirManager.startAddDir(str,true);
+        } else if(dialog.clickedButton() == neinButton) {
+            qDebug() << "nein";
+            //startBar();
+            mDirManager.startAddDir(str,false);
+        }
     }
 }
 

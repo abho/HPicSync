@@ -8,7 +8,7 @@ HPSSelectAddressWidget::HPSSelectAddressWidget(const QList<QTcpSocket *> &list, 
     QVBoxLayout *mainBox = new QVBoxLayout();
     QLabel *l = new QLabel();
     l->setText(trUtf8("Bitte Device wählen."));
-     QSignalMapper *mapper =  new QSignalMapper();
+    QSignalMapper *mapper =  new QSignalMapper();
     for(int i = 0 ;i< list.size();i++){
         QPushButton *but = new QPushButton(list.at(i)->peerName());
         connect(but,SIGNAL(clicked()),mapper,SLOT(map()));

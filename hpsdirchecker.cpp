@@ -44,12 +44,13 @@ qDebug() << Q_FUNC_INFO << dir;
 void HPSDirChecker::startWork(const QString &cDir, const bool withView)
 {
 
-    qDebug() << Q_FUNC_INFO << cDir ;
+
     QVector<HPSImageLoader*> &imageLoaders =  mThreadManager.imageLoaders();
 
     QFileInfoList fileInfos = QDir(cDir).entryInfoList(QStringList() << "*.jpg"<<"*.png");
     const int size= fileInfos.size();
     if(size>0){
+        qDebug() << Q_FUNC_INFO << cDir << size;
         mThumbs.resize(size);
         HPSThumb thumb;
         for (int var = 0; var <size; ++var) {
@@ -78,6 +79,8 @@ void HPSDirChecker::startWork(const QString &cDir, const bool withView)
         emit startImageloaders();
 
     } else {
+
+        qDebug() << Q_FUNC_INFO << cDir << "keine bilder";
         workReady(cDir);
         nextWork();
     }
