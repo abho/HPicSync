@@ -14,6 +14,7 @@ public:
     explicit HPSDirLister(HPSKnotDirModel &model, QObject *parent = 0);
     ~HPSDirLister();
     QStringList dirs();
+    bool isRunning();
 
 signals:
     void workDone();

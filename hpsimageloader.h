@@ -11,13 +11,13 @@ class HPSImageLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit HPSImageLoader(QObject *parent = 0);
+    explicit HPSImageLoader(QVector<HPSThumb> &thumbVec,QObject *parent = 0);
     ~HPSImageLoader();
 
-    static void setThumbVector(QVector<HPSThumb> * thumbVec);
-    static void setFolder(const QString &folder);
-    static const QString &folder();
-    void setWork(const int start,const int end, int size,bool withView);
+    //static void setThumbVector(QVector<HPSThumb> * thumbVec);
+    //static void setFolder(const QString &folder);
+   const QString &folder();
+    void setWork(const QString &folder,const int start,const int end, int size,bool withView);
     void close();
 
 signals:
@@ -29,8 +29,8 @@ public slots:
     void startWork();
 
 private:
-    static QVector<HPSThumb> *mThumbVec;
-    static QString mFolder;
+    QVector<HPSThumb> &mThumbVec;
+    QString mFolder;
     int mStartPos,mEndPos,mSize;
     bool mWithView;
     bool mIsRunning;

@@ -15,7 +15,7 @@ HPSKnotDirModel::~HPSKnotDirModel(){
     delete mRoot;
 }
 
-void HPSKnotDirModel::add(const QString &str)
+void HPSKnotDirModel::add(const QString &str,bool hasFiles)
 {
 
     DirKnot *parent = mRoot;
@@ -33,9 +33,7 @@ void HPSKnotDirModel::add(const QString &str)
                 child = children.at(i);
                 if(child->name == list.at(var)) {
                     if(var == size-1){
-                        child->item->setEnabled(true);
-                        child->item->setData(QDir::fromNativeSeparators(str),Qt::UserRole);
-                        child->item->setToolTip(QDir::toNativeSeparators(str));
+                        activateKnot(child,str,hasFiles);
                     }
                     break;
                 }
@@ -43,16 +41,15 @@ void HPSKnotDirModel::add(const QString &str)
             if(i == length){
                 found = false;
                 if(var == size-1)
-                    child = creatNewActiveKnot(list.at(var),str,false);
+                    child = creatNewActiveKnot(list.at(var),hasFiles,str,false);
                 else
                     child = creatNewDeactiveKnot(list.at(var),false);
                 parent->item->appendRow(child->item);
                 parent->children.append(child);
             }
-
         } else {
             if(var == size-1)
-                child = creatNewActiveKnot(list.at(var),str,false);
+                child = creatNewActiveKnot(list.at(var),hasFiles,str,false);
             else
                 child = creatNewDeactiveKnot(list.at(var),false);
             parent->item->appendRow(child->item);
@@ -64,30 +61,12 @@ void HPSKnotDirModel::add(const QString &str)
 
 bool HPSKnotDirModel::contains(const QString &str)
 {
-    DirKnot *parent = mRoot;
-    QList<DirKnot*> children;
-    QStringList list= str.split('/',QString::SkipEmptyParts);
-    DirKnot *child;
-    int i;
-    const int size = list.size();
-    for (int var = 0; var < size; ++var) {
-        children = parent->children;
-        const int length = children.size();
-        for ( i = 0; i < length; ++i) {
-            child = children.at(i);
-            if(child->name == list.at(var)) {
-                break;
-            }
-        }
-        if(i == length){
-            return false;
-        }
-        parent = child;
+    DirKnot *knot = findKnot(str);
+    if(knot!=NULL){
+        if (knot->item->isEnabled())
+            return true;
     }
-    if(parent->item->isEnabled())
-        return true;
-    else
-        return false;
+    return false;
 }
 
 bool HPSKnotDirModel::remove(const QString &str)
@@ -120,7 +99,8 @@ void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
             if(!list.isEmpty()){
                 removeDir(child,list,withSub);
             }else {
-                child->item->setEnabled(false);
+                qDebug() << Q_FUNC_INFO << child->item->data(Qt::UserRole).toString();
+                deactiveKnot(child);
                 last=true;
             }
             break;
@@ -132,7 +112,12 @@ void HPSKnotDirModel::removeDir(DirKnot *parent, QStringList &list,bool withSub)
     }
 }
 
-
+void HPSKnotDirModel::deactiveKnot(DirKnot *knot)
+{
+    knot->item->setEnabled(false);
+    knot->item->setBackground(QBrush(Qt::white));
+    knot->hasFiles =false;
+}
 
 
 void HPSKnotDirModel::clear()
@@ -179,16 +164,33 @@ void HPSKnotDirModel::setTreeView(bool isTreeView,QStandardItem *item)
     }
 }
 
-DirKnot * HPSKnotDirModel::creatNewActiveKnot(const QString &name, const QString &path, const bool isExpanded)
+void HPSKnotDirModel::activateKnot(DirKnot *knot, const QString &dir, bool hasFiles)
+{
+    knot->item->setEnabled(true);
+    knot->item->setData(QDir::fromNativeSeparators(dir),Qt::UserRole);
+    knot->item->setToolTip(QDir::toNativeSeparators(dir));
+    if(hasFiles){
+        knot->hasFiles = true;
+        knot->item->setBackground(QBrush(QColor(0,255,0,40)));
+    }
+}
+DirKnot * HPSKnotDirModel::creatNewActiveKnot(const QString &name,bool hasFiles, const QString &path, const bool isExpanded)
 {
     DirKnot *newKnot = new DirKnot();
     newKnot->name = name;
-
+qDebug() << Q_FUNC_INFO << hasFiles;
     QStandardItem *newItem = new QStandardItem(name);
     newItem->setEnabled(true);
     newItem->setToolTip(QDir::toNativeSeparators(path));
     newItem->setData(isExpanded,Qt::UserRole+1);
     newItem->setData(QDir::fromNativeSeparators(path),Qt::UserRole);
+    if(hasFiles){
+        newKnot->hasFiles = true;
+        newItem->setBackground(QBrush(QColor(0,255,0,40)));
+    } else {
+        newKnot->hasFiles = false;
+        newItem->setBackground(QBrush(QColor(0,0,0,0)));
+    }
     newKnot->item = newItem;
 
     return newKnot;
@@ -222,10 +224,80 @@ void HPSKnotDirModel::makeListView(DirKnot *parent,QStandardItem *root)
             newItem = new QStandardItem(QDir::toNativeSeparators(path));
             newItem->setData( path,Qt::UserRole);
             newItem->setToolTip(path);
+            if(child->hasFiles)
+                newItem->setBackground(QBrush(QColor(0,255,0,40)));
             root->appendRow(newItem);
         }
         makeListView(child,root);
     }
 }
+
+QStringList HPSKnotDirModel::getWholeDirList()
+{
+    qDebug() << Q_FUNC_INFO;
+    QStringList dirList;
+    QList<DirKnot*> &children = mRoot->children;
+    const int size = children.size();
+    for(  int i = 0 ;  i < size ; ++i ) {
+        makeDirList(children.at(i),dirList);
+    }
+    return dirList;
+
+}
+
+void HPSKnotDirModel::makeDirList(DirKnot *parent, QStringList &dirList)
+{    
+    if(parent->item->isEnabled())
+        dirList << parent->item->data(Qt::UserRole).toString();
+    QList<DirKnot*> &children = parent->children;
+    const int size = children.size();
+    for(  int i = 0 ;  i < size ; ++i ) {
+        makeDirList(children.at(i),dirList);
+    }
+
+}
+
+
+DirKnot * HPSKnotDirModel::findKnot(const QString &dir)
+{
+
+    DirKnot *parent = mRoot;
+    QList<DirKnot*> children;
+    QStringList list= dir.split('/',QString::SkipEmptyParts);
+    DirKnot *child;
+    int i;
+    const int size = list.size();
+    for (int var = 0; var < size; ++var) {
+        children = parent->children;
+        const int length = children.size();
+        for ( i = 0; i < length; ++i) {
+            child = children.at(i);
+            if(child->name == list.at(var)) {
+                break;
+            }
+        }
+        if(i == length){
+            return NULL;
+        }
+        parent = child;
+    }
+    return parent;
+}
+
+void HPSKnotDirModel::setDirHasFiles(const QString &dir, bool hasFiles)
+{
+    DirKnot *knot =findKnot(dir);
+    if(knot != NULL){
+        knot->hasFiles = hasFiles;
+        if( hasFiles)
+            knot->item->setBackground(QBrush(QColor(0,255,0,40)));
+        else
+            knot->item->setBackground(QBrush(Qt::white));
+    }
+}
+
+
+
+
 
 

@@ -18,11 +18,7 @@ public:
 
     void setListWidget(QListWidget *listWidget);
     void loadThumbs(const QString & dir);
-    void startDirChecker();
 
-signals:
-
-public slots:
 
 private:
     HPSOption &mOption;
@@ -37,7 +33,6 @@ private:
 
 private slots:
      void fertigTime();
-     void clearThread();
 
 
 };

@@ -17,6 +17,7 @@
 #include "hpscombobox.h"
 #include "hpsthreadmanager.h"
 #include  "ui_hpicsync.h"
+#include "hpsdirwatcher.h"
 #include <QtNetwork/QtNetwork>
 
 class HPicSync : public QMainWindow
@@ -28,8 +29,13 @@ public:
     ~HPicSync();
 public slots:
     void onImageLoaderThumbsReady(int pos,int count);
+    void onDirCheckerStartCheck(QString dir);
+    void onDirCheckerFinished();
 protected:
     void closeEvent(QCloseEvent *event);
+signals:
+    void startFirstRun();
+
 private:
 
     Ui::HPicSync *ui;
@@ -51,7 +57,7 @@ private:
     int mPosImages;
     QMutex mMutex;
 
-    void loadImages(const QString &folder);
+
     void initCBOrdner(int index,const QString &dir);
     void initThumbManager();
 
@@ -59,20 +65,14 @@ private slots:
     void test();
     void socketError(QAbstractSocket::SocketError error);
     void test2();
-    void refreshBar(int value);
-    void initBar(const QString &,const int);
-    void clickedPlus();
-    void comboBoxViewChanged(int);
-    void ordnerRemoved(QStringList dirs);
-    void comboBoxDirClicked( QString);
-    void clickedMinus();
-    void startBar();
-    void finishBar();
 
+    void comboBoxViewChanged(int);
+    void comboBoxDirClicked( QString);
 
     void on_butOption_clicked();
     void on_butPlus_clicked();
     void onMoptionwidgetThumbsizechanged(int size);
+    void on_butMinus_clicked();
 };
 
 #endif // HPICSYNC_H

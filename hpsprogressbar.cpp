@@ -11,8 +11,7 @@ void HPSProgressBar::paintEvent(QPaintEvent *event)
     QRect region = event->rect();
     QPainter painter(this);
     QStyle *style = this->style();
-
-    style->drawItemText(&painter,region,Qt::AlignRight, palette(),true, text());
+    style->drawItemText(&painter,region,Qt::AlignCenter, palette(),true, mText);
 
 }
 
@@ -27,6 +26,11 @@ void HPSProgressBar::setCount(const int count)
 const int HPSProgressBar::count()
 {
     return mCount;
+}
+
+void HPSProgressBar::setText(QString str)
+{
+    mText = str;
 }
 
 

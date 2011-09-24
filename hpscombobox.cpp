@@ -26,7 +26,7 @@ HPSComboBox::HPSComboBox(QWidget *parent) :
 
 void HPSComboBox::showPopup()
 {
-    qDebug() << Q_FUNC_INFO;
+   // qDebug() << Q_FUNC_INFO;
     qDebug() << geometry();
     QPoint p =mapToGlobal( QPoint(0,size().height()));
     qDebug() << p;
@@ -60,7 +60,7 @@ void HPSComboBox::setView(int view)
 
 void HPSComboBox::setItemByText(const QString &str)
 {
-    qDebug() << Q_FUNC_INFO << str;
+   // qDebug() << Q_FUNC_INFO << str;
     QStandardItem *item;
     if(mPopup->isListView())
         item = findItemInList(str);
@@ -69,7 +69,7 @@ void HPSComboBox::setItemByText(const QString &str)
 
     qDebug() << item;
     if( item!= NULL){
-        qDebug() << "gefunden";
+       // qDebug() << "gefunden";
         mLineEdit->setText(QDir::toNativeSeparators(str));
         mPopup->setItem(item);
 
@@ -86,7 +86,7 @@ void HPSComboBox::loadExpanded()
 void HPSComboBox::loadExpandedItem(QStandardItem *item)
 {
     QStandardItem *child;
-    qDebug() <<Q_FUNC_INFO << item->rowCount();
+    //qDebug() <<Q_FUNC_INFO << item->rowCount();
     if(item->hasChildren()){
         const int size = item->rowCount();
         for ( int i = 0 ; i < size ; ++i){

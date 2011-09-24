@@ -13,12 +13,14 @@ public:
     explicit HPSProgressBar(QWidget *parent = 0);
     void setCount(const int count);
     const int count();
+    void setText(QString str);
 
 protected:
     void paintEvent ( QPaintEvent * );
 
 private:
     int mCount;
+    QString mText;
 
 };
 

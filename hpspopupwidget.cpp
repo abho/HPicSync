@@ -13,7 +13,6 @@ HPSPopupWidget::HPSPopupWidget(QWidget *parent) :
 
 HPSPopupWidget::~HPSPopupWidget()
 {
-    qDebug() << "tot";
     delete ui;
 }
 
@@ -50,7 +49,7 @@ void HPSPopupWidget::on_ScrollBar_RangeChanged(int min,int max)
 
 void HPSPopupWidget::closeEvent(QCloseEvent *event)
 {
-    //qDebug() << Q_FUNC_INFO;
+
     emit exit();
     event->accept();
 }
@@ -59,28 +58,19 @@ bool HPSPopupWidget::eventFilter(QObject *o, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick || event->type() == QEvent::MouseButtonRelease){
 
-        qDebug() << Q_FUNC_INFO<< event->type();
         QMouseEvent* m = static_cast<QMouseEvent*>(event);
         QModelIndex index = ui->mTreeView->indexAt(m->pos());
 
         QRect vrect = ui->mTreeView->visualRect(index);
-        //qDebug() << vrect << m->pos();
         if(event->type() == QEvent::MouseButtonPress  &&
                 vrect.contains(m->pos()))
-
         {
-            qDebug() << index.data(Qt::UserRole).toString();
-
             if(index.flags().testFlag(Qt::ItemIsEnabled)){
-                qDebug() << "exit";
                 emit itemClicked(index.data(Qt::UserRole).toString());
                 hide();
                 emit exit();
             }
-
         }
-        //qDebug() << index;
-
     }
     return false;
 }

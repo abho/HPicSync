@@ -18,9 +18,11 @@ public:
     ~HPSDirChecker();
     void close();
   signals:
-    void dirChecked(QString dir);
+    void startCheckOn(QString dir);
+    void dirChecked(QString dir,bool hasFiles);
     void startImageloaders();
     void newItemListWidgtesReady(int pos, int count);
+    void finished();
 
 
 public slots:
@@ -40,6 +42,7 @@ private:
     QVector<HPSThumb> mThumbs;    
     int mCountError;
     int mThumbsLoaded;
+    int mMaxDestroyedImageLoaders;
     int mCountDestroyedImageLoader;
     bool mShutDown;
     bool mIsRunning;
@@ -49,7 +52,7 @@ private:
 
 
     void startWork(const QString &cDir,const bool withView);
-    void workReady(const QString &dir);
+    void workReady(const QString &dir,bool hasFiles);
     void nextWork();
     bool saveThumbsToDB(const QString &dir);
 

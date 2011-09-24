@@ -24,20 +24,22 @@ public:
     void saveDirModel();
     HPSKnotDirModel &knotDirModel();
     void reset();
-    const QStringList & dirs();
+    QStringList  wholeDirList();
+    void setDirHasFiles(const QString &dir, bool hasFiles);
 signals:
     void dirToRemove(QString);
     void checkDir(QString dir);
     void startDirLister(QString dir);
 
 public slots:
-    void finishAddDir(QString str);
+    void finishAddDir(QString str,bool hasFiles);
 private slots:
     void checkWork();
 private:
 
     HPSOption &mOption;
    HPSThreadManager &mThreadManager;
+   HPSDBHandler &mDBHandler;
     QStandardItemModel *mCurrentModel;
     HPSKnotDirModel mKnotDirModel;
     HPSDomDirModel mDomDirModel;

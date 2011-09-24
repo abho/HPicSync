@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     hpspopupwidget.cpp \
     hpscombobox.cpp \
     hpsdirchecker.cpp \
-    hpsthreadmanager.cpp
+    hpsthreadmanager.cpp \
+    hpsdirwatcher.cpp
 
 HEADERS  += \
     hpsoptionwidget.h \
@@ -60,7 +61,8 @@ HEADERS  += \
     hpspopupwidget.h \
     hpscombobox.h \
     hpsdirchecker.h \
-    hpsthreadmanager.h
+    hpsthreadmanager.h \
+    hpsdirwatcher.h
 
 
 RESOURCES += \
@@ -75,6 +77,12 @@ FORMS += \
     hpspopupwidget.ui \
     hpicsync.ui \
     hpsoptionwidget.ui
+
+
+
+
+
+
 
 
 

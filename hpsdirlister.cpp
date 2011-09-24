@@ -66,6 +66,11 @@ QStringList HPSDirLister::dirs()
     return mList;
 }
 
+bool HPSDirLister::isRunning()
+{
+    return mIsRunning;
+}
+
 
 
 

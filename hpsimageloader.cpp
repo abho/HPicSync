@@ -4,26 +4,16 @@
 
 
 
-QString HPSImageLoader::mFolder;
-QVector<HPSThumb> *HPSImageLoader::mThumbVec;
 
-HPSImageLoader::HPSImageLoader(  QObject *parent) :
-    QObject(parent),mIsRunning(false),mShutDown(false)
+
+HPSImageLoader::HPSImageLoader(QVector<HPSThumb> &thumbVec,  QObject *parent) :
+    QObject(parent),mThumbVec(thumbVec),mIsRunning(false),mShutDown(false)
 {
 }
-
 HPSImageLoader::~HPSImageLoader(){
-    qDebug() << Q_FUNC_INFO<<"tot";
+    qDebug() << Q_FUNC_INFO << "tot";
 }
 
-void HPSImageLoader::setFolder(const QString &folder)
-{
-    mFolder = folder;
-}
-void HPSImageLoader::setThumbVector(QVector<HPSThumb> *thumbVec)
-{
-    mThumbVec = thumbVec;
-}
 
 void HPSImageLoader::startWork()
 {
@@ -54,9 +44,8 @@ void HPSImageLoader::startWork()
         if(mShutDown){
             break;
         }
-        //qDebug() <<QThread::currentThreadId()<< "start" <<timer.elapsed();
-        HPSThumb &thumb = (*mThumbVec)[i];
 
+        HPSThumb &thumb = mThumbVec[i];
         reader.setFileName(mFolder+"/"+thumb.name);
         image_width = reader.size().width();
         image_height = reader.size().height();
@@ -70,26 +59,18 @@ void HPSImageLoader::startWork()
             image_width = sizeW;
             image_height = sizeH;
         }
+       if(image_width == 0)
+           image_width =1;
+       if(image_height == 0)
+           image_height =1;
         reader.setScaledSize(QSize(image_width, image_height));
         thumb.image =  reader.read();
-         //qDebug() <<QThread::currentThreadId()<< "readerload" <<timer.elapsed();
-
          file.setFileName(mFolder+"/"+thumb.name);
         if(file.open(QIODevice::ReadOnly)&&!thumb.image.isNull())  {
             block =file.readAll();
-            //qDebug() << QThread::currentThreadId()<<"open" <<timer.elapsed();
             file.close();
             thumb.hash = QCryptographicHash::hash(block,QCryptographicHash::Md5).toHex();
-            //qDebug() << QThread::currentThreadId()<<"hash" <<timer.elapsed();
-    /*
-            image.loadFromData(block);
 
-qDebug() <<QThread::currentThreadId()<< "scale" <<timer.elapsed();
-            thumb.image = image.scaled( 200,200,Qt::KeepAspectRatio).
-                  scaled(QSize(sizeW,sizeH),Qt::KeepAspectRatio,Qt::SmoothTransformation);
-
-qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
-*/
             if(mWithView){
                 if(counter==nextSend){
             //        qDebug() << thread()<<"ready" << i<<  lastSend+1<< packet;
@@ -100,6 +81,7 @@ qDebug() <<QThread::currentThreadId()<< "afterscale" <<timer.elapsed();
             }
         } else {
             //qDebug() << "error" << i;
+            file.close();
             emit error(i);
             thumb.error = true;
             if(mWithView){
@@ -136,8 +118,9 @@ void HPSImageLoader::close()
         deleteLater();
 }
 
-void HPSImageLoader::setWork(const int start, const int end, int size, bool withView)
+void HPSImageLoader::setWork(const QString &folder ,const int start, const int end, int size, bool withView)
 {
+    mFolder = folder;
     mSize = size;
     mStartPos = start;
     mEndPos = end;
@@ -148,5 +131,7 @@ const QString & HPSImageLoader::folder()
 {
     return mFolder;
 }
+
+
 
 

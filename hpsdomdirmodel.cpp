@@ -42,6 +42,7 @@ void HPSDomDirModel::addDomKnot(QDomDocument &doc,QDomElement &e,DirKnot *knot)
         c.setAttribute("active",child->item->isEnabled());
         c.setAttribute("expanded",child->item->data(Qt::UserRole+1).toBool());
         c.setAttribute("path",child->item->toolTip());
+        c.setAttribute("hasfiles",child->hasFiles);
         addDomKnot(doc,c,child);
         e.appendChild(c);
     }
@@ -85,17 +86,13 @@ void HPSDomDirModel::setDomKnot(QDomElement &e, DirKnot *parent)
         if(!element.isNull()){
             if( element.tagName() == "knot"){
                 if(element.attribute("active").toInt())
-                    child = HPSKnotDirModel::creatNewActiveKnot(element.attribute("name"),element.attribute("path"),element.attribute("expanded").toInt());
+                    child = HPSKnotDirModel::creatNewActiveKnot(element.attribute("name"),static_cast<bool>(element.attribute("hasfiles").toInt()),element.attribute("path"),element.attribute("expanded").toInt());
                 else
                     child = HPSKnotDirModel::creatNewDeactiveKnot(element.attribute("name"),element.attribute("expanded").toInt());
-
                 setDomKnot(element,child);
-
                 parent->children.append(child);
                 parent->item->appendRow(child->item);
-
             }
         }
     }
-
 }

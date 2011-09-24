@@ -15,8 +15,12 @@ public:
     bool openDatabase(const QString &name);
     void startTransaction();
     void finishTransaction();
+    void removeDir(const QString &dir, bool withSub);
+    void removeEntires(const QString &dir,const QStringList &nameList);
     void insertHash(const QString &hash,const QString &dir,const QString &name,const QString &lastModi, const int size,const QString &handyHash);
+    void updateInsertHashes(const QString &hash,const QString &dir,const QString &name,const QString &lastModi, const int size,const QString &handyHash);
     QList<QStringList> hashPaths(const QString &path);
+    QHash<QString,QString> fotos(const QString &dir);
 signals:
 
 public slots:

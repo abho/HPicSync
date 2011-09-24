@@ -3,11 +3,12 @@
 #include "hpsdirchecker.h"
 #include "hpsimageloader.h"
 #include "hpicsync.h"
+#include "hpsdirwatcher.h"
+
 
 HPSThreadManager::HPSThreadManager(QObject *parent) :
-    QObject(parent),mThreads(2+QThread::idealThreadCount()),mThreadsClosed(false)
+    QObject(parent),mThreads(4+QThread::idealThreadCount()),mThreadsClosed(false)
 {
-
 
     QThread *t;
     for (int i = 0; i < mThreads.size(); ++i) {
@@ -29,20 +30,23 @@ void HPSThreadManager::initDirLister(HPSKnotDirModel &knotModel)
 void HPSThreadManager::initDirChecker(HPSOption &option,HPSDBHandler &dbHandler)
 {
 HPicSync * p =static_cast<HPicSync*>(parent());
+qDebug() << Q_FUNC_INFO <<p;
     mDirChecker = new HPSDirChecker(p->tmpListWidgetItems(),*this,option,dbHandler);
 
     mDirChecker->moveToThread(mThreads[DirChecker]);
     connect(mDirChecker,SIGNAL(destroyed()),mThreads[DirChecker],SLOT(quit()));
     connect(mDirChecker,SIGNAL(newItemListWidgtesReady(int,int)),p,SLOT(onImageLoaderThumbsReady(int,int)));
+    connect(mDirChecker,SIGNAL(startCheckOn(QString)),p,SLOT(onDirCheckerStartCheck(QString)));
+    connect(mDirChecker,SIGNAL(finished()),p,SLOT(onDirCheckerFinished()));
 
 }
 
-void HPSThreadManager::initImagerLoaders()
+void HPSThreadManager::initImagerLoaders(QVector<HPSThumb> &thumbVec)
 {
 
     mImageLoaders.resize(QThread::idealThreadCount());
     for (int i = 0; i < mImageLoaders.size(); ++i) {
-        mImageLoaders[i] = new HPSImageLoader();
+        mImageLoaders[i] = new HPSImageLoader(thumbVec);
         mImageLoaders[i]->moveToThread(mThreads[ImageLoader+i]);
         connect(mImageLoaders[i],SIGNAL(destroyed()),mThreads[ImageLoader+i],SLOT(quit()));
     }
@@ -87,12 +91,43 @@ void HPSThreadManager::onThreadFinished()
 
 void HPSThreadManager::closeAllThreads()
 {
+
+    disconnect(mDirLister,SIGNAL(dirDone(QString)),0,0);
+    mDirChecker->disconnect(mDirLister);
+    disconnect(mDirChecker,SIGNAL(startImageloaders()));
     mDirLister->close();
     mDirChecker->close();
-    for (int i = 0; i < mImageLoaders.size(); ++i) {
+    mDirWatcher->close();
+    mDirWatcherImageLoader->close();
+    for (int i = 0; i < mImageLoaders.size(); ++i) {       
         mImageLoaders[i]->close();
 
     }
+
+}
+
+void HPSThreadManager::initDirWatcher(HPSOption &option,HPSDirManager &dirManager, HPSDBHandler &dbHandler)
+{
+    mDirWatcher = new HPSDirWatcher(*this,option,dirManager,dbHandler);
+    mDirWatcher->moveToThread(mThreads[DirWatcher]);
+    connect(mDirWatcher,SIGNAL(destroyed()),mThreads[DirWatcher],SLOT(quit()));
+}
+
+HPSDirWatcher * HPSThreadManager::dirWatcher()
+{
+    return mDirWatcher;
+}
+
+void HPSThreadManager::initDirWatcherImageLoader(QVector<HPSThumb> &thumbVec)
+{
+    mDirWatcherImageLoader = new HPSImageLoader(thumbVec);
+    mDirWatcherImageLoader->moveToThread(mThreads[DirWachterImageLoader]);
+    connect(mDirWatcherImageLoader,SIGNAL(destroyed()),mThreads[DirWachterImageLoader],SLOT(quit()));
+}
+
+HPSImageLoader * HPSThreadManager::dirWatcherImageLoader()
+{
+    return mDirWatcherImageLoader;
 }
 
 

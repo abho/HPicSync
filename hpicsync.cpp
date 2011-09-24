@@ -2,7 +2,7 @@
 #include <QDebug>
 
 HPicSync::HPicSync(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::HPicSync),mOptionWidget(NULL),mDirManager(mThreadManager,mDatabaseHandler,mOption),
+    : QMainWindow(parent), ui(new Ui::HPicSync),mOptionWidget(NULL),mThreadManager(this),mDirManager(mThreadManager,mDatabaseHandler,mOption),
       mThumbManager(mDatabaseHandler, mOption),mMoreThanOneSelected(false)
 
 {
@@ -31,7 +31,7 @@ HPicSync::HPicSync(QWidget *parent)
     bar->addWidget(this->mConnectPixRotLabel);
     bar->addWidget(this->mConnectLabel);
     bar->addPermanentWidget( mBar);
-
+ui->progressBar->hide();
     /*
     this->connect(this->mCloseButton,SIGNAL(clicked()),this,SLOT(close()));
     this->connect(this->mOptionButton,SIGNAL(clicked()),this,SLOT(showOption()));
@@ -58,7 +58,14 @@ HPicSync::HPicSync(QWidget *parent)
     }
 
     initThumbManager();
-
+    qDebug() << Q_FUNC_INFO << mOption.dirFromDirlister();
+    if(!mOption.dirFromDirlister().isEmpty()){
+        mDirManager.startAddDir(mOption.dirFromDirlister(),true);
+    }
+    mThreadManager.initDirWatcher(mOption,mDirManager,mDatabaseHandler);
+   HPSDirWatcher *dirWatcher =  mThreadManager.dirWatcher();
+   connect(this,SIGNAL(startFirstRun()),dirWatcher,SLOT(startFirstRun()));
+   emit startFirstRun();
 
 }
 HPicSync::~HPicSync()
@@ -91,18 +98,7 @@ void HPicSync::test(){
 
 
 }
-void HPicSync::loadImages(const QString &folder){
-    /*qDebug() << Q_FUNC_INFO;
 
-    const int size = mThumbManager.creatThumbs(folder,true,true);
-    if(size != 0){
-        mBar->setVisible(true);
-        mBar->setMaxCount(size);
-        mBar->setCount(0);
-        mBar->setCountVisible(true);
-    }*/
-    // mThumbManager.creatThumbs(folder,true);
-}
 void HPicSync::socketError(QAbstractSocket::SocketError error){
     //qDebug() << "error "<< error;
 }
@@ -112,104 +108,25 @@ void HPicSync::test2() {
 void HPicSync::comboBoxViewChanged(int index)
 {
     initCBOrdner(index,ui->comboBox->currentDir());
-
-}
-void HPicSync::clickedPlus()
-{
-    /*
-    const QString str = QDir::fromNativeSeparators(QFileDialog::getExistingDirectory(this,QDir::homePath()));
-    //(qDebug() << str;
-    if(!str.isEmpty()){
-        QMessageBox dialog(this);
-        dialog.setText( trUtf8("Unterordner auch hinzufügen?"));
-        QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
-        QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
-        QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
-        dialog.exec();
-        qDebug() <<Q_FUNC_INFO<< dialog.clickedButton();
-
-        if(dialog.clickedButton() == abbruchButton){
-            qDebug() << "abbruch";
-            return ;
-        } else if(dialog.clickedButton() == jaButton) {
-            qDebug() << "ja";
-            startBar();
-           mDirManager.startAddDir(str,true);
-        } else if(dialog.clickedButton() == neinButton) {
-            qDebug() << "nein";
-            startBar();
-            mDirManager.startAddDir(str,false);
-        }
-       // mTreeComboBox->findeAndSetCurrentItem(str);
-    }*/
 }
 
-void HPicSync::clickedMinus()
-{
-    /*
-    QMessageBox dialog(this);
-    dialog.setText( trUtf8("Unterordner mitentfernen?"));
-    QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
-    QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
-    QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
-    dialog.exec();
-    if(dialog.clickedButton() == abbruchButton){
-        qDebug() << "abbruch";
-        return ;
-    } else if(dialog.clickedButton() == jaButton) {
-        qDebug() << "ja";
-        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),true);
-    } else if(dialog.clickedButton() == neinButton) {
-        qDebug() << "nein";
-        mDirManager.removeDir( QDir::fromNativeSeparators( mTreeComboBox->currentText()),false);
-    }
-    mTreeComboBox->clearSelection();
-*/
-
-}
 
 
 void HPicSync::comboBoxDirClicked(QString dir)
 {
     qDebug() << Q_FUNC_INFO << dir;
 
-
-
     mThumbManager.loadThumbs(dir);
+    mThreadManager.dirWatcher()->setWatcherOn(dir);
 
 }
 
-void HPicSync::ordnerRemoved(QStringList dirs)
-{
-
-    /*  if(dirs.contains( mTreeComboBox->currentDir()))
-        mTreeComboBox->setCurrentItem(NULL);
-
-    mDirManager.removeDirs(dirs);
-*/
-}
 
 
-void HPicSync::refreshBar(int value)
-{
-    //qDebug() << Q_FUNC_INFO << value;
-    // mBar->setValue(value);
-}
 
-void HPicSync::initBar(const QString &dir, const int size)
-{
-    //qDebug() << Q_FUNC_INFO << dir << size;
-    /*
-    mBar->setFormat("creating thumbnails: "+dir+"...("+QString::number(mThumbManager.workCount())+")");
-    if(size == 0){
-        mBar->setRange(0,1);
-        mBar->setValue(1);
-    }else {
-        mBar->setRange(0,size);
-        mBar->setValue(0);
-    }
-*/
-}
+
+
+
 
 void HPicSync::initCBOrdner(int index,const QString &dir)
 {
@@ -238,15 +155,7 @@ void HPicSync::initThumbManager()
 
 
 
-void HPicSync::startBar()
-{
-    //   mBar->setVisible(true);
-}
 
-void HPicSync::finishBar()
-{
-    // mBar->setVisible(false);
-}
 
 void HPicSync::on_butOption_clicked()
 {
@@ -302,5 +211,41 @@ void HPicSync::onMoptionwidgetThumbsizechanged(int size)
     qDebug() << size;
     ui->listWidgetOld->setItemDelegate(new HPSOldListDelegate(size,this));
     ui->listWidgetOld->setIconSize(QSize(size,size));
+
+}
+
+void HPicSync::onDirCheckerStartCheck(QString dir)
+{
+    if( !ui->progressBar->isVisible())
+        ui->progressBar->show();
+ui->progressBar->setText("creating thumbnails: "+dir+" ...");
+}
+
+void HPicSync::onDirCheckerFinished()
+{
+    ui->progressBar->hide();
+}
+
+void HPicSync::on_butMinus_clicked()
+{
+
+    QMessageBox dialog(this);
+    dialog.setText( trUtf8("Unterordner mitentfernen?"));
+    QPushButton *jaButton = dialog.addButton( trUtf8("Ja"),QMessageBox::YesRole);
+    QPushButton *neinButton =  dialog.addButton(trUtf8("Nein"),QMessageBox::NoRole);
+    QPushButton *abbruchButton = dialog.addButton(trUtf8("Abbruch"),QMessageBox::RejectRole);
+    dialog.exec();
+    if(dialog.clickedButton() == abbruchButton){
+        qDebug() << "abbruch";
+        return ;
+    } else if(dialog.clickedButton() == jaButton) {
+        qDebug() << "ja";
+        mDirManager.removeDir( QDir::fromNativeSeparators( ui->comboBox->currentText()),true);
+    } else if(dialog.clickedButton() == neinButton) {
+        qDebug() << "nein";
+        mDirManager.removeDir( QDir::fromNativeSeparators( ui->comboBox->currentText()),false);
+    }
+    ui->comboBox->clearSelection();
+    mThreadManager.dirWatcher()->stopWatching();
 
 }

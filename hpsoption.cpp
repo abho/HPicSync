@@ -23,6 +23,7 @@ HPSOption::HPSOption() :
     mExpandDirs = mSetting.value("expandDirs",QStringList()).toStringList();
     mCreateThumbDirs = mSetting.value("createthumbdirs",QStringList()).toStringList();
     mDirFromDirlister = mSetting.value("dirfromdirlister",QString("")).toString();
+    mDeleteDirs = mSetting.value("deletedirs",QStringList()).toStringList();
 }
 
 
@@ -197,5 +198,22 @@ void HPSOption::setDirFromDirlister(const QString &dir)
 {
     mDirFromDirlister = dir;
     mSetting.setValue("dirfromdirlister",mDirFromDirlister);
+}
+
+void HPSOption::addDeleteDir(const QString &dir)
+{
+    mDeleteDirs.append(dir);
+    mSetting.setValue("deletedirs",mDeleteDirs);
+}
+
+void HPSOption::removeDeleteDir(const QString &dir)
+{
+    mDeleteDirs.removeOne(dir);
+    mSetting.setValue("deletedirs",mDeleteDirs);
+}
+
+const QStringList & HPSOption::deleteDirs()
+{
+    return mDeleteDirs;
 }
 

@@ -1,12 +1,14 @@
 #include "hpsdirchecker.h"
+#include "hpsdirlister.h"
 
 HPSDirChecker::HPSDirChecker(QVector<QListWidgetItem*> &vec,HPSThreadManager &threadManager,HPSOption &option,HPSDBHandler &dbHandler,QObject *parent) :
     QObject(parent),mTmpListWidgetItems(vec),mThreadManager(threadManager),mOption(option),
     mDatabaseHandler(dbHandler),mCountDestroyedImageLoader(0),
     mShutDown(false),mIsRunning(false),mIsWorking(false)
 {
-    mThreadManager.initImagerLoaders();
+    mThreadManager.initImagerLoaders(mThumbs);
     QVector<HPSImageLoader*> &imageLoaders =  mThreadManager.imageLoaders();
+    mMaxDestroyedImageLoaders = imageLoaders.size();
     HPSImageLoader *imageLoader;
     for (int i = 0; i < imageLoaders.size(); ++i) {
         imageLoader = imageLoaders[i];
@@ -24,73 +26,67 @@ HPSDirChecker::~HPSDirChecker(){
 
 void HPSDirChecker::close()
 {
-    if( mIsRunning)
-        mShutDown =true;
-    else
-        deleteLater();
+    mShutDown =true;
 }
 
 void HPSDirChecker::checkDir(QString dir)
 {
-qDebug() << Q_FUNC_INFO << dir;
     mDirQueue.append(dir);
     if(!mIsWorking){
         mIsWorking = true;
         startWork(dir,false);
-
     }
 }
 
 void HPSDirChecker::startWork(const QString &cDir, const bool withView)
 {
+    if(!mShutDown){
+        mCurrentDir = cDir;
+        emit startCheckOn(cDir);
+        QVector<HPSImageLoader*> &imageLoaders =  mThreadManager.imageLoaders();
 
+        QFileInfoList fileInfos = QDir(cDir).entryInfoList(QStringList() << "*.jpg"<<"*.png");
+        const int size= fileInfos.size();
+        if(size>0){
+           // qDebug() << Q_FUNC_INFO << cDir << size << mShutDown << mIsRunning;
+            mThumbs.resize(size);
+            HPSThumb thumb;
+            for (int var = 0; var <size; ++var) {
+                const QFileInfo &fileInfo =fileInfos.at(var);
+                thumb.name =fileInfo.fileName();
+                thumb.lastModi =fileInfo.lastModified().toString();
+                thumb.size = fileInfo.size();
+                mThumbs[var]=thumb;
+            }
 
-    QVector<HPSImageLoader*> &imageLoaders =  mThreadManager.imageLoaders();
-
-    QFileInfoList fileInfos = QDir(cDir).entryInfoList(QStringList() << "*.jpg"<<"*.png");
-    const int size= fileInfos.size();
-    if(size>0){
-        qDebug() << Q_FUNC_INFO << cDir << size;
-        mThumbs.resize(size);
-        HPSThumb thumb;
-        for (int var = 0; var <size; ++var) {
-            const QFileInfo &fileInfo =fileInfos.at(var);
-            thumb.name =fileInfo.fileName();
-            thumb.lastModi =fileInfo.lastModified().toString();
-            thumb.size = fileInfo.size();
-            mThumbs[var]=thumb;
+            int number = imageLoaders.size();
+            int partSize= size/number;
+            int pos=0, end=-1;
+            mCountImageLoader.first = number;
+            mCountImageLoader.second = 0;
+            for (int  i = 0; i< number;i++){
+                pos =end+1;
+                if(i==number-1)
+                    end=size-1;
+                else
+                    end+=partSize;
+                imageLoaders[i]->setWork(cDir,pos,end,mOption.getThumbSize(),withView);
+            }
+            emit startImageloaders();
+        } else {
+          //  qDebug() << Q_FUNC_INFO << cDir << "keine bilder" << mIsRunning;
+            workReady(cDir,false);
+            nextWork();
         }
-        HPSImageLoader::setThumbVector( &mThumbs);
-        HPSImageLoader::setFolder( cDir);
-
-        int number = imageLoaders.size();
-        int partSize= size/number;
-        int pos=0, end=-1;
-        mCountImageLoader.first = number;
-        mCountImageLoader.second = 0;
-        for (int  i = 0; i< number;i++){
-            pos =end+1;
-            if(i==number-1)
-                end=size-1;
-            else
-                end+=partSize;
-            imageLoaders[i]->setWork(pos,end,mOption.getThumbSize(),withView);
-        }
-        emit startImageloaders();
-
-    } else {
-
-        qDebug() << Q_FUNC_INFO << cDir << "keine bilder";
-        workReady(cDir);
-        nextWork();
     }
 }
 
-void HPSDirChecker::workReady(const QString &dir)
+void HPSDirChecker::workReady(const QString &dir,bool hasFiles)
 {
-    mDirQueue.removeOne(dir);
-    emit dirChecked(dir);
-
+    if(!mShutDown){
+        mDirQueue.removeOne(dir);
+        emit dirChecked(dir,hasFiles);
+    }
 }
 
 void HPSDirChecker::nextWork()
@@ -98,10 +94,13 @@ void HPSDirChecker::nextWork()
 
     if(!mDirQueue.isEmpty()){
         startWork(mDirQueue.first(),false);
-    }else
+    }else{
+        mCurrentDir ="";
         mIsWorking = false;
-
-
+        if(!mShutDown&&!mThreadManager.dirLister()->isRunning())
+            mOption.setDirFromDirlister("");
+        emit finished();
+    }
 }
 
 void HPSDirChecker::imageLoaderFertig()
@@ -109,8 +108,8 @@ void HPSDirChecker::imageLoaderFertig()
     qDebug() << Q_FUNC_INFO;
     mCountImageLoader.second++;
     if( mCountImageLoader.first == mCountImageLoader.second){
-        if(!saveThumbsToDB(HPSImageLoader::folder()))
-            workReady(HPSImageLoader::folder());
+        if(!saveThumbsToDB(mCurrentDir))
+            workReady(mCurrentDir,true);
         if(!mShutDown)
             nextWork();
         else
@@ -163,14 +162,14 @@ bool HPSDirChecker::saveThumbsToDB(const QString &dir)
         }
     }
     mDatabaseHandler.finishTransaction();
-
     return error;
 }
 
 void HPSDirChecker::onImageLoaderDestroyed()
 {
+    qDebug() << Q_FUNC_INFO;
     mCountDestroyedImageLoader++;
-    if(mCountDestroyedImageLoader == mCountImageLoader.first){
+    if(mCountDestroyedImageLoader == mMaxDestroyedImageLoaders){
         if( mShutDown)
             deleteLater();
     }
