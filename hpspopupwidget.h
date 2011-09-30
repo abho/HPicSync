@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QStandardItemModel>
+#include <QDir>
 #include <QDebug>
 #include <QScrollBar>
 #include <QCloseEvent>
@@ -41,6 +42,7 @@ private slots:
     void on_mTreeView_collapsed(const QModelIndex &index);
 
     void on_mListView_clicked(const QModelIndex &index);
+    void findVisibleIndex();
 
 signals:
     void exit();
@@ -51,9 +53,11 @@ private:
     bool isVerticalOut;
     bool isHorizontalOut;
     Qt::MouseButtons mMousButtons;
+    QHash<QString,bool> mCheckedIndex;
 
     void initTreeView();
     void initListView();
+
 
 };
 

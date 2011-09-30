@@ -184,3 +184,8 @@ void HPSDirWatcher::stopWatching()
     mIsWatching = false;
     mTimer.stop();
 }
+
+void HPSDirWatcher::popupWatcher(QStringList list)
+{
+
+}

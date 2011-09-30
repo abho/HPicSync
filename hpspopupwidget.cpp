@@ -8,6 +8,7 @@ HPSPopupWidget::HPSPopupWidget(QWidget *parent) :
     ui->setupUi(this);
     initTreeView();
     initListView();
+    connect(ui->mTreeView->verticalScrollBar(),SIGNAL(sliderReleased()),this,SLOT(findVisibleIndex()));
 
 }
 
@@ -143,7 +144,11 @@ void HPSPopupWidget::showAndInit()
         ui->mListView->viewport()->setFocus();
     }else{
         ui->mTreeView->viewport()->setFocus();
+
+        findVisibleIndex();
     }
+
+
 }
 
 void HPSPopupWidget::expanded(const QModelIndex &index)
@@ -175,3 +180,22 @@ void HPSPopupWidget::clearSelection()
         ui->mListView->selectionModel()->clearSelection();
     }
 }
+
+void HPSPopupWidget::findVisibleIndex()
+{
+
+    QModelIndex last=   ui->mTreeView->indexAt(ui->mTreeView->viewport()->rect().bottomLeft());
+    QModelIndex tmp =ui->mTreeView->indexAt(ui->mTreeView->viewport()->rect().topLeft());
+    while(tmp.isValid()){
+        qDebug() << tmp.data(Qt::UserRole).toString();
+        qDebug() << "muh" <<  QDir(tmp.data(Qt::UserRole).toString()).entryList(QStringList() << "*.jpg" << "*.png").size();
+        tmp = ui->mTreeView->indexBelow(tmp);
+        if(tmp == last){
+            qDebug() << tmp.data(Qt::UserRole).toString();
+            qDebug() << "muh" <<  QDir(tmp.data(Qt::UserRole).toString()).entryList(QStringList() << "*.jpg" << "*.png").size();
+            break;
+        }
+    }
+}
+
+

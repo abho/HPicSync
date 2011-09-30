@@ -23,6 +23,7 @@ signals:
     void updateCurrent();
 public slots:
     void startFirstRun();
+    void popupWatcher(QStringList list);
 
     void imageLoaderFertig();
     void imageLoaderError(int errorPos);
@@ -46,6 +47,7 @@ private:
     bool mIsRunning;
     bool mIsImageLoaderRunning;
     bool mIsWatching;
+    QFileSystemWatcher mWatcher;
 
     void checkDir(const QString &dir);
     void prepareImageLoader(const QString &dir,const QFileInfoList &infoList);
